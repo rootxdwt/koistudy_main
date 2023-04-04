@@ -4,7 +4,7 @@
 
 - Ease-of-use: Promisified judging library with easy-to-use interface
 
-```javascript
+```js
 import { Judge } from '@/lib/judge/runjudge';
 
 const judge = async () => {
@@ -18,33 +18,31 @@ const judge = async () => {
 
 - Easy testing: The testing process can be written in a single JSON file.
 
-```json
+```js
 TestProgress: {
-    Tests:
-        [
-            {
-                tl: 1000, // You can apply a different time limit for all test case
-                in: ["1 2 3"],
-                out: ["6"]
-            },
-            {
-                tl: 2000,
-                in: ["4 5 6"],
-                out: ["15"]
-            },
-            {
-                tl: 1111,
-                in: ["30 40 50"],
-                out: ["120"]
-            },
-            {
-                tl: 900,
-                in: ["12 31 54"],
-                out: ["97"]
-            },
-        ],
-    Disallow:
-        ["for", "while", "goto"]
+	Tests: [
+		{
+			tl: 1000, // You can apply a different time limit for all test case
+			in: ['1 2 3'],
+			out: ['6'],
+		},
+		{
+			tl: 2000,
+			in: ['4 5 6'],
+			out: ['15'],
+		},
+		{
+			tl: 1111,
+			in: ['30 40 50'],
+			out: ['120'],
+		},
+		{
+			tl: 900,
+			in: ['12 31 54'],
+			out: ['97'],
+		},
+	];
+	Disallow: ['for', 'while', 'goto'];
 }
 ```
 
