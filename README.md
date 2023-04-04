@@ -52,4 +52,4 @@ TestProgress: {
 
 ### Service Features
 
-- Intuitive user interface: Focused on simplicity
+- Intuitive user interface: Focused on simplicity, Supports Dark Mode
