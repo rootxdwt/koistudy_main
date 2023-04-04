@@ -13,11 +13,26 @@
     "@types/node": "18.15.11",
     "@types/react": "18.0.31",
     "@types/react-dom": "18.0.11",
+    "@types/styled-components": "^5.1.26",
+    "@uiw/codemirror-extensions-langs": "^4.19.11",
+    "@uiw/codemirror-theme-github": "^4.19.11",
+    "@uiw/codemirror-theme-vscode": "^4.19.11",
+    "@uiw/react-codemirror": "^4.19.11",
     "eslint": "8.37.0",
     "eslint-config-next": "13.2.4",
+    "formidable": "^2.1.1",
     "next": "13.2.4",
+    "node-docker-api": "^1.1.22",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.8.0",
+    "react-markdown": "^8.0.6",
+    "rehype-highlight": "^6.0.0",
+    "shescape": "^1.6.5",
+    "styled-components": "^5.3.9",
     "typescript": "5.0.3"
+  },
+  "devDependencies": {
+    "@types/react-syntax-highlighter": "^15.5.6"
   }
 }
