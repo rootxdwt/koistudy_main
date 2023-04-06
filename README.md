@@ -1,6 +1,6 @@
 ### Library Features
 
-- Secure: Creates an individual docker container for every code submission. Every containers are sandboxed from the main server using Seccomp.
+- Secure: Creates an individual docker container for every code submission. Every containers are sandboxed from the main server.
 
 - Ease-of-use: Promisified judging library with easy-to-use interface
 
