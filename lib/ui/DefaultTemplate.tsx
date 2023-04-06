@@ -6,6 +6,33 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
   body,html {
     background-color: ${props => props.theme.Body.backgroundColor};
   }
+  .cm-editor {
+    background-color: transparent!important;
+    width: 100%;
+    flex-grow:1;
+}
+  .cm-activeLine {
+    background-color: ${props => props.theme.Button.backgroundColor}!important;
+}
+  .cm-scroller {
+    -ms-overflow-style: none;
+    ::-webkit-scrollbar {
+        width: 5px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: ${props => props.theme.Body.backgroundColor}; 
+      }
+       
+      ::-webkit-scrollbar-thumb {
+        background: #888; 
+        border-radius: 2.5px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+      }
+}
 `
 
 export const Holder = styled.div`

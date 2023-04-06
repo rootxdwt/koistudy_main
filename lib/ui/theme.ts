@@ -12,7 +12,7 @@ export const DarkTheme = {
     },
     Button: {
         backgroundColor: "rgb(40,40,40)",
-        textColor: "tgb(60,60,60)"
+        textColor: "rgb(60,60,60)"
     },
     Title: {
         textColor: "#fff",

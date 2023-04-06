@@ -1,9 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Judge } from '@/lib/judge/runjudge'
+import { MongoClient } from 'mongodb'
 
-//temp
-import { Problems } from '@/lib/temp/db'
-//temp
 
 type Data = {
     status: string
@@ -16,12 +14,20 @@ export default async function handler(
     res: NextApiResponse<Data>
 ) {
     try {
+        const url = 'mongodb://localhost:27017';
+        const client = new MongoClient(url);
+
+        const db = client.db("main");
+        const collection = db.collection('Problems');
+        await client.connect();
+
         const { id } = req.query
         if (typeof id != "string") {
             res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
             return
         }
-        const { TestProgress, SupportedLang, Mem } = Problems.filter(elem => elem.ProblemCode == parseInt(id))[0]
+        const data = await collection.findOne({ ProblemCode: parseInt(id) })
+        const { TestProgress, SupportedLang, Mem } = JSON.parse(JSON.stringify(data))
         if (req.method !== 'POST') {
             res.status(405).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
             return
@@ -42,7 +48,6 @@ export default async function handler(
         res.status(200).json({ status: matchedTestCase.every(e => e.matched) ? 'Success' : 'Error', matchedTestCase: matchedTestCase, errorStatement: "NONE" })
     } catch (e) {
         let statement: "CE" | "ISE" = e == "Compile error" ? "CE" : "ISE"
-
         res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })
     }
 }

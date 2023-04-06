@@ -1,16 +1,30 @@
-import { useEffect, useState } from "react"
-import ReactMarkdown from "react-markdown"
-import rehypeHighlight from 'rehype-highlight'
+import {
+    useEffect, useState, createElement,
+    Fragment,
+} from "react"
+
 import { BsCircle, BsXLg } from "react-icons/bs"
-import { TbLetterT } from 'react-icons/tb'
+import { TbLetterT, TbCopy, TbCheck } from 'react-icons/tb'
 import styled, { keyframes, ThemeProvider } from "styled-components"
 import { Holder, Button } from "@/lib/ui/DefaultTemplate"
 import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
-import { Problems } from "@/lib/temp/db";
 import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultTemplate"
-const Internal = styled.div<{ rating: Number }>`
+
+import remarkRehype from "remark-rehype";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import rehypeReact from "rehype-react";
+import rehypeSlug from "rehype-slug";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+
+import copy from 'copy-to-clipboard';
+
+import { MongoClient } from 'mongodb'
+
+const Internal = styled.div<{ rating: number }>`
 width: 100%;
 & h1 {
     color: ${props => props.theme.Body.TextColorLevels[0]};
@@ -24,7 +38,7 @@ width: 100%;
 & h3.tch3 {
     color: ${props => props.theme.Body.TextColorLevels[2]};
     font-size: 14px;
-    margin-left: 30px;
+    margin-left:0;
 }
 & p {
     color: ${props => props.theme.Body.TextColorLevels[3]};
@@ -76,31 +90,6 @@ position:relative;
 display;flex;
 overflow: hidden;
 margin-top: 20px;
-& .cm-editor {
-    background-color: ${props => props.theme.Body.backgroundColor}!important;
-}
-& .cm-activeLine {
-    background-color: ${props => props.theme.Button.backgroundColor}!important;
-}
-& .cm-scroller {
-    -ms-overflow-style: none;
-    ::-webkit-scrollbar {
-        width: 5px;
-      }
-      
-      ::-webkit-scrollbar-track {
-        background: ${props => props.theme.Body.backgroundColor}; 
-      }
-       
-      ::-webkit-scrollbar-thumb {
-        background: #888; 
-        border-radius: 2.5px;
-      }
-      
-      ::-webkit-scrollbar-thumb:hover {
-        background: #555; 
-      }
-}
 & textarea {
     position:absolute;
     background-color: transparent;
@@ -128,8 +117,8 @@ margin-top: 20px;
 `
 
 const LangBtn = styled.div<{ isActive: boolean }>`
-margin-right: 30px;
 cursor:pointer;
+margin-right: 10px;
 color: ${props => props.isActive ? props.theme.Body.TextColorLevels[0] : props.theme.Body.TextColorLevels[3]};
 `
 
@@ -169,8 +158,8 @@ display:flex;
     width: 80vw;
 }
 @media (max-width: 700px) {
-    width: 100vw;
-    left:0;
+    width: 80vw;
+    left: 10vw;
 }
 flex-direction: column;
 align-items:flex-start;
@@ -178,6 +167,8 @@ background-color:${props => props.theme.Body.backgroundColor};
 animation: ${Showresult} 0.5s cubic-bezier(.5,0,.56,.99);
 height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "60px"};
 cursor:pointer;
+outline:none;
+-webkit-tap-highlight-color: rgba(0,0,0,0);
 transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 
 & h3 {
@@ -195,7 +186,6 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 }
 & p {
     margin:0;
-    padding-right: 30px;
     font-size: 10pt;
 }
 & .top {
@@ -209,7 +199,6 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 & .top .tHolder {
     display:flex;
     flex-direction: row;
-    padding-left: 30px;
     align-items:center;
 
 }
@@ -227,7 +216,6 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 }
 & p.ptge {
     font-size: 13px;
-    margin-left: 30px;
     color: ${props => props.theme.Title.subColor};
 }
 `
@@ -244,7 +232,6 @@ interface JudgeResponse {
 }
 
 const TCholder = styled.div`
-margin: 0px 30px;
 margin-top: 10px;
 `
 
@@ -273,6 +260,73 @@ align-items:center;
 }
 `
 
+const CodeHolder = styled.div`
+padding: 10px 0px;
+border-radius: 10px;
+position:relative;
+display:flex;
+align-items:center;
+
+`
+
+const CopyBtn = styled.span`
+position:absolute;
+right: 0px;
+top: 10px;
+background-color: ${props => props.theme.Button.backgroundColor};
+width: 30px;
+height: 30px;
+border-radius: 10px;
+color: ${props => props.theme.Body.TextColorLevels[3]};
+cursor: pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+&:hover{
+    color: ${props => props.theme.Body.TextColorLevels[0]};
+}
+`
+
+const CodeElem = (prop: any) => {
+    const [isCopied, setIsCopied] = useState(false)
+
+    const copyText = (text: string) => {
+        setIsCopied(true)
+        copy(text)
+        setTimeout(() => setIsCopied(false), 1000)
+    }
+
+    let lang: "cpp" | "javascript" | "go" | "shell" = "shell"
+    if (typeof prop.children[0].props.className == "string") {
+        lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
+    }
+    return <CodeHolder>
+        <CodeMirror
+            editable={false}
+            basicSetup={
+                {
+                    drawSelection: false,
+                    lineNumbers: false,
+                    autocompletion: false,
+                    foldGutter: false,
+                    searchKeymap: false,
+                    highlightActiveLine: false,
+                    highlightActiveLineGutter: false
+                }
+            }
+            extensions={
+                [
+                    loadLanguage(lang)!
+                ].filter(Boolean)
+            }
+            value={prop.children[0].props.children[0]}
+            theme={"dark"}
+        /><CopyBtn onClick={() => copyText(prop.children[0].props.children[0])}>
+            {isCopied ? <TbCheck /> : <TbCopy />}
+        </CopyBtn>
+    </CodeHolder>
+}
+
 export default function Problem(data: any) {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved } = data.Oth
     const [loaded, setLoadState] = useState<boolean>()
@@ -282,6 +336,7 @@ export default function Problem(data: any) {
     const [isResultExtended, setExtended] = useState(false)
 
     const [currentCodeData, setCodeData] = useState<string>("")
+    const [markdownReact, setMdSource] = useState(<></>);
 
     const detCode = async (t: string, c: string) => {
         setSubmitShowState(true)
@@ -291,7 +346,24 @@ export default function Problem(data: any) {
             setContextData(jsn)
         }
     }
-    useEffect(() => { setLoadState(true) }, [])
+    useEffect(() => {
+        unified()
+            .use(remarkParse)
+            .use(remarkMath)
+            .use(remarkRehype)
+            .use(rehypeSlug)
+            .use(rehypeKatex)
+            .use(rehypeReact, {
+                createElement,
+                Fragment,
+                components: { pre: CodeElem },
+            })
+            .process(Script)
+            .then((data) => {
+                setMdSource(data.result);
+                setLoadState(true)
+            });
+    }, [])
     return (
         <ThemeProvider theme={LightTheme}>
             <GlobalStyle />
@@ -313,7 +385,7 @@ export default function Problem(data: any) {
                             </Itm>
                         </div>
 
-                        <ReactMarkdown rehypePlugins={[rehypeHighlight]}>{Script}</ReactMarkdown>
+                        {markdownReact}
                         <h1>
                             Submit
                         </h1>
@@ -334,6 +406,7 @@ export default function Problem(data: any) {
                             <CodeMirror
                                 basicSetup={
                                     {
+                                        drawSelection: false,
                                         lineNumbers: false,
                                         autocompletion: false,
                                         foldGutter: false,
@@ -391,11 +464,18 @@ export default function Problem(data: any) {
 }
 
 export const getServerSideProps = async (context: any) => {
+    const url = 'mongodb://localhost:27017';
+    const client = new MongoClient(url);
+
+    const db = client.db("main");
+    const collection = db.collection('Problems');
+    await client.connect();
     const { id } = context.query;
 
     try {
         if (typeof id == "string") {
-            const { TestProgress, ...Oth } = Problems.filter(item => item.ProblemCode === parseInt(id))[0]
+            const findDC = await collection.findOne({ ProblemCode: parseInt(id) })
+            const { TestProgress, ...Oth } = JSON.parse(JSON.stringify(findDC))
             return {
                 props: { Oth }
             };

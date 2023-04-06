@@ -83,13 +83,11 @@ export class Judge {
         return await new Promise((resolve, reject) => {
             let udata = '';
             stream.on('error', async (data: any) => {
-                console.log(data.toString())
                 await Terminate(cont)
                 reject("Compile error")
             })
             stream.on('end', async () => {
                 if (udata.length > 0) {
-                    console.log(udata)
                     await Terminate(cont)
                     reject("Compile error")
                 } else {
