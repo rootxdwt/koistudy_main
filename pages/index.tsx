@@ -10,7 +10,6 @@ import { DarkTheme, LightTheme } from '@/lib/ui/theme'
 import { Holder } from '@/lib/ui/DefaultTemplate'
 import { TbBrandPython, TbBrandGolang, TbBrandCpp } from "react-icons/tb"
 
-
 const Probcard = styled.div`
 width: 100%;
 border-top-left-radius: 20px;
@@ -171,17 +170,20 @@ export default function Home() {
     setLoadState(true)
   }, [])
   return (
-    <ThemeProvider theme={LightTheme}>
+    <ThemeProvider theme={DarkTheme}>
       <GlobalStyle />
       {loadState ?
-        <Holder>
-          <h1>추천 문제</h1>
-          <p>오은총님의 수준에 맞는 추천 문제입니다</p>
-          <Myprob problems={Tproblem}></Myprob>
-          {/* <h1>대회</h1>
+        <>
+          <Holder>
+            <h1>추천 문제</h1>
+            <p>오은총님의 수준에 맞는 추천 문제입니다</p>
+            <Myprob problems={Tproblem}></Myprob>
+            {/* <h1>대회</h1>
           <p>현재 진행되고 있는 대회입니다</p>
           <Probcard></Probcard> */}
-        </Holder> : <></>
+          </Holder>
+        </>
+        : <></>
       }
     </ThemeProvider>
   )

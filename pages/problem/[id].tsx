@@ -118,7 +118,7 @@ margin-top: 20px;
 
 const LangBtn = styled.div<{ isActive: boolean }>`
 cursor:pointer;
-margin-right: 10px;
+margin-right: 20px;
 color: ${props => props.isActive ? props.theme.Body.TextColorLevels[0] : props.theme.Body.TextColorLevels[3]};
 `
 
@@ -296,7 +296,7 @@ const CodeElem = (prop: any) => {
         setTimeout(() => setIsCopied(false), 1000)
     }
 
-    let lang: "cpp" | "javascript" | "go" | "shell" = "shell"
+    let lang: "cpp" | "python" | "go" | "shell" = "shell"
     if (typeof prop.children[0].props.className == "string") {
         lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
     }
@@ -365,100 +365,101 @@ export default function Problem(data: any) {
             });
     }, [])
     return (
-        <ThemeProvider theme={LightTheme}>
+        <ThemeProvider theme={DarkTheme}>
             <GlobalStyle />
             {loaded ?
-                <Holder>
-                    {isSubmitShowing ?
-                        <Submitted />
-                        :
-                        <></>
-                    }
-                    <Internal rating={rating}>
-                        <h1>{ProblemName}</h1>
-                        <div className="tags">
-                            <Itm>
-                                <p className="grad">Rating {rating}</p>
-                            </Itm>
-                            <Itm>
-                                <p className="min">{solved} solved</p>
-                            </Itm>
-                        </div>
+                <>
+                    <Holder>
+                        {isSubmitShowing ?
+                            <Submitted />
+                            :
+                            <></>
+                        }
+                        <Internal rating={rating}>
+                            <h1>{ProblemName}</h1>
+                            <div className="tags">
+                                <Itm>
+                                    <p className="grad">Rating {rating}</p>
+                                </Itm>
+                                <Itm>
+                                    <p className="min">{solved} solved</p>
+                                </Itm>
+                            </div>
 
-                        {markdownReact}
-                        <h1>
-                            Submit
-                        </h1>
-                        <LangSelector>
-                            {SupportedLang.map((elem: string, index: number) => {
-                                return (
-                                    <LangBtn
-                                        onClick={() => setCodeType(elem)}
-                                        isActive={elem === currentCodeType}
-                                        key={index}
-                                    >
-                                        {elem}
-                                    </LangBtn>
-                                )
-                            })}
-                        </LangSelector>
-                        <CodeEditArea>
-                            <CodeMirror
-                                basicSetup={
-                                    {
-                                        drawSelection: false,
-                                        lineNumbers: false,
-                                        autocompletion: false,
-                                        foldGutter: false,
-                                        searchKeymap: false,
-                                        highlightActiveLine: false,
-                                        highlightActiveLineGutter: false
+                            {markdownReact}
+                            <h1>
+                                Submit
+                            </h1>
+                            <LangSelector>
+                                {SupportedLang.map((elem: string, index: number) => {
+                                    return (
+                                        <LangBtn
+                                            onClick={() => setCodeType(elem)}
+                                            isActive={elem === currentCodeType}
+                                            key={index}
+                                        >
+                                            {elem.charAt(0).toUpperCase() + elem.slice(1)}
+                                        </LangBtn>
+                                    )
+                                })}
+                            </LangSelector>
+                            <CodeEditArea>
+                                <CodeMirror
+                                    basicSetup={
+                                        {
+                                            drawSelection: false,
+                                            lineNumbers: false,
+                                            autocompletion: false,
+                                            foldGutter: false,
+                                            searchKeymap: false,
+                                            highlightActiveLine: false,
+                                            highlightActiveLineGutter: false
+                                        }
                                     }
-                                }
-                                extensions={
-                                    [
-                                        loadLanguage(currentCodeType == "python" ? "python" : currentCodeType == "golang" ? "go" : "cpp")!
-                                    ].filter(Boolean)
-                                }
-                                onChange={(v, _) => setCodeData(v)}
-                                theme={"dark"}
-                                placeholder={"Submit your code"}
-                                height={"300px"}
-                            />
-                        </CodeEditArea>
+                                    extensions={
+                                        [
+                                            loadLanguage(currentCodeType)!
+                                        ].filter(Boolean)
+                                    }
+                                    onChange={(v, _) => setCodeData(v)}
+                                    theme={"dark"}
+                                    placeholder={"Submit your code"}
+                                    height={"300px"}
+                                />
+                            </CodeEditArea>
 
-                        {contextData && !isSubmitShowing ?
-                            <SubmissionResult
-                                isExtended={isResultExtended}
-                                tcLength={contextData.matchedTestCase.length}
-                                isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
-                                onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}
-                            >
-                                <div className="top">
-                                    <div className="tHolder">
-                                        <span className="circle"></span><h3>{contextData.status}</h3>
+                            {contextData && !isSubmitShowing ?
+                                <SubmissionResult
+                                    isExtended={isResultExtended}
+                                    tcLength={contextData.matchedTestCase.length}
+                                    isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
+                                    onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}
+                                >
+                                    <div className="top">
+                                        <div className="tHolder">
+                                            <span className="circle"></span><h3>{contextData.status}</h3>
+                                        </div>
+                                        <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "테스트 케이스 오류" : "맞았습니다"}</p>
                                     </div>
-                                    <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "테스트 케이스 오류" : "맞았습니다"}</p>
-                                </div>
-                                <div className="btm">
-                                    <h3 className="tch3">Test Cases</h3>
-                                    <p className="ptge">{(contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100}%</p>
-                                    <TCholder>
-                                        {contextData.matchedTestCase.map((elem, index) => {
-                                            return (
-                                                <TcItm isRight={elem.matched} key={index}>
-                                                    <div className="TCtitle">{index}</div>
-                                                    <div className="TCwr">{elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}</div>
-                                                </TcItm>
-                                            )
-                                        })}
-                                    </TCholder>
-                                </div>
-                            </SubmissionResult> : <></>}
-                        <Submission><Button onClick={() => detCode(currentCodeType, currentCodeData)}><p>Submit</p></Button></Submission>
+                                    <div className="btm">
+                                        <h3 className="tch3">Test Cases</h3>
+                                        <p className="ptge">{(contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100}%</p>
+                                        <TCholder>
+                                            {contextData.matchedTestCase.map((elem, index) => {
+                                                return (
+                                                    <TcItm isRight={elem.matched} key={index}>
+                                                        <div className="TCtitle">{index}</div>
+                                                        <div className="TCwr">{elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}</div>
+                                                    </TcItm>
+                                                )
+                                            })}
+                                        </TCholder>
+                                    </div>
+                                </SubmissionResult> : <></>}
+                            <Submission><Button onClick={() => detCode(currentCodeType, currentCodeData)}><p>Submit</p></Button></Submission>
 
-                    </Internal>
-                </Holder> : <></>}
+                        </Internal>
+                    </Holder></> : <></>}
         </ThemeProvider>
     )
 }

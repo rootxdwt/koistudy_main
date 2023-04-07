@@ -39,8 +39,8 @@ export const Holder = styled.div`
 display:flex;
 flex-direction: column;
 width: 800px;
+padding-top: 100px;
 color: ${props => props.theme.Title.textColor};
-padding-top: 80px;
 margin-left:auto;
 margin-right:auto;
 @media(max-width: 1300px) {
@@ -53,7 +53,7 @@ margin-right:auto;
 }
 & h1 {
   margin:0;
-  margin-top:30px;
+  margin-top:20px;
 }
 & p {
   color: ${props => props.theme.Title.subColor};
