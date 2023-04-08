@@ -31,23 +31,26 @@ export class Judge {
     contName: string
     filePrefix: string
     memory: Number
-    constructor(lang: "cpp" | "python" | "golang", memory: number) {
+    constructor(lang: "cpp" | "python" | "go", memory: number) {
         this.lang = lang
         this.memory = memory
-        this.filePrefix = lang == "python" ? "py" : lang == "golang" ? "go" : "cpp"
+        this.filePrefix = lang == "python" ? "py" : lang == "go" ? "go" : "cpp"
         this.contName = crypto.randomBytes(10).toString('hex')
     }
 
     CreateRunEnv = async (codeData: string) => {
         try {
-            let compiler = this.lang == "cpp" ? "gcc" : this.lang == "python" ? "python:alpine3.17" : this.lang == "golang" ? "golang:alpine3.17" : "gcc"
+            let compiler = this.lang == "cpp" ? "gcc" : this.lang == "python" ? "python:alpine3.17" : this.lang == "go" ? "golang:alpine3.17" : "gcc"
             const cont = await docker.container.create({
                 Image: compiler,
                 name: this.contName,
+                UsernsMode: 'host',
                 NetworkDisabled: true,
                 WorkingDir: Preferences.workingDir,
                 HostConfig: {
-                    Memory: this.memory
+                    Memory: this.memory,
+                    Privileged: false,
+                    CpuPercent: 3,
                 },
                 Entrypoint: ["/bin/sh", "-c", `echo ${shescape.quote(codeData)} > ${this.contName}.${this.filePrefix} && sleep ${Preferences.defaultContainerPersistTime}`],
             })
@@ -66,12 +69,12 @@ export class Judge {
                 break;
             case "python":
                 return true
-            case "golang":
+            case "go":
                 compileCommand = `go build -o ${this.contName} ${this.contName}.go`
                 break;
             default:
-                await cont.stop({ force: true })
-                return false
+                await Terminate(cont)
+                throw new Error(`Unsupported language`);
         }
         const containerExecutor = await cont.exec.create({
             Cmd: ["/bin/sh", "-c", compileCommand],
@@ -106,13 +109,14 @@ export class Judge {
         let runCommand: string
         switch (this.lang) {
             case "cpp":
-            case "golang":
+            case "go":
                 runCommand = `./${this.contName}`
                 break;
             case "python":
                 runCommand = `python3 ${this.contName}.py`
                 break;
             default:
+                await Terminate(cont)
                 throw new Error(`Unsupported language`);
         }
 
@@ -120,7 +124,7 @@ export class Judge {
 
         let isTLE: Array<boolean> = []
         await Promise.all(test["Tests"].map((elem, index) => {
-            const tle = setTimeout(() => { isTLE[index] = true; Terminate(cont) }, elem.tl)
+            const tle = setTimeout(() => { isTLE[index] = true; if (test["Tests"].length - 1 <= index) Terminate(cont) }, elem.tl)
             return new Promise((resolve, reject) => {
                 let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
                 baseCommand.stdin.write(elem.in.join("\n"))

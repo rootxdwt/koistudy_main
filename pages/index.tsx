@@ -9,6 +9,10 @@ import { ThemeProvider } from 'styled-components'
 import { DarkTheme, LightTheme } from '@/lib/ui/theme'
 import { Holder } from '@/lib/ui/DefaultTemplate'
 import { TbBrandPython, TbBrandGolang, TbBrandCpp } from "react-icons/tb"
+import { Header } from '@/lib/ui/header'
+
+import { useSelector } from 'react-redux';
+import { StateType } from '@/lib/store'
 
 const Probcard = styled.div`
 width: 100%;
@@ -139,13 +143,12 @@ margin-right: 30px;
 
 const Myprob = (props: { problems: Array<sugprobDetails> }) => {
   const router = useRouter()
-
   return (
     <>
       <HcardHolder>
         {props.problems.map((item, index) => {
           return (
-            <Hcard rating={item.rating} key={index} onClick={() => router.push(`problem/${item.ProblemCode}`)}>
+            <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}`)}>
               <p>Rating {item.rating}</p>
               <h2>{item.ProblemName}</h2>
               <span>
@@ -165,18 +168,17 @@ const Myprob = (props: { problems: Array<sugprobDetails> }) => {
 
 export default function Home() {
   const [loadState, setLoadState] = useState(false)
-
+  const isDark = useSelector<StateType, boolean>(state => state.theme);
   useEffect(() => {
     setLoadState(true)
   }, [])
   return (
-    <ThemeProvider theme={DarkTheme}>
+    <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
+      <Header />
       <GlobalStyle />
       {loadState ?
         <>
           <Holder>
-            <h1>추천 문제</h1>
-            <p>오은총님의 수준에 맞는 추천 문제입니다</p>
             <Myprob problems={Tproblem}></Myprob>
             {/* <h1>대회</h1>
           <p>현재 진행되고 있는 대회입니다</p>

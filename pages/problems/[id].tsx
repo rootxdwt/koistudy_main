@@ -21,7 +21,10 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
 import copy from 'copy-to-clipboard';
+import { Header } from "@/lib/ui/header"
 
+import { useSelector } from 'react-redux';
+import { StateType } from "@/lib/store"
 import { MongoClient } from 'mongodb'
 
 const Internal = styled.div<{ rating: number }>`
@@ -69,8 +72,7 @@ width: 100%;
 `
 
 const Itm = styled.div`
-padding: 5px 15px;
-background-color: ${props => props.theme.Button.backgroundColor};
+padding: 5px 0px;
 margin-right: 20px;
 border-radius: 10px;
 `
@@ -122,9 +124,18 @@ margin-right: 20px;
 color: ${props => props.isActive ? props.theme.Body.TextColorLevels[0] : props.theme.Body.TextColorLevels[3]};
 `
 
+const ShowSub = keyframes`
+0%{
+    opacity:0;
+}
+100%{
+    opacity:1;
+}
+`
+
 const Submitted = styled.div`
 position:fixed;
-z-index:2;
+z-index:11;
 width: 100vw;
 height: 100vh;
 backdrop-filter: hue(0.1);
@@ -133,6 +144,7 @@ align-items:center;
 justify-content:center;
 top:0;
 left:0;
+animation: ${ShowSub} 0.2s cubic-bezier(.5,0,.56,.99);
 color: ${props => props.theme.Body.backgroundColor};
 background-color: rgba(0,0,0,.7);
 `
@@ -273,11 +285,11 @@ const CopyBtn = styled.span`
 position:absolute;
 right: 0px;
 top: 10px;
-background-color: ${props => props.theme.Button.backgroundColor};
 width: 30px;
 height: 30px;
 border-radius: 10px;
 color: ${props => props.theme.Body.TextColorLevels[3]};
+background-color: ${props => props.theme.Container.backgroundColor};
 cursor: pointer;
 display:flex;
 align-items:center;
@@ -289,6 +301,7 @@ justify-content:center;
 
 const CodeElem = (prop: any) => {
     const [isCopied, setIsCopied] = useState(false)
+    const [IsActive, setIsActive] = useState(false)
 
     const copyText = (text: string) => {
         setIsCopied(true)
@@ -300,7 +313,7 @@ const CodeElem = (prop: any) => {
     if (typeof prop.children[0].props.className == "string") {
         lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
     }
-    return <CodeHolder>
+    return <CodeHolder onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
         <CodeMirror
             editable={false}
             basicSetup={
@@ -321,9 +334,10 @@ const CodeElem = (prop: any) => {
             }
             value={prop.children[0].props.children[0]}
             theme={"dark"}
-        /><CopyBtn onClick={() => copyText(prop.children[0].props.children[0])}>
+        />
+        {IsActive ? <CopyBtn onClick={() => copyText(prop.children[0].props.children[0])}>
             {isCopied ? <TbCheck /> : <TbCopy />}
-        </CopyBtn>
+        </CopyBtn> : <></>}
     </CodeHolder>
 }
 
@@ -337,6 +351,8 @@ export default function Problem(data: any) {
 
     const [currentCodeData, setCodeData] = useState<string>("")
     const [markdownReact, setMdSource] = useState(<></>);
+
+    const isDark = useSelector<StateType, boolean>(state => state.theme);
 
     const detCode = async (t: string, c: string) => {
         setSubmitShowState(true)
@@ -365,7 +381,8 @@ export default function Problem(data: any) {
             });
     }, [])
     return (
-        <ThemeProvider theme={DarkTheme}>
+        <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
+            <Header />
             <GlobalStyle />
             {loaded ?
                 <>
