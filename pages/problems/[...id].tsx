@@ -129,44 +129,11 @@ justify-content: flex-start;
 margin-bottom: 100px;
 `
 
-const Description = (props: { mdData: string, SupportedLang: Array<"go" | "cpp" | "python">, submitFn: Function, problemName: string, solved: number, rating: number }) => {
-    const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
-    const [markdownReact, setMdSource] = useState(<></>);
+const CodeSubmit = (props: { submitFn: Function, SupportedLang: Array<"go" | "cpp" | "python">, }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
-    useEffect(() => {
-        unified()
-            .use(remarkParse)
-            .use(remarkMath)
-            .use(remarkRehype)
-            .use(rehypeSlug)
-            .use(rehypeKatex)
-            .use(rehypeReact, {
-                createElement,
-                Fragment,
-                components: { pre: CodeElem },
-            })
-            .process(props.mdData)
-            .then((data) => {
-                setMdSource(data.result);
-            });
-    }, [])
+    const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
     return (
-
         <>
-            <h1>{props.problemName}</h1>
-            <div className="tags">
-                <Itm>
-                    <p className="grad">Rating {props.rating}</p>
-                </Itm>
-                <Itm>
-                    <p className="min">{props.solved} solved</p>
-                </Itm>
-            </div>
-            {markdownReact}
-
-            <h1>
-                Submit
-            </h1>
             <LangSelector>
                 {props.SupportedLang.map((elem: "cpp" | "go" | "python", index: number) => {
                     return (
@@ -205,6 +172,47 @@ const Description = (props: { mdData: string, SupportedLang: Array<"go" | "cpp" 
                 />
             </CodeEditArea>
             <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}><p>Submit</p></Button></Submission>
+        </>
+
+    )
+}
+
+const Description = (props: { mdData: string, problemName: string, solved: number, rating: number }) => {
+    const [markdownReact, setMdSource] = useState(<></>);
+    useEffect(() => {
+        unified()
+            .use(remarkParse)
+            .use(remarkMath)
+            .use(remarkRehype)
+            .use(rehypeSlug)
+            .use(rehypeKatex)
+            .use(rehypeReact, {
+                createElement,
+                Fragment,
+                components: { pre: CodeElem },
+            })
+            .process(props.mdData)
+            .then((data) => {
+                setMdSource(data.result);
+            });
+    }, [])
+    return (
+
+        <>
+            <h1>{props.problemName}</h1>
+            <div className="tags">
+                <Itm>
+                    <p className="grad">Rating {props.rating}</p>
+                </Itm>
+                <Itm>
+                    <p className="min">{props.solved} solved</p>
+                </Itm>
+            </div>
+            {markdownReact}
+
+            <h1>
+                Submit
+            </h1>
         </>
     )
 }
@@ -461,8 +469,6 @@ export default function Problem(data: any) {
                             {router.query.id![1] == "description" ?
                                 <Description
                                     mdData={Script}
-                                    SupportedLang={SupportedLang}
-                                    submitFn={(a: string, b: string) => detCode(a, b)}
                                     problemName={ProblemName}
                                     solved={solved}
                                     rating={rating}
@@ -471,7 +477,6 @@ export default function Problem(data: any) {
                                 router.query.id![1] == "discussion"
                                     ?
                                     <>
-
                                     </>
                                     :
                                     router.query.id![1] == "champion"
@@ -484,6 +489,10 @@ export default function Problem(data: any) {
 
                                         </>
                             }
+                            <CodeSubmit
+                                SupportedLang={SupportedLang}
+                                submitFn={(a: string, b: string) => detCode(a, b)}
+                            ></CodeSubmit>
                             {contextData && !isSubmitShowing ?
 
                                 <SubmissionResult
