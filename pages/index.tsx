@@ -148,7 +148,7 @@ const Myprob = (props: { problems: Array<sugprobDetails> }) => {
       <HcardHolder>
         {props.problems.map((item, index) => {
           return (
-            <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}`)}>
+            <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}/description`)}>
               <p>Rating {item.rating}</p>
               <h2>{item.ProblemName}</h2>
               <span>
@@ -169,12 +169,13 @@ const Myprob = (props: { problems: Array<sugprobDetails> }) => {
 export default function Home() {
   const [loadState, setLoadState] = useState(false)
   const isDark = useSelector<StateType, boolean>(state => state.theme);
+  const router = useRouter()
   useEffect(() => {
     setLoadState(true)
   }, [])
   return (
     <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-      <Header />
+      <Header at={[{ name: "home", action: () => router.push("/") }, { name: "Problems", action: () => router.push("/problems") }]} currentPage="home" />
       <GlobalStyle />
       {loadState ?
         <>

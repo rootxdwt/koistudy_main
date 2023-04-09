@@ -26,90 +26,85 @@ import { Header } from "@/lib/ui/header"
 import { useSelector } from 'react-redux';
 import { StateType } from "@/lib/store"
 import { MongoClient } from 'mongodb'
+import { useRouter } from "next/router"
 
-const Internal = styled.div<{ rating: number }>`
-width: 100%;
-& h1 {
+
+const CodeHolder = styled.div`
+padding: 10px 0px;
+border-radius: 10px;
+position:relative;
+display:flex;
+align-items:center;
+
+`
+
+const CopyBtn = styled.span`
+position:absolute;
+right: 0px;
+top: 10px;
+width: 30px;
+height: 30px;
+border-radius: 10px;
+color: ${props => props.theme.Body.TextColorLevels[3]};
+background-color: ${props => props.theme.Container.backgroundColor};
+cursor: pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+&:hover{
     color: ${props => props.theme.Body.TextColorLevels[0]};
 }
-& h2 {
-    color: ${props => props.theme.Body.TextColorLevels[2]};
-}
-& h3 {
-    color: ${props => props.theme.Body.TextColorLevels[2]};
-}
-& h3.tch3 {
-    color: ${props => props.theme.Body.TextColorLevels[2]};
-    font-size: 14px;
-    margin-left:0;
-}
-& p {
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-    line-height: 30px;
-}
-& p.grad {
-    font-size: 9pt;
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-    text-align: center;
-    margin: 0;
-    text-align:left;
-    width: 50px;
-    background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 18px;
-  }
-  p.min {
-    font-size: 9pt;
-    margin:0;
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-    line-height: 18px;
-  }
-  & .tags {
-    display:flex;
-    margin-top: 20px;
-  }
 `
 
-const Itm = styled.div`
-padding: 5px 0px;
-margin-right: 20px;
-border-radius: 10px;
-`
+const CodeElem = (prop: any) => {
+    const [isCopied, setIsCopied] = useState(false)
+    const [IsActive, setIsActive] = useState(false)
+
+    const copyText = (text: string) => {
+        setIsCopied(true)
+        copy(text)
+        setTimeout(() => setIsCopied(false), 1000)
+    }
+
+    let lang: "cpp" | "python" | "go" | "shell" = "shell"
+    if (typeof prop.children[0].props.className == "string") {
+        lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
+    }
+    return <CodeHolder onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
+        <CodeMirror
+            editable={false}
+            basicSetup={
+                {
+                    drawSelection: false,
+                    lineNumbers: false,
+                    autocompletion: false,
+                    foldGutter: false,
+                    searchKeymap: false,
+                    highlightActiveLine: false,
+                    highlightActiveLineGutter: false
+                }
+            }
+            extensions={
+                [
+                    loadLanguage(lang)!
+                ].filter(Boolean)
+            }
+            value={prop.children[0].props.children[0]}
+            theme={"dark"}
+        />
+        {IsActive ? <CopyBtn onClick={() => copyText(prop.children[0].props.children[0])}>
+            {isCopied ? <TbCheck /> : <TbCopy />}
+        </CopyBtn> : <></>}
+    </CodeHolder>
+}
 
 
-const Submission = styled.div`
-width: 100%;
-height: 50px;
-display:flex;
-align-items: center;
-justify-content: flex-start;
-margin-bottom: 100px;
-`
+//aa
 
 const CodeEditArea = styled.div`
-position:relative;
 display;flex;
 overflow: hidden;
 margin-top: 20px;
-& textarea {
-    position:absolute;
-    background-color: transparent;
-    border:none;
-    width: 100%;
-    color:transparent;
-    padding: 0.5em;
-    font-family: monospace;
-    caret-color: white;
-    resize: none;
-    white-space: pre;
-}
-& textarea:focus {
-    outline:none;
-}
-& pre {
-    height: 300px;
-}
 `
 
 const LangSelector = styled.div`
@@ -123,6 +118,99 @@ cursor:pointer;
 margin-right: 20px;
 color: ${props => props.isActive ? props.theme.Body.TextColorLevels[0] : props.theme.Body.TextColorLevels[3]};
 `
+
+
+const Submission = styled.div`
+width: 100%;
+height: 50px;
+display:flex;
+align-items: center;
+justify-content: flex-start;
+margin-bottom: 100px;
+`
+
+const Description = (props: { mdData: string, SupportedLang: Array<"go" | "cpp" | "python">, submitFn: Function, problemName: string, solved: number, rating: number }) => {
+    const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
+    const [markdownReact, setMdSource] = useState(<></>);
+    const [currentCodeData, setCodeData] = useState<string>("")
+    useEffect(() => {
+        unified()
+            .use(remarkParse)
+            .use(remarkMath)
+            .use(remarkRehype)
+            .use(rehypeSlug)
+            .use(rehypeKatex)
+            .use(rehypeReact, {
+                createElement,
+                Fragment,
+                components: { pre: CodeElem },
+            })
+            .process(props.mdData)
+            .then((data) => {
+                setMdSource(data.result);
+            });
+    }, [])
+    return (
+
+        <>
+            <h1>{props.problemName}</h1>
+            <div className="tags">
+                <Itm>
+                    <p className="grad">Rating {props.rating}</p>
+                </Itm>
+                <Itm>
+                    <p className="min">{props.solved} solved</p>
+                </Itm>
+            </div>
+            {markdownReact}
+
+            <h1>
+                Submit
+            </h1>
+            <LangSelector>
+                {props.SupportedLang.map((elem: "cpp" | "go" | "python", index: number) => {
+                    return (
+                        <LangBtn
+                            onClick={() => setCodeType(elem)}
+                            isActive={elem === currentCodeType}
+                            key={index}
+                        >
+                            {elem.charAt(0).toUpperCase() + elem.slice(1)}
+                        </LangBtn>
+                    )
+                })}
+            </LangSelector>
+            <CodeEditArea>
+                <CodeMirror
+                    basicSetup={
+                        {
+                            drawSelection: false,
+                            lineNumbers: false,
+                            autocompletion: false,
+                            foldGutter: false,
+                            searchKeymap: false,
+                            highlightActiveLine: false,
+                            highlightActiveLineGutter: false
+                        }
+                    }
+                    extensions={
+                        [
+                            loadLanguage(currentCodeType)!
+                        ].filter(Boolean)
+                    }
+                    onChange={(v, _) => setCodeData(v)}
+                    theme={"dark"}
+                    placeholder={"Submit your code"}
+                    height={"300px"}
+                />
+            </CodeEditArea>
+            <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}><p>Submit</p></Button></Submission>
+        </>
+    )
+}
+
+
+//aa
 
 const ShowSub = keyframes`
 0%{
@@ -231,6 +319,56 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
     color: ${props => props.theme.Title.subColor};
 }
 `
+const Internal = styled.div<{ rating: number }>`
+width: 100%;
+& h1 {
+    color: ${props => props.theme.Body.TextColorLevels[0]};
+}
+& h2 {
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+}
+& h3 {
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+}
+& h3.tch3 {
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+    font-size: 14px;
+    margin-left:0;
+}
+& p {
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+    line-height: 30px;
+}
+& p.grad {
+    font-size: 9pt;
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+    text-align: center;
+    margin: 0;
+    text-align:left;
+    width: 50px;
+    background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 18px;
+  }
+  p.min {
+    font-size: 9pt;
+    margin:0;
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+    line-height: 18px;
+  }
+  & .tags {
+    display:flex;
+    margin-top: 20px;
+  }
+`
+
+const Itm = styled.div`
+padding: 5px 0px;
+margin-right: 20px;
+border-radius: 10px;
+`
+
 
 const submitCode = async (lang: String, code: string, num: number) => {
     const obj = JSON.stringify({ Lang: lang, Code: code })
@@ -272,86 +410,21 @@ align-items:center;
 }
 `
 
-const CodeHolder = styled.div`
-padding: 10px 0px;
-border-radius: 10px;
-position:relative;
-display:flex;
-align-items:center;
 
-`
-
-const CopyBtn = styled.span`
-position:absolute;
-right: 0px;
-top: 10px;
-width: 30px;
-height: 30px;
-border-radius: 10px;
-color: ${props => props.theme.Body.TextColorLevels[3]};
-background-color: ${props => props.theme.Container.backgroundColor};
-cursor: pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-&:hover{
-    color: ${props => props.theme.Body.TextColorLevels[0]};
-}
-`
-
-const CodeElem = (prop: any) => {
-    const [isCopied, setIsCopied] = useState(false)
-    const [IsActive, setIsActive] = useState(false)
-
-    const copyText = (text: string) => {
-        setIsCopied(true)
-        copy(text)
-        setTimeout(() => setIsCopied(false), 1000)
-    }
-
-    let lang: "cpp" | "python" | "go" | "shell" = "shell"
-    if (typeof prop.children[0].props.className == "string") {
-        lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
-    }
-    return <CodeHolder onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
-        <CodeMirror
-            editable={false}
-            basicSetup={
-                {
-                    drawSelection: false,
-                    lineNumbers: false,
-                    autocompletion: false,
-                    foldGutter: false,
-                    searchKeymap: false,
-                    highlightActiveLine: false,
-                    highlightActiveLineGutter: false
-                }
-            }
-            extensions={
-                [
-                    loadLanguage(lang)!
-                ].filter(Boolean)
-            }
-            value={prop.children[0].props.children[0]}
-            theme={"dark"}
-        />
-        {IsActive ? <CopyBtn onClick={() => copyText(prop.children[0].props.children[0])}>
-            {isCopied ? <TbCheck /> : <TbCopy />}
-        </CopyBtn> : <></>}
-    </CodeHolder>
-}
 
 export default function Problem(data: any) {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved } = data.Oth
     const [loaded, setLoadState] = useState<boolean>()
-    const [currentCodeType, setCodeType] = useState(SupportedLang[0])
     const [isSubmitShowing, setSubmitShowState] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse>()
     const [isResultExtended, setExtended] = useState(false)
 
-    const [currentCodeData, setCodeData] = useState<string>("")
-    const [markdownReact, setMdSource] = useState(<></>);
+    const router = useRouter()
 
+
+    useEffect(() => {
+        setLoadState(true)
+    }, [])
     const isDark = useSelector<StateType, boolean>(state => state.theme);
 
     const detCode = async (t: string, c: string) => {
@@ -362,27 +435,18 @@ export default function Problem(data: any) {
             setContextData(jsn)
         }
     }
-    useEffect(() => {
-        unified()
-            .use(remarkParse)
-            .use(remarkMath)
-            .use(remarkRehype)
-            .use(rehypeSlug)
-            .use(rehypeKatex)
-            .use(rehypeReact, {
-                createElement,
-                Fragment,
-                components: { pre: CodeElem },
-            })
-            .process(Script)
-            .then((data) => {
-                setMdSource(data.result);
-                setLoadState(true)
-            });
-    }, [])
     return (
         <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-            <Header />
+            <Header at={
+                [
+                    { name: "description", action: () => router.push(`${router.query.id![0]}/description`) },
+                    { name: "discussion", action: () => router.push(`${router.query.id![0]}/discussion`) },
+                    { name: "submisson", action: () => router.push(`${router.query.id![0]}/submisson`) },
+                    { name: "champion", action: () => router.push(`${router.query.id![0]}/champion`) }
+                ]
+            }
+                currentPage={router.query.id![1]}
+            />
             <GlobalStyle />
             {loaded ?
                 <>
@@ -393,59 +457,35 @@ export default function Problem(data: any) {
                             <></>
                         }
                         <Internal rating={rating}>
-                            <h1>{ProblemName}</h1>
-                            <div className="tags">
-                                <Itm>
-                                    <p className="grad">Rating {rating}</p>
-                                </Itm>
-                                <Itm>
-                                    <p className="min">{solved} solved</p>
-                                </Itm>
-                            </div>
 
-                            {markdownReact}
-                            <h1>
-                                Submit
-                            </h1>
-                            <LangSelector>
-                                {SupportedLang.map((elem: string, index: number) => {
-                                    return (
-                                        <LangBtn
-                                            onClick={() => setCodeType(elem)}
-                                            isActive={elem === currentCodeType}
-                                            key={index}
-                                        >
-                                            {elem.charAt(0).toUpperCase() + elem.slice(1)}
-                                        </LangBtn>
-                                    )
-                                })}
-                            </LangSelector>
-                            <CodeEditArea>
-                                <CodeMirror
-                                    basicSetup={
-                                        {
-                                            drawSelection: false,
-                                            lineNumbers: false,
-                                            autocompletion: false,
-                                            foldGutter: false,
-                                            searchKeymap: false,
-                                            highlightActiveLine: false,
-                                            highlightActiveLineGutter: false
-                                        }
-                                    }
-                                    extensions={
-                                        [
-                                            loadLanguage(currentCodeType)!
-                                        ].filter(Boolean)
-                                    }
-                                    onChange={(v, _) => setCodeData(v)}
-                                    theme={"dark"}
-                                    placeholder={"Submit your code"}
-                                    height={"300px"}
+                            {router.query.id![1] == "description" ?
+                                <Description
+                                    mdData={Script}
+                                    SupportedLang={SupportedLang}
+                                    submitFn={(a: string, b: string) => detCode(a, b)}
+                                    problemName={ProblemName}
+                                    solved={solved}
+                                    rating={rating}
                                 />
-                            </CodeEditArea>
+                                :
+                                router.query.id![1] == "discussion"
+                                    ?
+                                    <>
 
+                                    </>
+                                    :
+                                    router.query.id![1] == "champion"
+                                        ?
+                                        <>
+
+                                        </>
+                                        :
+                                        <>
+
+                                        </>
+                            }
                             {contextData && !isSubmitShowing ?
+
                                 <SubmissionResult
                                     isExtended={isResultExtended}
                                     tcLength={contextData.matchedTestCase.length}
@@ -472,11 +512,13 @@ export default function Problem(data: any) {
                                             })}
                                         </TCholder>
                                     </div>
-                                </SubmissionResult> : <></>}
-                            <Submission><Button onClick={() => detCode(currentCodeType, currentCodeData)}><p>Submit</p></Button></Submission>
-
+                                </SubmissionResult>
+                                :
+                                <></>}
                         </Internal>
-                    </Holder></> : <></>}
+                    </Holder></> :
+                <></>
+            }
         </ThemeProvider>
     )
 }
@@ -490,8 +532,14 @@ export const getServerSideProps = async (context: any) => {
     await client.connect();
     const { id } = context.query;
 
+    if (["description", "discussion", "submisson", "champion"].indexOf(id[1]) == -1) {
+        return {
+            notFound: true,
+        };
+    }
+
     try {
-        if (typeof id == "string") {
+        if (typeof id[0] == "string") {
             const findDC = await collection.findOne({ ProblemCode: parseInt(id) })
             const { TestProgress, ...Oth } = JSON.parse(JSON.stringify(findDC))
             return {

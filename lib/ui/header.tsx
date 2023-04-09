@@ -86,6 +86,12 @@ const Subheader = styled.div<{ isShown: boolean }>`
     flex-direction:row;
     justify-content:center;
     align-items:center;
+    overflow-x:scroll;
+    scrollbar-width: none; 
+    &::-webkit-scrollbar {
+    display: none;
+    }
+
 `
 
 const SubHolder = styled.div`
@@ -122,21 +128,25 @@ background-color: ${props => props.isActive ? props.theme.Button.backgroundColor
 margin-bottom: 10px;
 `
 
-export const Header = () => {
+interface PropObj {
+    name: string,
+    action: any
+}
+
+export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
     const dispatch = useDispatch()
     const currentTheme = useSelector<StateType>(state => state.theme)
     const [isLoaded, setLoadState] = useState(false)
     const [isShown, setShown] = useState(false)
 
     const router = useRouter();
-    const currentRoute = router.pathname.split("/")[1] == "" ? "Home" : router.pathname.split("/")[1].charAt(0).toUpperCase() + router.pathname.split("/")[1].slice(1)
     useEffect(() => setLoadState(true), [])
     return (
         <>
             {isLoaded ? <>
                 < HeaderComp >
                     <div className={`h`}>
-                        <p onClick={() => setShown(!isShown)} >{currentRoute}
+                        <p onClick={() => setShown(!isShown)} >{props.currentPage}
                             <DropDownBtn isDropped={isShown} >
                                 <FiChevronDown />
                             </DropDownBtn>
@@ -155,7 +165,7 @@ export const Header = () => {
                 </HeaderComp >
                 <Subheader isShown={isShown}>
                     <SubHolder>
-                        {[{ name: "Home", route: "/" }, { name: "Problems", route: "/problems" }].map((elem, index) => <MenuNavBtn isActive={currentRoute == elem.name} key={index} onClick={() => router.push(elem.route)}>{elem.name}</MenuNavBtn>)}
+                        {props.at.map((elem, index) => <MenuNavBtn isActive={props.currentPage == elem.name} key={index} onClick={() => { elem.action() }}>{elem.name}</MenuNavBtn>)}
                     </SubHolder>
                 </Subheader>
             </> : <></>}
