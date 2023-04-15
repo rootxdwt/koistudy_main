@@ -128,12 +128,16 @@ align-items: center;
 justify-content: flex-start;
 `
 
-const SubmitHolder = styled.div.attrs<{ currentWidth: number }>(props => ({
+interface WidthIn {
+    currentWidth: number
+}
+
+const SubmitHolder = styled.div.attrs<WidthIn>(({ currentWidth }) => ({
     style: {
-        minWidth: props.currentWidth,
-        maxWidth: props.currentWidth
+        minWidth: currentWidth,
+        maxWidth: currentWidth
     }
-}))`
+})) <WidthIn>`
 display:flex;
 flex-direction:column;
 margin-right:0;
