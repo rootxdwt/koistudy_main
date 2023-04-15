@@ -1,6 +1,8 @@
 import styled from "styled-components"
 import { createGlobalStyle } from 'styled-components'
 import { DarkTheme } from "./theme"
+import { FiChevronDown } from 'react-icons/fi'
+import { useState } from "react"
 
 export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
   body,html {
@@ -11,6 +13,9 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
     width: 100%;
     flex-grow:1;
 }
+.cm-gutters {
+  background-color: transparent!important;
+}
   .cm-activeLine {
     background-color: ${props => props.theme.Button.backgroundColor}!important;
 }
@@ -18,6 +23,7 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
     -ms-overflow-style: none;
     ::-webkit-scrollbar {
         width: 5px;
+        height: 5px;
       }
       
       ::-webkit-scrollbar-track {
@@ -32,6 +38,9 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
       ::-webkit-scrollbar-thumb:hover {
         background: #555; 
       }
+}
+.cm-focused {
+  outline:none!important;
 }
 `
 
@@ -62,20 +71,99 @@ margin-right:auto;
 
 export const Button = styled.button<{ isBorder?: boolean }>`
 border: none;
-background-color: ${props => props.isBorder ? "#000" : props.theme.Button.backgroundColor};
-color: ${props => props.theme.Button.textColor};
+background-color: ${props => props.theme.Container.backgroundColor};
+color: ${props => props.theme.Body.TextColorLevels[3]};
 cursor:pointer;
 display:flex;
 align-items:center;
 justify-content:center;
-width: 100px;
-height: 35px;
-border-radius: 10px;
-border: solid 3px ${props => props.theme.Button.backgroundColor};
+width: 85px;
+height: 30px;
+border-radius: 5px;
 margin-right: 20px;
+font-weight:bold;
+&:hover{
+  color: ${props => props.theme.Body.TextColorLevels[2]};
+}
 
-& p {
-    font-weight: bold;
-    color: rgb(200,200,200);
+`
+
+const ParentHolder = styled.div`
+display:flex;
+align-items:center;
+flex-direction:column;
+position:absolute;
+top: 40px;
+overflow:hidden;
+user-select:none;
+`
+
+const DButton = styled.div<{ isActive: boolean }>`
+padding-left: 10px;
+display:flex;
+align-items:center;
+justify-content:flex-start;
+width: 90px;
+height: 30px;
+font-family: 'Poppins',sans-serif;
+font-size:9pt;
+border-left: solid 2px ${props => props.theme.Container.backgroundColor};
+background-color: ${props => props.theme.Body.backgroundColor};
+color: ${props => props.theme.Body.TextColorLevels[3]};
+z-index:1;
+cursor:pointer;
+&:hover {
+  color: ${props => props.theme.Body.TextColorLevels[2]};
+  border-left: solid 2px ${props => props.theme.Body.TextColorLevels[2]};
 }
 `
+const Current = styled.div`
+padding: 6px 10px;
+font-family: 'Poppins',sans-serif;
+font-size:9pt;
+display:flex;
+align-items:center;
+justify-content:center;
+background-color: ${props => props.theme.Container.backgroundColor};
+color: ${props => props.theme.Body.TextColorLevels[3]};
+border-radius: 5px;
+cursor:pointer;
+`
+
+const DropDown = styled.div`
+display:flex;
+flex-direction:column;
+position:relative;
+margin-left: 5px;
+`
+
+const DropArrow = styled.div<{ isDropped: boolean }>`
+display:flex;
+justify-content: center;
+align-items: center;
+transform: rotate(${props => props.isDropped ? "180" : "0"}deg);
+margin-left: 10px;
+`
+
+export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any }) => {
+  const [isDropped, setDropped] = useState(false)
+  return (
+    <DropDown>
+      <Current onClick={() => setDropped(!isDropped)}>
+        {props.active}
+        <DropArrow isDropped={isDropped}>
+          <FiChevronDown />
+        </DropArrow>
+      </Current>
+      {isDropped ? <ParentHolder>
+        {props.items.map((item, index) => {
+          return (
+            <DButton key={index} isActive={item == props.active} onClick={() => { props.clickEventHandler(item); setDropped(false) }}>
+              {item}
+            </DButton>
+          )
+        })}
+      </ParentHolder> : <></>}
+    </DropDown>
+  )
+}

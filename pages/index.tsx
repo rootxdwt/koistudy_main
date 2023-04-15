@@ -8,8 +8,11 @@ import { GlobalStyle } from '@/lib/ui/DefaultTemplate'
 import { ThemeProvider } from 'styled-components'
 import { DarkTheme, LightTheme } from '@/lib/ui/theme'
 import { Holder } from '@/lib/ui/DefaultTemplate'
-import { TbBrandPython, TbBrandGolang, TbBrandCpp } from "react-icons/tb"
+import { TbBrandPython, TbBrandGolang, TbBrandCpp, TbBrandTypescript } from "react-icons/tb"
+import { DiSwift } from 'react-icons/di'
 import { Header } from '@/lib/ui/header'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 import { useSelector } from 'react-redux';
 import { StateType } from '@/lib/store'
@@ -23,33 +26,10 @@ height: 600px;
 margin-top: 30px;
 flex-shrink: 0;
 `
-const Tproblem = [{
-  ProblemCode: 1,
-  ProblemName: "Hello World 출력하기",
-  rating: 1,
-  SupportedLang: ["python", "cpp", "golang"]
-},
-{
-  ProblemCode: 2,
-  ProblemName: "세 숫자의 합 구하기",
-  rating: 1,
-  SupportedLang: ["python", "cpp", "golang"]
-}, {
-  ProblemCode: 3,
-  ProblemName: "문자열 입력받아 출력하기",
-  rating: 1,
-  SupportedLang: ["cpp", "python", "golang"]
-}, {
-  ProblemCode: 4,
-  ProblemName: "찍어서 맞춰라?",
-  rating: 5,
-  SupportedLang: ["golang", "python", "cpp"]
-}]
-
-
 interface sugprobDetails {
   ProblemCode: Number
   ProblemName: string
+  solved: number
   rating: number
   SupportedLang: Array<string>
 }
@@ -117,6 +97,7 @@ overflow-x: scroll;
 overflow-y: hidden;
 -ms-overflow-style: none;
 scrollbar-width: none; 
+flex-direction:row;
 &::-webkit-scrollbar {
   display: none;
 }
@@ -140,6 +121,51 @@ margin-right: 30px;
 }
 `
 
+const SkeletonHolder = styled(HcardHolder)`
+& span {
+  display:flex;
+}
+@media(max-width: 700px) {
+  width: 100vw;
+  margin-right:auto;
+  &>span {
+    padding-left: 10vw;
+  }
+}
+`
+
+
+
+const MainPageSkeleton = (props: { isDark: boolean }) => {
+  const baseColor = props.isDark ? "rgb(20,20,20)" : "rgb(245,245,245)"
+  const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(255,255,255)"
+  return (
+    <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
+      <SkeletonHolder>
+        <Skeleton width={200} height={200} borderRadius={20} count={4} style={{ "marginRight": "30px", "flexShrink": "none", "marginTop": "30px" }} />
+      </SkeletonHolder>
+    </SkeletonTheme>
+
+  )
+}
+
+const LanguageIcon = (props: { langs: Array<string> }) => {
+  switch (props.langs[0]) {
+    case "cpp":
+      return <TbBrandCpp />
+    case "python":
+      return <TbBrandPython />
+    case "golang":
+      return <TbBrandGolang />
+    case "typescript":
+      return <TbBrandTypescript />
+    case "swift":
+      return <DiSwift />
+    default:
+      return <TbBrandCpp />
+  }
+}
+
 
 const Myprob = (props: { problems: Array<sugprobDetails> }) => {
   const router = useRouter()
@@ -152,9 +178,7 @@ const Myprob = (props: { problems: Array<sugprobDetails> }) => {
               <p>Rating {item.rating}</p>
               <h2>{item.ProblemName}</h2>
               <span>
-                {
-                  item.SupportedLang[0] == "cpp" ? <TbBrandCpp /> : item.SupportedLang[0] == "python" ? <TbBrandPython /> : item.SupportedLang[0] == "golang" ? <TbBrandGolang /> : <TbBrandCpp />
-                }
+                <LanguageIcon langs={item.SupportedLang} />
               </span>
             </Hcard>
           )
@@ -167,24 +191,36 @@ const Myprob = (props: { problems: Array<sugprobDetails> }) => {
 }
 
 export default function Home() {
-  const [loadState, setLoadState] = useState(false)
+  const [data, setData] = useState<Array<sugprobDetails>>()
+  const [loaded, setLoaded] = useState(false)
   const isDark = useSelector<StateType, boolean>(state => state.theme);
   const router = useRouter()
   useEffect(() => {
-    setLoadState(true)
+    setLoaded(true)
+    console.log(typeof data)
+    fetch('/api/main').then((data) => {
+      return data.json()
+    }).then((jsn) => {
+      console.log(jsn)
+      setData(jsn)
+    })
   }, [])
   return (
     <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
       <Header at={[{ name: "home", action: () => router.push("/") }, { name: "Problems", action: () => router.push("/problems") }]} currentPage="home" />
       <GlobalStyle />
-      {loadState ?
+      {loaded ?
         <>
-          <Holder>
-            <Myprob problems={Tproblem}></Myprob>
-            {/* <h1>대회</h1>
-          <p>현재 진행되고 있는 대회입니다</p>
-          <Probcard></Probcard> */}
-          </Holder>
+          {
+            data ? <Holder>
+              <Myprob problems={data}></Myprob>
+              {/* <h1>대회</h1>
+        <p>현재 진행되고 있는 대회입니다</p>
+        <Probcard></Probcard> */}
+            </Holder> : <Holder>
+              <MainPageSkeleton isDark={isDark} />
+            </Holder>
+          }
         </>
         : <></>
       }

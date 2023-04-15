@@ -1,7 +1,6 @@
 import styled from "styled-components"
 import { RiUser3Fill } from 'react-icons/ri'
 import { MdDarkMode, MdLightMode } from 'react-icons/md'
-import { Rubik } from 'next/font/google'
 import { FiChevronDown } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux';
 import { StateType } from "../store";

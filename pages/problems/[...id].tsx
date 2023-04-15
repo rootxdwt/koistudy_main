@@ -27,7 +27,8 @@ import { useSelector } from 'react-redux';
 import { StateType } from "@/lib/store"
 import { MongoClient } from 'mongodb'
 import { useRouter } from "next/router"
-
+import { DropDownMenu } from "@/lib/ui/DefaultTemplate"
+import sanitize from "mongo-sanitize"
 
 const CodeHolder = styled.div`
 padding: 10px 0px;
@@ -35,6 +36,7 @@ border-radius: 10px;
 position:relative;
 display:flex;
 align-items:center;
+overflow:hidden;
 
 `
 
@@ -104,7 +106,9 @@ const CodeElem = (prop: any) => {
 const CodeEditArea = styled.div`
 display;flex;
 overflow: hidden;
-margin-top: 20px;
+margin-top: 30px;
+border-radius: 5px;
+margin-bottom: 10px;
 `
 
 const LangSelector = styled.div`
@@ -112,13 +116,6 @@ display:flex;
 margin-top: 20px;
 
 `
-
-const LangBtn = styled.div<{ isActive: boolean }>`
-cursor:pointer;
-margin-right: 20px;
-color: ${props => props.isActive ? props.theme.Body.TextColorLevels[0] : props.theme.Body.TextColorLevels[3]};
-`
-
 
 const Submission = styled.div`
 width: 100%;
@@ -129,32 +126,21 @@ justify-content: flex-start;
 margin-bottom: 100px;
 `
 
-const CodeSubmit = (props: { submitFn: Function, SupportedLang: Array<"go" | "cpp" | "python">, }) => {
+const CodeSubmit = (props: { submitFn: Function, SupportedLang: Array<"go" | "cpp" | "python" | "javascript" | "typescript" | "swift">, }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
+
     return (
         <>
             <LangSelector>
-                {props.SupportedLang.map((elem: "cpp" | "go" | "python", index: number) => {
-                    return (
-                        <LangBtn
-                            onClick={() => setCodeType(elem)}
-                            isActive={elem === currentCodeType}
-                            key={index}
-                        >
-                            {elem.charAt(0).toUpperCase() + elem.slice(1)}
-                        </LangBtn>
-                    )
-                })}
+                <DropDownMenu active={currentCodeType} items={props.SupportedLang} clickEventHandler={setCodeType} />
             </LangSelector>
             <CodeEditArea>
                 <CodeMirror
                     basicSetup={
                         {
                             drawSelection: false,
-                            lineNumbers: false,
                             autocompletion: false,
-                            foldGutter: false,
                             searchKeymap: false,
                             highlightActiveLine: false,
                             highlightActiveLineGutter: false
@@ -171,7 +157,7 @@ const CodeSubmit = (props: { submitFn: Function, SupportedLang: Array<"go" | "cp
                     height={"300px"}
                 />
             </CodeEditArea>
-            <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}><p>Submit</p></Button></Submission>
+            <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</Button></Submission>
         </>
 
     )
@@ -259,6 +245,7 @@ position:fixed;
 bottom:0;
 width: 800px;
 display:flex;
+z-index:2;
 @media(max-width: 1300px) {
     width: 700px;
 }
@@ -342,6 +329,11 @@ width: 100%;
     color: ${props => props.theme.Body.TextColorLevels[2]};
     font-size: 14px;
     margin-left:0;
+    position: sticky;
+    top: 0px;
+    background-color: ${props => props.theme.Body.backgroundColor};
+    width: 100%;
+    padding-bottom: 10px;
 }
 & p {
     color: ${props => props.theme.Body.TextColorLevels[3]};
@@ -416,6 +408,11 @@ align-items:center;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
 }
+&:nth-last-child(1){
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin-bottom: 20px;
+}
 `
 
 
@@ -467,12 +464,18 @@ export default function Problem(data: any) {
                         <Internal rating={rating}>
 
                             {router.query.id![1] == "description" ?
-                                <Description
-                                    mdData={Script}
-                                    problemName={ProblemName}
-                                    solved={solved}
-                                    rating={rating}
-                                />
+                                <>
+                                    <Description
+                                        mdData={Script}
+                                        problemName={ProblemName}
+                                        solved={solved}
+                                        rating={rating}
+                                    />
+                                    <CodeSubmit
+                                        SupportedLang={SupportedLang}
+                                        submitFn={(a: string, b: string) => detCode(a, b)}
+                                    ></CodeSubmit>
+                                </>
                                 :
                                 router.query.id![1] == "discussion"
                                     ?
@@ -489,15 +492,11 @@ export default function Problem(data: any) {
 
                                         </>
                             }
-                            <CodeSubmit
-                                SupportedLang={SupportedLang}
-                                submitFn={(a: string, b: string) => detCode(a, b)}
-                            ></CodeSubmit>
                             {contextData && !isSubmitShowing ?
 
                                 <SubmissionResult
                                     isExtended={isResultExtended}
-                                    tcLength={contextData.matchedTestCase.length}
+                                    tcLength={contextData.matchedTestCase.length > 5 ? 5 : contextData.matchedTestCase.length}
                                     isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
                                     onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}
                                 >
@@ -505,7 +504,7 @@ export default function Problem(data: any) {
                                         <div className="tHolder">
                                             <span className="circle"></span><h3>{contextData.status}</h3>
                                         </div>
-                                        <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "테스트 케이스 오류" : "맞았습니다"}</p>
+                                        <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "틀렸습니다" : "맞았습니다"}</p>
                                     </div>
                                     <div className="btm">
                                         <h3 className="tch3">Test Cases</h3>
@@ -549,7 +548,7 @@ export const getServerSideProps = async (context: any) => {
 
     try {
         if (typeof id[0] == "string") {
-            const findDC = await collection.findOne({ ProblemCode: parseInt(id) })
+            const findDC = await collection.findOne({ ProblemCode: parseInt(sanitize(id[0])) })
             const { TestProgress, ...Oth } = JSON.parse(JSON.stringify(findDC))
             return {
                 props: { Oth }

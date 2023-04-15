@@ -1,12 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Judge } from '@/lib/judge/runjudge'
 import { MongoClient } from 'mongodb'
+import sanitize from 'mongo-sanitize'
 
 
 type Data = {
     status: string
     errorStatement: "NONE" | "TLE" | "TC" | "ISE" | "CE" | "MNA"
     matchedTestCase: Array<number>
+    codeDetail?: string
 }
 
 export default async function handler(
@@ -26,7 +28,7 @@ export default async function handler(
             res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
             return
         }
-        const data = await collection.findOne({ ProblemCode: parseInt(id) })
+        const data = await collection.findOne({ ProblemCode: sanitize(parseInt(id)) })
         const { TestProgress, SupportedLang, Mem } = JSON.parse(JSON.stringify(data))
         if (req.method !== 'POST') {
             res.status(405).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
@@ -46,8 +48,8 @@ export default async function handler(
         await judgeInstance.compileCode(container)
         var matchedTestCase = await judgeInstance.testCode(container, TestProgress)
         res.status(200).json({ status: matchedTestCase.every(e => e.matched) ? 'Success' : 'Error', matchedTestCase: matchedTestCase, errorStatement: "NONE" })
-    } catch (e) {
-        let statement: "CE" | "ISE" = e == "Compile error" ? "CE" : "ISE"
+    } catch (e: any) {
+        let statement: "CE" | "ISE" = e.message == "Compile error" ? "CE" : "ISE"
         res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })
     }
 }
