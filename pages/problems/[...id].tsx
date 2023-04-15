@@ -141,7 +141,7 @@ position:relative;
 margin-left:20px;
 overflow:hidden;
 padding-left:10px;
-padding-bottom: 40px;
+padding-bottom: 70px;
 @media (max-width: 700px) {
     padding-left:0px;
     margin-left:0px;
@@ -421,7 +421,7 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 `
 const Internal = styled.div<{ rating: number }>`
 width: 100%;
-height:calc(100vh - 100px);
+height:calc(100vh - 70px);
 display:flex;
 @media (max-width: 700px) {
     height:auto;
