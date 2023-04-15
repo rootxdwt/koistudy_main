@@ -47,13 +47,25 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
 export const Holder = styled.div`
 display:flex;
 flex-direction: column;
-width: 800px;
-padding-top: 100px;
+width: 1300px;
+padding-top: 70px;
 color: ${props => props.theme.Title.textColor};
 margin-left:auto;
 margin-right:auto;
+@media(max-width: 1800px) {
+  width: 1200px;
+}
+@media(max-width: 1700px) {
+  width: 1100px;
+}
+@media(max-width: 1500px) {
+  width: 1000px;
+}
 @media(max-width: 1300px) {
-  width: 700px;
+  width: 900px;
+}
+@media(max-width: 1200px) {
+  width: 800px;
 }
 @media(max-width: 900px) {
   width: 80%;

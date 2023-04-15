@@ -135,13 +135,12 @@ export class Judge {
                     await Terminate(cont)
                 })
                 baseCommand.on('close', async (code) => {
+                    matchedCases[index] = { matched: false, tle: false, lim: elem.tl }
                     if (code == 137 && isTLE[index]) {
-                        matchedCases[index] = { matched: false, tle: true }
+                        matchedCases[index]["tle"] = true
                     } else {
                         if (fullData.trim() === elem.out.join("\n")) {
-                            matchedCases[index] = { matched: true, tle: false }
-                        } else {
-                            matchedCases[index] = { matched: false, tle: false }
+                            matchedCases[index]["matched"] = true
                         }
                     }
                     clearTimeout(tle)

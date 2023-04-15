@@ -11,7 +11,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
 import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultTemplate"
-
+import { HiOutlineDotsVertical } from 'react-icons/hi'
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
@@ -29,7 +29,8 @@ import { MongoClient } from 'mongodb'
 import { useRouter } from "next/router"
 import { DropDownMenu } from "@/lib/ui/DefaultTemplate"
 import sanitize from "mongo-sanitize"
-
+import Head from "next/head"
+import { FiChevronDown } from 'react-icons/fi'
 const CodeHolder = styled.div`
 padding: 10px 0px;
 border-radius: 10px;
@@ -37,6 +38,7 @@ position:relative;
 display:flex;
 align-items:center;
 overflow:hidden;
+flex-shrink:0;
 
 `
 
@@ -109,6 +111,7 @@ overflow: hidden;
 margin-top: 30px;
 border-radius: 5px;
 margin-bottom: 10px;
+height: 100%;
 `
 
 const LangSelector = styled.div`
@@ -123,15 +126,80 @@ height: 50px;
 display:flex;
 align-items: center;
 justify-content: flex-start;
-margin-bottom: 100px;
+`
+
+const SubmitHolder = styled.div.attrs<{ currentWidth: number }>(props => ({
+    style: {
+        minWidth: props.currentWidth,
+        maxWidth: props.currentWidth
+    }
+}))`
+display:flex;
+flex-direction:column;
+margin-right:0;
+position:relative;
+margin-left:20px;
+overflow:hidden;
+padding-left:10px;
+padding-bottom: 40px;
+@media (max-width: 700px) {
+    padding-left:0px;
+    margin-left:0px;
+    min-width: 100%!important;
+    max-width: 100%!important;
+}
+`
+
+const Rearrange = styled.span`
+position:fixed;
+height: 100vh;
+top:0;
+background-color: ${props => props.theme.Container.backgroundColor};
+width:10px;
+margin-left:-20px;
+cursor:col-resize;
+display:flex;
+align-items:center;
+justofy-content:center;
+&:hover {
+    background-color: ${props => props.theme.Button.backgroundColor};
+}
+@media (max-width: 700px) {
+    display:none;
+}
 `
 
 const CodeSubmit = (props: { submitFn: Function, SupportedLang: Array<"go" | "cpp" | "python" | "javascript" | "typescript" | "swift">, }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
+    const [currentWidth, setCurrentWidth] = useState<number>(300)
+
+    let isResizing = false
+    let startingXpos = 0
+
+    addEventListener('mousemove', (e) => {
+        if (isResizing) {
+            e.preventDefault()
+            setCurrentWidth(currentWidth + startingXpos - e.clientX)
+        }
+    })
+    addEventListener('touchmove', (e) => {
+        if (isResizing) {
+            setCurrentWidth(currentWidth + startingXpos - e.touches[0].clientX)
+        }
+    })
+    addEventListener('touchend', (e) => {
+        isResizing = false
+    })
+    addEventListener('mouseup', (e) => {
+        isResizing = false
+    })
 
     return (
-        <>
+        <SubmitHolder currentWidth={currentWidth}>
+            <Rearrange onMouseDown={(e) => { isResizing = true; startingXpos = e.clientX; }} onTouchStart={(e) => { isResizing = true; startingXpos = e.touches[0].clientX; }} >
+                <HiOutlineDotsVertical />
+            </Rearrange>
             <LangSelector>
                 <DropDownMenu active={currentCodeType} items={props.SupportedLang} clickEventHandler={setCodeType} />
             </LangSelector>
@@ -154,14 +222,25 @@ const CodeSubmit = (props: { submitFn: Function, SupportedLang: Array<"go" | "cp
                     onChange={(v, _) => setCodeData(v)}
                     theme={"dark"}
                     placeholder={"Submit your code"}
-                    height={"300px"}
                 />
             </CodeEditArea>
             <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</Button></Submission>
-        </>
+        </SubmitHolder >
 
     )
 }
+
+const DescHolder = styled.div`
+display:flex;
+flex-direction:column;
+padding-bottom: 60px;
+width:100%;
+overflow:scroll;
+padding-right:20px;
+@media (max-width: 700px) {
+    padding-right:0;
+}
+`
 
 const Description = (props: { mdData: string, problemName: string, solved: number, rating: number }) => {
     const [markdownReact, setMdSource] = useState(<></>);
@@ -184,7 +263,7 @@ const Description = (props: { mdData: string, problemName: string, solved: numbe
     }, [])
     return (
 
-        <>
+        <DescHolder>
             <h1>{props.problemName}</h1>
             <div className="tags">
                 <Itm>
@@ -195,11 +274,7 @@ const Description = (props: { mdData: string, problemName: string, solved: numbe
                 </Itm>
             </div>
             {markdownReact}
-
-            <h1>
-                Submit
-            </h1>
-        </>
+        </DescHolder>
     )
 }
 
@@ -243,25 +318,36 @@ const Showresult = keyframes`
 const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number, isCorrect: boolean }>`
 position:fixed;
 bottom:0;
-width: 800px;
-display:flex;
-z-index:2;
-@media(max-width: 1300px) {
-    width: 700px;
-}
-@media (max-width: 900px) {
+width: 1300px;
+@media(max-width: 1800px) {
+    width: 1200px;
+  }
+  @media(max-width: 1700px) {
+    width: 1100px;
+  }
+  @media(max-width: 1500px) {
+    width: 1000px;
+  }
+  @media(max-width: 1300px) {
+    width: 900px;
+  }
+  @media(max-width: 1200px) {
+    width: 800px;
+  }
+  @media(max-width: 900px) {
     width: 80vw;
-}
-@media (max-width: 700px) {
+  }
+  @media (max-width: 700px) {
     width: 80vw;
     left: 10vw;
 }
+display:flex;
+z-index:2;
 flex-direction: column;
 align-items:flex-start;
 background-color:${props => props.theme.Body.backgroundColor};
 animation: ${Showresult} 0.5s cubic-bezier(.5,0,.56,.99);
 height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "60px"};
-cursor:pointer;
 outline:none;
 -webkit-tap-highlight-color: rgba(0,0,0,0);
 transition: height 0.5s cubic-bezier(.5,0,.56,.99);
@@ -290,12 +376,31 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
     justify-content: space-between;
     align-items:center;
     width: 100%;
+    cursor:pointer;
 }
+
 & .top .tHolder {
     display:flex;
     flex-direction: row;
     align-items:center;
 
+}
+& .top .mHolder {
+    display:flex;
+    flex-direction: row;
+    align-items:center;
+    color: ${props => props.theme.Title.subColor};
+
+}
+& .top .mHolder p{
+    margin-right: 10px;
+}
+& .top p.icon{
+    transform: rotate(${props => props.isExtended ? "0" : "180"}deg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.5s cubic-bezier(.5,0,.56,.99);
 }
 & .btm {
     transition: height 0.5s cubic-bezier(.5,0,.56,.99);
@@ -316,6 +421,12 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 `
 const Internal = styled.div<{ rating: number }>`
 width: 100%;
+height:calc(100vh - 100px);
+display:flex;
+@media (max-width: 700px) {
+    height:auto;
+    flex-direction:column;
+}
 & h1 {
     color: ${props => props.theme.Body.TextColorLevels[0]};
 }
@@ -337,7 +448,8 @@ width: 100%;
 }
 & p {
     color: ${props => props.theme.Body.TextColorLevels[3]};
-    line-height: 30px;
+    line-height: 25px;
+    font-size:14px;
 }
 & p.grad {
     font-size: 9pt;
@@ -377,7 +489,7 @@ const submitCode = async (lang: String, code: string, num: number) => {
 
 interface JudgeResponse {
     errorStatement: string
-    matchedTestCase: Array<{ matched: boolean, tle: boolean }>
+    matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number }>
     status: "Success" | "Error"
 }
 
@@ -385,13 +497,12 @@ const TCholder = styled.div`
 margin-top: 10px;
 `
 
-const TcItm = styled.div<{ isRight: boolean }>`
+const TcItm = styled.div<{ isRight: boolean, isShown: boolean }>`
 padding: 0px 20px;
 display:flex;
 justify-content: space-between;
 color: ${props => props.theme.Body.TextColorLevels[3]};
-background-color: ${props => props.theme.Container.backgroundColor};
-border-bottom: solid 2px ${props => props.theme.Body.backgroundColor};
+background-color: ${props => props.isShown ? props.theme.Container.backgroundColor : props.theme.Body.backgroundColor};
 height: 43px;
 display:flex;
 align-items:center;
@@ -404,17 +515,39 @@ align-items:center;
     color: ${props => props.theme.Body.TextColorLevels[0]};
     font-size:10pt;
 }
-&:nth-child(1){
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+border-radius:5px;
+cursor:pointer;
+&:hover {
+    background-color:${props => props.theme.Container.backgroundColor};
 }
-&:nth-last-child(1){
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    margin-bottom: 20px;
-}
+
 `
 
+const Details = styled.div<{ isShown: boolean }>`
+transition: height 0.1s cubic-bezier(.5,0,.56,.99);
+height: ${props => props.isShown ? "40" : "0"}px;
+margin-bottom: ${props => props.isShown ? "20" : "2"}px;
+margin-left: 20px;
+margin-right: 20px;
+overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:space-between;
+color: ${props => props.theme.Body.TextColorLevels[3]};
+& span {
+    display:flex;
+    align-items:center;
+}
+& b{
+    font-size: 10pt;
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+}
+& p {
+    font-size: 10pt;
+    margin-left: 10px;
+}
+
+`
 
 
 export default function Problem(data: any) {
@@ -423,6 +556,7 @@ export default function Problem(data: any) {
     const [isSubmitShowing, setSubmitShowState] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse>()
     const [isResultExtended, setExtended] = useState(false)
+    const [caseDetail, setCaseDetail] = useState<number>(0)
 
     const router = useRouter()
 
@@ -441,94 +575,124 @@ export default function Problem(data: any) {
         }
     }
     return (
-        <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-            <Header at={
-                [
-                    { name: "description", action: () => router.push(`${router.query.id![0]}/description`) },
-                    { name: "discussion", action: () => router.push(`${router.query.id![0]}/discussion`) },
-                    { name: "submisson", action: () => router.push(`${router.query.id![0]}/submisson`) },
-                    { name: "champion", action: () => router.push(`${router.query.id![0]}/champion`) }
-                ]
-            }
-                currentPage={router.query.id![1]}
-            />
-            <GlobalStyle />
-            {loaded ?
-                <>
-                    <Holder>
-                        {isSubmitShowing ?
-                            <Submitted />
-                            :
-                            <></>
-                        }
-                        <Internal rating={rating}>
-
-                            {router.query.id![1] == "description" ?
-                                <>
-                                    <Description
-                                        mdData={Script}
-                                        problemName={ProblemName}
-                                        solved={solved}
-                                        rating={rating}
-                                    />
-                                    <CodeSubmit
-                                        SupportedLang={SupportedLang}
-                                        submitFn={(a: string, b: string) => detCode(a, b)}
-                                    ></CodeSubmit>
-                                </>
+        <>
+            <Head>
+                <meta content={isDark ? "dark" : "light"} name="color-scheme" />
+            </Head>
+            <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
+                <Header at={
+                    [
+                        { name: "description", action: () => router.push(`${router.query.id![0]}/description`) },
+                        { name: "discussion", action: () => router.push(`${router.query.id![0]}/discussion`) },
+                        { name: "submisson", action: () => router.push(`${router.query.id![0]}/submisson`) },
+                        { name: "champion", action: () => router.push(`${router.query.id![0]}/champion`) }
+                    ]
+                }
+                    currentPage={router.query.id![1]}
+                />
+                <GlobalStyle />
+                {loaded ?
+                    <>
+                        <Holder>
+                            {isSubmitShowing ?
+                                <Submitted />
                                 :
-                                router.query.id![1] == "discussion"
-                                    ?
+                                <></>
+                            }
+                            <Internal rating={rating}>
+
+                                {router.query.id![1] == "description" ?
                                     <>
+                                        <Description
+                                            mdData={Script}
+                                            problemName={ProblemName}
+                                            solved={solved}
+                                            rating={rating}
+                                        />
                                     </>
                                     :
-                                    router.query.id![1] == "champion"
+                                    router.query.id![1] == "discussion"
                                         ?
                                         <>
-
                                         </>
                                         :
-                                        <>
+                                        router.query.id![1] == "champion"
+                                            ?
+                                            <>
 
-                                        </>
-                            }
-                            {contextData && !isSubmitShowing ?
+                                            </>
+                                            :
+                                            <>
 
-                                <SubmissionResult
-                                    isExtended={isResultExtended}
-                                    tcLength={contextData.matchedTestCase.length > 5 ? 5 : contextData.matchedTestCase.length}
-                                    isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
-                                    onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}
-                                >
-                                    <div className="top">
-                                        <div className="tHolder">
-                                            <span className="circle"></span><h3>{contextData.status}</h3>
+                                            </>
+                                }
+                                <CodeSubmit
+                                    SupportedLang={SupportedLang}
+                                    submitFn={(a: string, b: string) => detCode(a, b)}
+                                ></CodeSubmit>
+                                {contextData && !isSubmitShowing ?
+
+                                    <SubmissionResult
+                                        isExtended={isResultExtended}
+                                        tcLength={contextData.matchedTestCase.length > 5 ? 5 : contextData.matchedTestCase.length}
+                                        isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
+                                    >
+                                        <div className="top" onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}>
+                                            <div className="tHolder">
+                                                <span className="circle"></span><h3>{contextData.status}</h3>
+                                            </div>
+                                            <div className="mHolder">
+                                                <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "틀렸습니다" : "맞았습니다"} </p>
+                                                <p className="icon">
+                                                    <FiChevronDown />
+                                                </p>
+                                            </div>
+
                                         </div>
-                                        <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "틀렸습니다" : "맞았습니다"}</p>
-                                    </div>
-                                    <div className="btm">
-                                        <h3 className="tch3">Test Cases</h3>
-                                        <p className="ptge">{(contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100}%</p>
-                                        <TCholder>
-                                            {contextData.matchedTestCase.map((elem, index) => {
-                                                return (
-                                                    <TcItm isRight={elem.matched} key={index}>
-                                                        <div className="TCtitle">{index}</div>
-                                                        <div className="TCwr">{elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}</div>
-                                                    </TcItm>
-                                                )
-                                            })}
-                                        </TCholder>
-                                    </div>
-                                </SubmissionResult>
-                                :
-                                <></>}
-                        </Internal>
-                    </Holder></> :
-                <></>
-            }
-        </ThemeProvider>
-    )
+                                        <div className="btm">
+                                            <h3 className="tch3">Test Cases</h3>
+                                            <p className="ptge">{(contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100}%</p>
+                                            <TCholder>
+                                                {contextData.matchedTestCase.map((elem, index) => {
+                                                    return (
+                                                        <Fragment key={index} >
+                                                            <TcItm isRight={elem.matched} onClick={(e) => { setCaseDetail(caseDetail == index ? -1 : index) }} isShown={caseDetail == index}>
+                                                                <div className="TCtitle">{index}</div>
+                                                                <div className="TCwr">{elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}</div>
+                                                            </TcItm>
+                                                            <Details isShown={caseDetail == index}>
+                                                                <span>
+                                                                    <b>
+                                                                        시간제한:
+                                                                    </b>
+                                                                    <p>
+                                                                        {elem.lim}ms
+                                                                    </p>
+                                                                </span>
+                                                                <span>
+                                                                    {elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}
+                                                                    <p>
+
+                                                                        {elem.matched ? "맞았습니다" : elem.tle ? "시간 제한 초과" : "테스트 케이스 불일치"}
+                                                                    </p>
+
+                                                                </span>
+                                                            </Details>
+                                                        </Fragment>
+                                                    )
+                                                })}
+                                            </TCholder>
+                                        </div>
+                                    </SubmissionResult>
+                                    :
+                                    <></>}
+                            </Internal>
+                        </Holder></> :
+                    <></>
+                }
+            </ThemeProvider>
+
+        </>)
 }
 
 export const getServerSideProps = async (context: any) => {

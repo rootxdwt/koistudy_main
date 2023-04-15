@@ -19,19 +19,33 @@ align-items:center;
 & div.h {
     margin-left:auto;
     margin-right:auto;
-    width: 800px;
+    width: 1300px;
     display:flex;
     align-items:center;
     font-family: 'Poppins', sans-serif;
     color: ${props => props.theme.Body.TextColorLevels[3]};
     justify-content: space-between;
-    @media(max-width: 1300px) {
-        width: 700px;
-    }
-    @media (max-width: 900px) {
+    @media(max-width: 1800px) {
+        width: 1200px;
+      }
+      @media(max-width: 1700px) {
+        width: 1100px;
+      }
+      @media(max-width: 1500px) {
+        width: 1000px;
+      }
+      @media(max-width: 1300px) {
+        width: 900px;
+      }
+      @media(max-width: 1200px) {
+        width: 800px;
+      }
+      @media(max-width: 900px) {
         width: 80vw;
-    }
-    @media (max-width: 700px) {
+        margin-left:auto;
+        margin-right:auto;
+      }
+      @media (max-width: 700px) {
         width: 80vw;
         left: 10vw;
     }
@@ -94,14 +108,28 @@ const Subheader = styled.div<{ isShown: boolean }>`
 `
 
 const SubHolder = styled.div`
-width: 800px;
-@media(max-width: 1300px) {
-    width: 700px;
-}
-@media (max-width: 900px) {
+width: 1300px;
+@media(max-width: 1800px) {
+    width: 1200px;
+  }
+  @media(max-width: 1700px) {
+    width: 1100px;
+  }
+  @media(max-width: 1500px) {
+    width: 1000px;
+  }
+  @media(max-width: 1300px) {
+    width: 900px;
+  }
+  @media(max-width: 1200px) {
+    width: 800px;
+  }
+  @media(max-width: 900px) {
     width: 80vw;
-}
-@media (max-width: 700px) {
+    margin-left:auto;
+    margin-right:auto;
+  }
+  @media (max-width: 700px) {
     width: 80vw;
     left: 10vw;
 }
@@ -164,7 +192,7 @@ export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
                 </HeaderComp >
                 <Subheader isShown={isShown}>
                     <SubHolder>
-                        {props.at.map((elem, index) => <MenuNavBtn isActive={props.currentPage == elem.name} key={index} onClick={() => { elem.action() }}>{elem.name}</MenuNavBtn>)}
+                        {props.at.map((elem, index) => <MenuNavBtn isActive={props.currentPage == elem.name} key={index} onClick={() => { elem.action(); setShown(false) }}>{elem.name}</MenuNavBtn>)}
                     </SubHolder>
                 </Subheader>
             </> : <></>}
