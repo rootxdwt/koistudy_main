@@ -4,18 +4,19 @@ import styled, { keyframes } from 'styled-components'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 
-import { GlobalStyle } from '@/lib/ui/DefaultTemplate'
+import { GlobalStyle } from '@/lib/ui/DefaultComponent'
 import { ThemeProvider } from 'styled-components'
 import { DarkTheme, LightTheme } from '@/lib/ui/theme'
-import { Holder } from '@/lib/ui/DefaultTemplate'
-import { TbBrandPython, TbBrandGolang, TbBrandCpp, TbBrandTypescript } from "react-icons/tb"
-import { DiSwift } from 'react-icons/di'
-import { Header } from '@/lib/ui/header'
+import { Holder } from '@/lib/ui/DefaultComponent'
+import { TbBrandGolang } from "react-icons/tb"
+import { DiSwift, DiRust, DiPhp, DiPython, DiNodejsSmall, DiCode } from 'react-icons/di'
+import { Header } from '@/lib/ui/component/header'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
 import { useSelector } from 'react-redux';
 import { StateType } from '@/lib/store'
+
 
 const Probcard = styled.div`
 width: 100%;
@@ -142,7 +143,7 @@ const MainPageSkeleton = (props: { isDark: boolean }) => {
   return (
     <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
       <SkeletonHolder>
-        <Skeleton width={200} height={200} borderRadius={20} count={4} style={{ "marginRight": "30px", "flexShrink": "none", "marginTop": "30px" }} />
+        <Skeleton width={200} height={200} borderRadius={20} count={5} style={{ "marginRight": "30px", "flexShrink": "none", "marginTop": "30px" }} />
       </SkeletonHolder>
     </SkeletonTheme>
 
@@ -151,18 +152,20 @@ const MainPageSkeleton = (props: { isDark: boolean }) => {
 
 const LanguageIcon = (props: { langs: Array<string> }) => {
   switch (props.langs[0]) {
-    case "cpp":
-      return <TbBrandCpp />
     case "python":
-      return <TbBrandPython />
-    case "golang":
+      return <DiPython />
+    case "go":
       return <TbBrandGolang />
-    case "typescript":
-      return <TbBrandTypescript />
+    case "javascript":
+      return <DiNodejsSmall />
     case "swift":
       return <DiSwift />
+    case "php":
+      return <DiPhp />
+    case "rust":
+      return <DiRust />
     default:
-      return <TbBrandCpp />
+      return <DiCode />
   }
 }
 

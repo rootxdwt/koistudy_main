@@ -4,8 +4,8 @@ import { spawn } from "child_process";
 import * as shescape from "shescape";
 
 import crypto from "crypto";
-import { AcceptableLanguage } from "./languageLib";
-import { LanguageHandler } from "./languageLib";
+import { AcceptableLanguage } from "../pref/languageLib";
+import { LanguageHandler } from "../pref/languageLib";
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 

@@ -1,4 +1,4 @@
-export type AcceptableLanguage = "cpp" | "python" | "go" | "typescript" | "swift"
+export type AcceptableLanguage = "cpp" | "python" | "go" | "javascript" | "swift" | "php" | "rust" | "r"
 
 export class LanguageHandler {
     name: AcceptableLanguage
@@ -13,12 +13,18 @@ export class LanguageHandler {
                 return "py"
             case "go":
                 return "go"
-            case "typescript":
-                return "ts"
+            case "javascript":
+                return "js"
             case "swift":
                 return "swift"
             case "cpp":
                 return "cpp"
+            case "php":
+                return "php"
+            case "rust":
+                return "rs"
+            case "r":
+                return "R"
         }
     }
     getImage = () => {
@@ -27,12 +33,18 @@ export class LanguageHandler {
                 return "python:alpine3.17"
             case "go":
                 return "golang:alpine3.17"
-            case "typescript":
+            case "javascript":
                 return "node"
             case "swift":
                 return "swift"
             case "cpp":
                 return "gcc"
+            case "php":
+                return "php"
+            case "rust":
+                return "rust"
+            case "r":
+                return "r-base"
         }
     }
     getCompileCommand = () => {
@@ -44,8 +56,12 @@ export class LanguageHandler {
                 return `go build -o ${containerName} ${containerName}.go`
             case "swift":
                 return `swiftc ${containerName}.swift`
+            case "rust":
+                return `rustc ${containerName}.rs -o ${containerName}`
+            case "php":
             case "python":
-            case "typescript":
+            case "r":
+            case "javascript":
                 return ""
             default:
                 throw new Error(`Unsupported language`);
@@ -57,11 +73,16 @@ export class LanguageHandler {
             case "cpp":
             case "go":
             case "swift":
+            case "rust":
                 return `./${containerName}`
             case "python":
                 return `python3 ${containerName}.py`
-            case "typescript":
-                return `node ${containerName}.${containerName}`
+            case "javascript":
+                return `node ${containerName}.js`
+            case "php":
+                return `php ${containerName}.php`
+            case "r":
+                return `Rscript ${containerName}.R`
             default:
                 throw new Error(`Unsupported language`);
         }

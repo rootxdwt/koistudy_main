@@ -3,7 +3,7 @@ import { RiUser3Fill } from 'react-icons/ri'
 import { MdDarkMode, MdLightMode } from 'react-icons/md'
 import { FiChevronDown } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux';
-import { StateType } from "../store";
+import { StateType } from "../../store";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/router'
 
@@ -156,46 +156,46 @@ margin-bottom: 10px;
 `
 
 interface PropObj {
-    name: string,
-    action: any
+  name: string,
+  action: any
 }
 
 export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
-    const dispatch = useDispatch()
-    const currentTheme = useSelector<StateType>(state => state.theme)
-    const [isLoaded, setLoadState] = useState(false)
-    const [isShown, setShown] = useState(false)
+  const dispatch = useDispatch()
+  const currentTheme = useSelector<StateType>(state => state.theme)
+  const [isLoaded, setLoadState] = useState(false)
+  const [isShown, setShown] = useState(false)
 
-    const router = useRouter();
-    useEffect(() => setLoadState(true), [])
-    return (
-        <>
-            {isLoaded ? <>
-                < HeaderComp >
-                    <div className={`h`}>
-                        <p onClick={() => setShown(!isShown)} >{props.currentPage}
-                            <DropDownBtn isDropped={isShown} >
-                                <FiChevronDown />
-                            </DropDownBtn>
-                        </p>
-                        <BtnHolder>
-                            <BtnComp>
-                                <RiUser3Fill />
+  const router = useRouter();
+  useEffect(() => setLoadState(true), [])
+  return (
+    <>
+      {isLoaded ? <>
+        < HeaderComp >
+          <div className={`h`}>
+            <p onClick={() => setShown(!isShown)} >{props.currentPage}
+              <DropDownBtn isDropped={isShown} >
+                <FiChevronDown />
+              </DropDownBtn>
+            </p>
+            <BtnHolder>
+              <BtnComp>
+                <RiUser3Fill />
 
-                            </BtnComp>
-                            <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
-                                {currentTheme ? <MdDarkMode /> : <MdLightMode />}
+              </BtnComp>
+              <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
+                {currentTheme ? <MdDarkMode /> : <MdLightMode />}
 
-                            </BtnComp>
-                        </BtnHolder>
-                    </div>
-                </HeaderComp >
-                <Subheader isShown={isShown}>
-                    <SubHolder>
-                        {props.at.map((elem, index) => <MenuNavBtn isActive={props.currentPage == elem.name} key={index} onClick={() => { elem.action(); setShown(false) }}>{elem.name}</MenuNavBtn>)}
-                    </SubHolder>
-                </Subheader>
-            </> : <></>}
-        </>
-    )
+              </BtnComp>
+            </BtnHolder>
+          </div>
+        </HeaderComp >
+        <Subheader isShown={isShown}>
+          <SubHolder>
+            {props.at.map((elem, index) => <MenuNavBtn isActive={props.currentPage == elem.name} key={index} onClick={() => { elem.action(); setShown(false) }}>{elem.name}</MenuNavBtn>)}
+          </SubHolder>
+        </Subheader>
+      </> : <></>}
+    </>
+  )
 }
