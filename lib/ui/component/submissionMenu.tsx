@@ -223,7 +223,7 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
                                 <Details isShown={caseDetail == index}>
                                     <span>
                                         <b>
-                                            시간제한:
+                                            TL:
                                         </b>
                                         <p>
                                             {elem.lim}ms

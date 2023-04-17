@@ -14,7 +14,7 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
     flex-grow:1;
 }
 .cm-gutters {
-  background-color: transparent!important;
+  background-color: ${props => props.theme.Body.backgroundColor}!important;
 }
   .cm-activeLine {
     background-color: ${props => props.theme.Button.backgroundColor}!important;
@@ -101,6 +101,7 @@ font-weight:bold;
 `
 
 const ParentHolder = styled.div`
+z-index:3;
 display:flex;
 align-items:center;
 flex-direction:column;
@@ -108,6 +109,28 @@ position:absolute;
 top: 40px;
 overflow:hidden;
 user-select:none;
+height: 150px;
+overflow-y:scroll;
+overflow-x:hidden;
+-ms-overflow-style: none;
+background-color: ${props => props.theme.Body.backgroundColor}; 
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background-color: ${props => props.theme.Body.backgroundColor}; 
+  }
+   
+  ::-webkit-scrollbar-thumb {
+    background-color: ${props => props.theme.Container.backgroundColor};
+    border-radius: 2.5px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${props => props.theme.Button.backgroundColor};
+  }
 `
 
 const DButton = styled.div<{ isActive: boolean }>`
@@ -117,6 +140,7 @@ align-items:center;
 justify-content:flex-start;
 width: 90px;
 height: 30px;
+flex-shrink:0;
 font-family: 'Poppins',sans-serif;
 font-size:9pt;
 border-left: solid 2px ${props => props.theme.Container.backgroundColor};

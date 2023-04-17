@@ -5,13 +5,12 @@ import { HiOutlineDotsVertical } from 'react-icons/hi'
 import { DropDownMenu } from "@/lib/ui/DefaultComponent"
 import { AcceptableLanguage } from '@/lib/pref/languageLib'
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CodeEditAreaComponent = styled.div`
 display;flex;
 overflow: hidden;
 margin-top: 30px;
-border-radius: 5px;
 margin-bottom: 10px;
 height: 100%;
 `
@@ -74,36 +73,43 @@ justofy-content:center;
     display:none;
 }
 `
-
 export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
     const [currentWidth, setCurrentWidth] = useState<number>(300)
+    const [startingXpos, setStartingXpos] = useState<number | null>(null)
 
-    let isResizing = false
-    let startingXpos = 0
-
-    addEventListener('mousemove', (e) => {
-        if (isResizing) {
+    const mouseMoveHandler = (e: MouseEvent) => {
+        if (startingXpos !== null) {
             e.preventDefault()
-            setCurrentWidth(currentWidth + startingXpos - e.clientX)
+            setCurrentWidth(currentWidth + startingXpos - e.pageX)
         }
-    })
-    addEventListener('touchmove', (e) => {
-        if (isResizing) {
-            setCurrentWidth(currentWidth + startingXpos - e.touches[0].clientX)
+    }
+
+    const touchMoveHandler = (e: TouchEvent) => {
+        if (startingXpos !== null) {
+            setCurrentWidth(currentWidth + startingXpos - e.touches[0].pageX)
         }
-    })
-    addEventListener('touchend', (e) => {
-        isResizing = false
-    })
-    addEventListener('mouseup', (e) => {
-        isResizing = false
-    })
+    }
+
+    useEffect(() => {
+        window.addEventListener('mousemove', mouseMoveHandler)
+        window.addEventListener('touchmove', touchMoveHandler)
+
+        return () => {
+            window.removeEventListener('mousemove', mouseMoveHandler)
+            window.removeEventListener('touchmove', touchMoveHandler)
+        }
+    }, [startingXpos])
 
     return (
         <SubmitHolder currentWidth={currentWidth}>
-            <Rearrange onMouseDown={(e) => { isResizing = true; startingXpos = e.clientX; }} onTouchStart={(e) => { isResizing = true; startingXpos = e.touches[0].clientX; }} >
+            <Rearrange
+                onMouseDown={(e) => setStartingXpos(e.pageX)}
+                onTouchStart={(e) => setStartingXpos(e.touches[0].pageX)}
+                onMouseUp={() => setStartingXpos(null)}
+                onTouchEnd={() => setStartingXpos(null)}
+            >
                 <HiOutlineDotsVertical />
             </Rearrange>
             <LangSelector>
@@ -120,6 +126,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                             highlightActiveLineGutter: false
                         }
                     }
+                    height="calc(100vh - 260px)"
                     extensions={
                         [
                             loadLanguage(currentCodeType)!
@@ -132,7 +139,5 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
             </CodeEditAreaComponent>
             <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</Button></Submission>
         </SubmitHolder >
-
     )
 }
-
