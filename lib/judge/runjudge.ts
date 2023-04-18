@@ -1,7 +1,7 @@
 import { Docker } from "node-docker-api";
 import { Container } from "node-docker-api/lib/container";
-import { spawn } from "child_process";
-import * as shescape from "shescape";
+import { spawn, exec } from "child_process";
+import fs from 'fs/promises'
 
 import crypto from "crypto";
 import { AcceptableLanguage } from "../pref/languageLib";
@@ -18,6 +18,18 @@ interface testArgs {
     Tests: Array<{ in: Array<string>, out: Array<string>, tl: number }>
     Disallow: Array<string>
 
+}
+
+const execAsync = (command: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        exec(command, (err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        })
+    })
 }
 
 const Terminate = async (cont: Container) => {
@@ -59,10 +71,17 @@ export class Judge {
                 Entrypoint: [
                     "/bin/sh",
                     "-c",
-                    `echo ${shescape.quote(codeData)} > ${this.contName}.${this.filePrefix} && sleep ${Preferences.defaultContainerPersistTime}`
+                    `sleep ${Preferences.defaultContainerPersistTime}`
                 ],
             })
-            return await cont.start()
+            await cont.start()
+
+            const tempFileName = `${this.contName}.${this.filePrefix}`
+            await fs.writeFile(tempFileName, codeData)
+            await execAsync(`docker cp ${tempFileName} ${this.contName}:${Preferences.workingDir}`)
+            await fs.unlink(tempFileName)
+            return cont
+
 
 
         } catch (e) {
@@ -130,6 +149,7 @@ export class Judge {
                     fullData += data.toString()
                 })
                 baseCommand.stderr.on('data', async (data) => {
+                    console.log(data.toString())
                     clearTimeout(tle)
                     reject("stdError")
                     await Terminate(cont)

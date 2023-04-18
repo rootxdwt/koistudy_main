@@ -73,7 +73,7 @@ justofy-content:center;
     display:none;
 }
 `
-export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, }) => {
+export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage> }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
     const [currentWidth, setCurrentWidth] = useState<number>(300)

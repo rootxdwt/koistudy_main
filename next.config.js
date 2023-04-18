@@ -4,6 +4,14 @@ const nextConfig = {
 	compiler: {
 		styledComponents: true,
 	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'http',
+				hostname: 'koistudy.net',
+			},
+		],
+	},
 };
 
 module.exports = nextConfig;

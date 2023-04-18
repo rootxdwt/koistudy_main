@@ -15,6 +15,9 @@ import copy from 'copy-to-clipboard';
 import { TbCopy, TbCheck } from 'react-icons/tb'
 import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
+import Image from "next/image";
+import { useSelector } from "react-redux";
+import { StateType } from "@/lib/store";
 
 const DescHolder = styled.div`
 display:flex;
@@ -57,6 +60,13 @@ justify-content:center;
     color: ${props => props.theme.Body.TextColorLevels[0]};
 }
 `
+
+const ImgElem = (props: any) => {
+    const isDark = useSelector<StateType, boolean>(state => state.theme);
+    return (
+        <img src={props.src} alt={props.alt} style={{ objectFit: "contain", filter: props.alt == "bwDiagram" && isDark ? "invert(1)" : "invert(0)" }} />
+    )
+}
 
 const CodeElem = (prop: any) => {
     const [isCopied, setIsCopied] = useState(false)
@@ -119,7 +129,7 @@ export const Description = (props: { mdData: string, problemName: string, solved
             .use(rehypeReact, {
                 createElement,
                 Fragment,
-                components: { pre: CodeElem },
+                components: { pre: CodeElem, img: ImgElem },
             })
             .process(props.mdData)
             .then((data) => {
