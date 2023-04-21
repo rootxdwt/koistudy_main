@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import { StateType } from "@/lib/store";
 
 const DescHolder = styled.div`
+
 display:flex;
 flex-direction:column;
 padding-bottom: 60px;
@@ -33,25 +34,26 @@ padding-right:20px;
 
 
 const CodeHolder = styled.div`
-padding: 10px 0px;
+padding: 10px;
 border-radius: 10px;
 position:relative;
 display:flex;
 align-items:center;
 overflow:hidden;
 flex-shrink:0;
+background-color: ${props => props.theme.Container.backgroundColor};
 
 `
 
 const CopyBtn = styled.span`
 position:absolute;
-right: 0px;
+right: 10px;
 top: 10px;
-width: 30px;
-height: 30px;
-border-radius: 10px;
+width: 25px;
+height: 25px;
+border-radius: 5px;
 color: ${props => props.theme.Body.TextColorLevels[3]};
-background-color: ${props => props.theme.Container.backgroundColor};
+background-color: ${props => props.theme.Button.backgroundColor};
 cursor: pointer;
 display:flex;
 align-items:center;
@@ -59,6 +61,11 @@ justify-content:center;
 &:hover{
     color: ${props => props.theme.Body.TextColorLevels[0]};
 }
+`
+
+const H2Elem = styled.h2`
+padding-bottom: 10px;
+margin-bottom: 10px;
 `
 
 const ImgElem = (props: any) => {
@@ -110,10 +117,32 @@ const CodeElem = (prop: any) => {
     </CodeHolder>
 }
 
-const Itm = styled.div`
+const Itm = styled.div<{ rating: number }>`
 padding: 5px 0px;
 margin-right: 20px;
-border-radius: 10px;
+border-radius: 5px;
+background-color: ${props => props.theme.Container.backgroundColor};
+padding: 5px 10px;
+font-family: 'Poppins',sans-serif;
+
+& p.grad {
+    
+    font-size: 9pt;
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+    text-align: center;
+    margin: 0;
+    text-align:left;
+    background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 18px;
+  }
+& p.min {
+    font-size: 9pt;
+    margin:0;
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+    line-height: 18px;
+  }
 `
 
 
@@ -129,7 +158,7 @@ export const Description = (props: { mdData: string, problemName: string, solved
             .use(rehypeReact, {
                 createElement,
                 Fragment,
-                components: { pre: CodeElem, img: ImgElem },
+                components: { pre: CodeElem, img: ImgElem, h2: H2Elem },
             })
             .process(props.mdData)
             .then((data) => {
@@ -141,10 +170,10 @@ export const Description = (props: { mdData: string, problemName: string, solved
         <DescHolder>
             <h1>{props.problemName}</h1>
             <div className="tags">
-                <Itm>
+                <Itm rating={props.rating}>
                     <p className="grad">Rating {props.rating}</p>
                 </Itm>
-                <Itm>
+                <Itm rating={props.rating}>
                     <p className="min">{props.solved} solved</p>
                 </Itm>
             </div>

@@ -149,7 +149,6 @@ export class Judge {
                     fullData += data.toString()
                 })
                 baseCommand.stderr.on('data', async (data) => {
-                    console.log(data.toString())
                     clearTimeout(tle)
                     reject("stdError")
                     await Terminate(cont)

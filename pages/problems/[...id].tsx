@@ -52,6 +52,7 @@ const Internal = styled.div<{ rating: number }>`
 width: 100%;
 height:calc(100vh - 70px);
 display:flex;
+overflow:hidden;
 @media (max-width: 700px) {
     height:auto;
     flex-direction:column;
@@ -80,24 +81,6 @@ display:flex;
     line-height: 25px;
     font-size:14px;
 }
-& p.grad {
-    font-size: 9pt;
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-    text-align: center;
-    margin: 0;
-    text-align:left;
-    width: 50px;
-    background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 18px;
-  }
-  p.min {
-    font-size: 9pt;
-    margin:0;
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-    line-height: 18px;
-  }
   & .tags {
     display:flex;
     margin-top: 20px;
@@ -169,6 +152,9 @@ export default function Problem(data: any) {
         <>
             <Head>
                 <meta content={isDark ? "dark" : "light"} name="color-scheme" />
+                <title>
+                    {ProblemName}
+                </title>
             </Head>
             <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
                 <Header at={

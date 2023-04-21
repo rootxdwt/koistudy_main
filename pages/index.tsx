@@ -200,11 +200,9 @@ export default function Home() {
   const router = useRouter()
   useEffect(() => {
     setLoaded(true)
-    console.log(typeof data)
     fetch('/api/main').then((data) => {
       return data.json()
     }).then((jsn) => {
-      console.log(jsn)
       setData(jsn)
     })
   }, [])

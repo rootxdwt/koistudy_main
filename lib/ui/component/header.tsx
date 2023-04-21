@@ -1,6 +1,6 @@
 import styled from "styled-components"
 import { RiUser3Fill } from 'react-icons/ri'
-import { MdDarkMode, MdLightMode } from 'react-icons/md'
+import { MdDarkMode, MdLightMode, MdOutlineSearch } from 'react-icons/md'
 import { FiChevronDown } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux';
 import { StateType } from "../../store";
@@ -159,6 +159,7 @@ interface PropObj {
   name: string,
   action: any
 }
+
 
 export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
   const dispatch = useDispatch()

@@ -202,10 +202,10 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
                     <span className="circle"></span><h3>{contextData.status}</h3>
                 </div>
                 <div className="mHolder">
-                    <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "실행에 실패했습니다" : "틀렸습니다" : "맞았습니다"} </p>
-                    <p className="icon">
+                    <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "런타임 에러가 발생했습니다" : "틀렸습니다" : "맞았습니다"} </p>
+                    {contextData.errorStatement == "NONE" ? <p className="icon">
                         <FiChevronDown />
-                    </p>
+                    </p> : <></>}
                 </div>
 
             </div>
