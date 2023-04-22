@@ -10,7 +10,7 @@ import { LanguageHandler } from "../pref/languageLib";
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
 const Preferences = {
-    defaultContainerPersistTime: 10,
+    defaultContainerPersistTime: 60,
     workingDir: "/var/execDir"
 }
 
@@ -67,6 +67,7 @@ export class Judge {
                     Memory: this.memory,
                     Privileged: false,
                     CpuPercent: 3,
+                    CapDrop: ['MKNOD', 'SYS_ADMIN', 'SYS_CHROOT', 'SYS_BOOT', 'SYS_MODULE', 'SYS_PTRACE', 'SYSLOG']
                 },
                 Entrypoint: [
                     "/bin/sh",
@@ -124,6 +125,21 @@ export class Judge {
         })
     }
 
+
+    runInput = async (cont: Container) => {
+        let runCommand: string
+        try {
+            runCommand = this.languageHandlerInstance.getRunCodeCommand()
+        } catch (e) {
+            await Terminate(cont)
+            throw new Error(`Unsupported language`);
+        }
+        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
+    }
+
+    endInput = async (cont: Container) => {
+        await Terminate(cont)
+    }
 
     testCode = async (cont: Container, test: testArgs) => {
 

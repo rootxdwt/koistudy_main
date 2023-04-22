@@ -15,6 +15,7 @@
     "@types/node": "18.15.11",
     "@types/react": "18.0.31",
     "@types/react-dom": "18.0.11",
+    "@types/socket.io": "^3.0.2",
     "@types/styled-components": "^5.1.26",
     "@uiw/codemirror-extensions-langs": "^4.19.11",
     "@uiw/codemirror-theme-github": "^4.19.11",
@@ -42,6 +43,8 @@
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",
     "shescape": "^1.6.5",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
     "styled-components": "^5.3.9",
     "typescript": "5.0.3",
     "unified": "^10.1.2"
