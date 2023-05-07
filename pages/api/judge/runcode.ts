@@ -4,6 +4,7 @@ import { Server as NetServer } from "http";
 import { Judge } from "@/lib/judge/runjudge";
 import { Container } from "node-docker-api/lib/container";
 import { ChildProcessWithoutNullStreams } from "child_process";
+import { verifyJWT } from "@/lib/customCrypto";
 
 export const config = {
     api: {
@@ -21,6 +22,19 @@ export default async (req: NextApiRequest, res: any) => {
         res.socket.server.io = io;
         let judge: Judge
         let container: Container
+
+        io.use(async (socket, next) => {
+            try {
+                const verifyData = await verifyJWT(socket.request.rawHeaders[socket.request.rawHeaders.indexOf("Authorization") + 1], "ABCD", true)
+                if (verifyData.valid) {
+                    next()
+                } else {
+                    next(new Error("unauthorized"));
+                }
+            } catch (e) {
+                next(new Error("unauthorized"));
+            }
+        });
 
         io.on('connection', async socket => {
             let baseCommand: ChildProcessWithoutNullStreams
@@ -68,7 +82,6 @@ export default async (req: NextApiRequest, res: any) => {
                 } catch (msg: any) {
                     socket.emit('error', msg.detail)
                 }
-
             })
         })
     }

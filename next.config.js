@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	reactStrictMode: true,
 	compiler: {
 		styledComponents: true,
 	},
@@ -9,6 +8,10 @@ const nextConfig = {
 			{
 				protocol: 'http',
 				hostname: 'koistudy.net',
+			},
+			{
+				protocol: 'https',
+				hostname: 'cdn.ecdev.me',
 			},
 		],
 	},

@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { Judge } from '@/lib/judge/runjudge'
-import { MongoClient } from 'mongodb'
 import sanitize from 'mongo-sanitize'
-
+import mongoose from 'mongoose'
+import ProblemModel from "lib/schema/problemSchema"
 
 type Data = {
     status: string
@@ -16,19 +16,16 @@ export default async function handler(
     res: NextApiResponse<Data>
 ) {
     try {
-        const url = 'mongodb://localhost:27017';
-        const client = new MongoClient(url);
-
-        const db = client.db("main");
-        const collection = db.collection('Problems');
-        await client.connect();
+        const url = 'mongodb://localhost:27017/main';
+        mongoose.connect(url)
+        console.log(req.headers["x-middleware-uid"])
 
         const { id } = req.query
         if (typeof id != "string") {
             res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
             return
         }
-        const data = await collection.findOne({ ProblemCode: sanitize(parseInt(id)) })
+        const data = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id)) }).exec()
         const { TestProgress, SupportedLang, Mem } = JSON.parse(JSON.stringify(data))
         if (req.method !== 'POST') {
             res.status(405).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })

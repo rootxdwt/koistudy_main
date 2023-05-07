@@ -11,9 +11,10 @@ import { useEffect, useRef, useState } from "react";
 import { connect } from "socket.io-client";
 import copy from 'copy-to-clipboard';
 import { TbCopy } from 'react-icons/tb'
+import { useRouter } from "next/router";
 
 const CodeEditAreaComponent = styled.div`
-display;flex;
+display:flex;
 overflow: hidden;
 margin-top: 30px;
 margin-bottom: 10px;
@@ -74,7 +75,7 @@ margin-left:-20px;
 cursor:col-resize;
 display:flex;
 align-items:center;
-justofy-content:center;
+justify-content:center;
 &:hover {
     background-color: ${props => props.theme.Button.backgroundColor};
 }
@@ -91,6 +92,11 @@ z-index:2;
 height: 170px;
 overflow:scroll;
 bottom:120px;
+-ms-overflow-style: none;
+scrollbar-width: none; 
+&::-webkit-scrollbar {
+    display: none;
+  }
 `
 const ConsoleHeader = styled.div`
 display:flex;
@@ -137,15 +143,29 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
     const [fixValue, setValue] = useState("")
     const [consoleCleared, setconsoleCleared] = useState(false)
     const [isCopied, setIsCopied] = useState(false)
+    const router = useRouter()
     const copyText = (text: string) => {
         setIsCopied(true)
         copy(text)
         setTimeout(() => setIsCopied(false), 1000)
     }
     useEffect((): any => {
+        const tk = localStorage.getItem("tk") || ""
+
         socket = connect("localhost:3000", {
             path: "/api/judge/runcode",
+            extraHeaders: {
+                Authorization: tk
+            }
         })
+        socket.on("connect_error", (err: any) => {
+            socket.disconnect()
+            if (err.description == 401 || err.message == "unauthorized") {
+                router.push("/auth/login")
+            } else {
+                setValue("Failed connecting with server")
+            }
+        });
         socket.on("connect", () => {
             socket.emit("codeData", { data: props.codeData, typ: props.codeType })
         });
@@ -188,6 +208,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
                 </ConsoleBtnHolder>
             </ConsoleHeader>
             <CodeMirror
+                height="110px"
                 onChange={(v, _) => setInputData(v)}
                 placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Compiling.."}
                 onKeyDown={(e) => { if (e.key == "Enter") { socket.emit("input", inputData?.split("\n")[inputData?.split("\n").length - 2] + "\n") } }}

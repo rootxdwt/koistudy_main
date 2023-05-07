@@ -10,18 +10,17 @@ import { Header } from "@/lib/ui/component/header"
 
 import { useSelector } from 'react-redux';
 import { StateType } from "@/lib/store"
-import { MongoClient } from 'mongodb'
 import { useRouter } from "next/router"
 import sanitize from "mongo-sanitize"
 import Head from "next/head"
 
 import { Description } from "@/lib/ui/problemPages/description"
 import { Champion } from "@/lib/ui/problemPages/champion"
-import { Discussion } from "@/lib/ui/problemPages/discussion"
 import { SubmissionPage } from "@/lib/ui/problemPages/submission"
 import { SubmitResult, JudgeResponse } from "@/lib/ui/component/submissionMenu";
 import { CodeEditArea } from "@/lib/ui/component/codeEdit"
-
+import mongoose from "mongoose"
+import ProblemModel from "lib/schema/problemSchema"
 const ShowSub = keyframes`
 0%{
     opacity:0;
@@ -91,7 +90,12 @@ overflow:hidden;
 
 const submitCode = async (lang: String, code: string, num: number) => {
     const obj = JSON.stringify({ Lang: lang, Code: code })
-    return await (await fetch(`/api/judge/${num}`, { method: "POST", body: obj, headers: { "Content-type": "application/json" } })).json()
+    const tk = localStorage.getItem("tk") || ""
+    const resp = await fetch(`/api/judge/${num}`, { method: "POST", body: obj, headers: { "Content-type": "application/json", "Authorization": tk } })
+    if (!resp.ok) {
+        throw new Error("HTTP")
+    }
+    return await resp.json()
 }
 
 
@@ -115,8 +119,6 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
                 solved={problemData.solved}
                 rating={problemData.rating}
             />
-        case "discussion":
-            return <Discussion />
         case "champion":
             return <Champion />
         case "submission":
@@ -128,24 +130,23 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
 
 export default function Problem(data: any) {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved } = data.Oth
-    const [loaded, setLoadState] = useState<boolean>()
     const [isSubmitShowing, setSubmitShowState] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse>()
 
     const router = useRouter()
 
-
-    useEffect(() => {
-        setLoadState(true)
-    }, [])
     const isDark = useSelector<StateType, boolean>(state => state.theme);
 
     const detCode = async (t: string, c: string) => {
-        setSubmitShowState(true)
-        var jsn = await submitCode(t, c, ProblemCode)
-        if (jsn) {
-            setSubmitShowState(false)
-            setContextData(jsn)
+        try {
+            setSubmitShowState(true)
+            var jsn = await submitCode(t, c, ProblemCode)
+            if (jsn) {
+                setSubmitShowState(false)
+                setContextData(jsn)
+            }
+        } catch (e) {
+            router.push("/auth/login")
         }
     }
     return (
@@ -160,7 +161,6 @@ export default function Problem(data: any) {
                 <Header at={
                     [
                         { name: "description", action: () => router.push(`${router.query.id![0]}/description`) },
-                        { name: "discussion", action: () => router.push(`${router.query.id![0]}/discussion`) },
                         { name: "submission", action: () => router.push(`${router.query.id![0]}/submission`) },
                         { name: "champion", action: () => router.push(`${router.query.id![0]}/champion`) }
                     ]
@@ -168,43 +168,36 @@ export default function Problem(data: any) {
                     currentPage={router.query.id![1]}
                 />
                 <GlobalStyle />
-                {loaded ?
-                    <>
-                        <Holder>
-                            {isSubmitShowing ?
-                                <Submitted />
+                <>
+                    <Holder>
+                        {isSubmitShowing ?
+                            <Submitted />
+                            :
+                            <></>
+                        }
+                        <Internal rating={rating}>
+                            <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating }} />
+                            <CodeEditArea
+                                SupportedLang={SupportedLang}
+                                submitFn={(a: string, b: string) => detCode(a, b)}
+                            />
+                            {contextData && !isSubmitShowing ?
+                                <SubmitResult contextData={contextData} />
                                 :
-                                <></>
-                            }
-                            <Internal rating={rating}>
-                                <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating }} />
-                                <CodeEditArea
-                                    SupportedLang={SupportedLang}
-                                    submitFn={(a: string, b: string) => detCode(a, b)}
-                                />
-                                {contextData && !isSubmitShowing ?
-                                    <SubmitResult contextData={contextData} />
-                                    :
-                                    <></>}
-                            </Internal>
-                        </Holder></> :
-                    <></>
-                }
+                                <></>}
+                        </Internal>
+                    </Holder></>
             </ThemeProvider>
 
         </>)
 }
 
 export const getServerSideProps = async (context: any) => {
-    const url = 'mongodb://localhost:27017';
-    const client = new MongoClient(url);
-
-    const db = client.db("main");
-    const collection = db.collection('Problems');
-    await client.connect();
+    const url = 'mongodb://localhost:27017/main';
+    mongoose.connect(url)
     const { id } = context.query;
 
-    if (["description", "discussion", "submission", "champion"].indexOf(id[1]) == -1) {
+    if (["description", "submission", "champion"].indexOf(id[1]) == -1) {
         return {
             notFound: true,
         };
@@ -212,7 +205,7 @@ export const getServerSideProps = async (context: any) => {
 
     try {
         if (typeof id[0] == "string") {
-            const findDC = await collection.findOne({ ProblemCode: parseInt(sanitize(id[0])) })
+            const findDC = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) }).exec();
             const { TestProgress, ...Oth } = JSON.parse(JSON.stringify(findDC))
             return {
                 props: { Oth }

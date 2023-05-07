@@ -25,7 +25,7 @@ display:flex;
 flex-direction:column;
 padding-bottom: 60px;
 width:100%;
-overflow:scroll;
+overflow-y:scroll;
 padding-right:20px;
 @media (max-width: 700px) {
     padding-right:0;
@@ -134,6 +134,7 @@ font-family: 'Poppins',sans-serif;
     text-align:left;
     background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 18px;
   }

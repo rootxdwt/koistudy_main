@@ -208,7 +208,7 @@ export default function Home() {
   }, [])
   return (
     <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-      <Header at={[{ name: "home", action: () => router.push("/") }, { name: "Problems", action: () => router.push("/problems") }]} currentPage="home" />
+      <Header at={[{ name: "home", action: () => router.push("/") }, { name: "problems", action: () => router.push("/problems") }]} currentPage="home" />
       <GlobalStyle />
       {loaded ?
         <>
