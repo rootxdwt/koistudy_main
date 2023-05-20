@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 const CodeEditAreaComponent = styled.div`
 display:flex;
 overflow: hidden;
+overflow-x:scroll;
 margin-top: 30px;
 margin-bottom: 10px;
 height: 100%;
@@ -30,6 +31,9 @@ align-items:center;
 
 const RunBtn = styled(Button)`
 width:30px;
+`
+
+const SubmitBtn = styled(Button)`
 `
 
 const Submission = styled.div`
@@ -100,7 +104,7 @@ scrollbar-width: none;
 `
 const ConsoleHeader = styled.div`
 display:flex;
-font-size: 10pt;
+font-size: 13px;
 color: ${props => props.theme.Body.TextColorLevels[3]};
 padding: 0px 10px;
 height: 40px;
@@ -121,11 +125,11 @@ display:flex;
 const ConsoleName = styled.div`
 display:flex;
 align-items:center;
-font-size: 13pt;
+font-size: 17px;
 
 & p {
     margin-right: 5px;
-    font-size: 10pt;
+    font-size: 13px;
 }
 `
 const ConsoleButtonArea = styled(RunBtn)`
@@ -302,7 +306,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                 />
             </CodeEditAreaComponent>
             {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
-            <Submission><Button onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</Button>
+            <Submission><SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</SubmitBtn>
                 <RunBtn onClick={() => setRunningState(!isRunning)}>
                     {isRunning ? <BsStopFill /> : <BsFillPlayFill />}
                 </RunBtn>

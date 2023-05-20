@@ -11,7 +11,7 @@ export default async function handler(
         const url = 'mongodb://localhost:27017/main';
         mongoose.connect(url)
 
-        const data = await userSchema.find({ Uid: uid, }, 'Id Mail MailVerified -_id PfpURL isAdmin Rank')
+        const data = await userSchema.find({ Uid: uid, }, 'Id Mail MailVerified Uid -_id PfpURL isAdmin Rank')
         res.status(200).json(data[0])
 
     } catch (e) {

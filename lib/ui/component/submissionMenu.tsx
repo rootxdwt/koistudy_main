@@ -2,11 +2,13 @@ import styled, { keyframes } from "styled-components"
 import {
     useState,
     Fragment,
+    useEffect,
 } from "react"
 
 import { BsCircle, BsXLg } from "react-icons/bs"
 import { TbLetterT } from 'react-icons/tb'
 import { FiChevronDown } from 'react-icons/fi'
+import { AC, AW, TLE } from "../DefaultComponent"
 
 const Showresult = keyframes`
 0%{
@@ -57,7 +59,7 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 & h3 {
     margin:0;
     color: ${props => props.theme.Title.textColor};
-    font-size: 12pt;
+    font-size: 16px;
     width: 100px;
     margin-left: 10px;
 }
@@ -69,7 +71,7 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 }
 & p {
     margin:0;
-    font-size: 10pt;
+    font-size: 13px;
 }
 & .top {
     height: 60px;
@@ -139,11 +141,11 @@ align-items:center;
 & .TCtitle {
     font-weight:normal;
     color: ${props => props.theme.Body.TextColorLevels[1]};
-    font-size: 10pt;
+    font-size: 13px;
 }
 & .TCwr {
     color: ${props => props.theme.Body.TextColorLevels[0]};
-    font-size:10pt;
+    font-size:13px;
 }
 border-radius:5px;
 cursor:pointer;
@@ -169,11 +171,11 @@ color: ${props => props.theme.Body.TextColorLevels[3]};
     align-items:center;
 }
 & b{
-    font-size: 10pt;
+    font-size: 13px;
     color: ${props => props.theme.Body.TextColorLevels[2]};
 }
 & p {
-    font-size: 10pt;
+    font-size: 13px;
     margin-left: 10px;
 }
 
@@ -186,10 +188,14 @@ export interface JudgeResponse {
 }
 
 export const SubmitResult = (props: { contextData: JudgeResponse }) => {
-    const [caseDetail, setCaseDetail] = useState<number>(0)
+    const [caseDetail, setCaseDetail] = useState<number>()
     const [isResultExtended, setExtended] = useState(false)
 
     const { contextData } = props
+
+    useEffect(() => {
+        setCaseDetail(contextData.matchedTestCase.map(elem => elem.matched).indexOf(false))
+    }, [contextData])
 
     return (
         <SubmissionResult
@@ -218,7 +224,7 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
                             <Fragment key={index} >
                                 <TcItm isRight={elem.matched} onClick={() => { setCaseDetail(caseDetail == index ? -1 : index) }} isShown={caseDetail == index}>
                                     <div className="TCtitle">{index}</div>
-                                    <div className="TCwr">{elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}</div>
+                                    <div className="TCwr">{elem.matched ? <AC /> : elem.tle ? <TLE /> : <AW />}</div>
                                 </TcItm>
                                 <Details isShown={caseDetail == index}>
                                     <span>

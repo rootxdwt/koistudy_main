@@ -18,7 +18,6 @@ export default async function handler(
     try {
         const url = 'mongodb://localhost:27017/main';
         mongoose.connect(url)
-        console.log(req.headers["x-middleware-uid"])
 
         const { id } = req.query
         if (typeof id != "string") {
@@ -44,7 +43,8 @@ export default async function handler(
         }
         await judgeInstance.compileCode(container)
         var matchedTestCase = await judgeInstance.testCode(container, TestProgress)
-        res.status(200).json({ status: matchedTestCase.every(e => e.matched) ? 'Success' : 'Error', matchedTestCase: matchedTestCase, errorStatement: "NONE" })
+        const isCorrect = matchedTestCase.every(e => e.matched)
+        res.status(200).json({ status: isCorrect ? 'Success' : 'Error', matchedTestCase: matchedTestCase, errorStatement: "NONE" })
     } catch (e: any) {
         let statement: "CE" | "ISE" = e.message == "Compile error" ? "CE" : "ISE"
         res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })

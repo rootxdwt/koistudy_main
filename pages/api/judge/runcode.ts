@@ -12,7 +12,7 @@ export const config = {
     },
 };
 
-export default async (req: NextApiRequest, res: any) => {
+const RCPage = async (req: NextApiRequest, res: any) => {
     if (!res.socket.server.io) {
         const httpServer: NetServer = res.socket.server as any;
         const io = new ServerIO(httpServer, {
@@ -25,7 +25,7 @@ export default async (req: NextApiRequest, res: any) => {
 
         io.use(async (socket, next) => {
             try {
-                const verifyData = await verifyJWT(socket.request.rawHeaders[socket.request.rawHeaders.indexOf("Authorization") + 1], "ABCD", true)
+                const verifyData = await verifyJWT(socket.request.rawHeaders[socket.request.rawHeaders.indexOf("Authorization") + 1], process.env.JWTKEY!, true)
                 if (verifyData.valid) {
                     next()
                 } else {
@@ -88,3 +88,5 @@ export default async (req: NextApiRequest, res: any) => {
 
     res.end();
 };
+
+export default RCPage;

@@ -13,6 +13,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import copy from 'copy-to-clipboard';
 import { TbCopy, TbCheck } from 'react-icons/tb'
+import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
 import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
 import Image from "next/image";
@@ -20,7 +21,6 @@ import { useSelector } from "react-redux";
 import { StateType } from "@/lib/store";
 
 const DescHolder = styled.div`
-
 display:flex;
 flex-direction:column;
 padding-bottom: 60px;
@@ -117,37 +117,79 @@ const CodeElem = (prop: any) => {
     </CodeHolder>
 }
 
-const Itm = styled.div<{ rating: number }>`
-padding: 5px 0px;
+const Itm = styled.div<{ rating?: number }>`
+padding: 2px 15px;
 margin-right: 20px;
 border-radius: 5px;
 background-color: ${props => props.theme.Container.backgroundColor};
-padding: 5px 10px;
 font-family: 'Poppins',sans-serif;
-
+& p{
+    font-size: 11px!important;
+}
 & p.grad {
-    
-    font-size: 9pt;
     color: ${props => props.theme.Body.TextColorLevels[3]};
     text-align: center;
     margin: 0;
     text-align:left;
-    background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
+    background: ${props => props.rating && props.rating < 4 ? "linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    line-height: 18px;
   }
 & p.min {
-    font-size: 9pt;
     margin:0;
     color: ${props => props.theme.Body.TextColorLevels[3]};
-    line-height: 18px;
   }
 `
 
+const TPBtn = styled.div`
 
-export const Description = (props: { mdData: string, problemName: string, solved: number, rating: number }) => {
+    width: 29px;
+    height: 29px;
+
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 5px;
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+    background-color: ${props => props.theme.Container.backgroundColor};
+    &:hover {
+        background-color: ${props => props.theme.Button.backgroundColor};
+        &::after {
+        position:absolute;
+        content: "북마크";
+        margin-top: 65px;
+        font-size: 10px;
+        background-color: ${props => props.theme.Container.backgroundColor};
+        padding: 4px 10px;
+        border-radius: 4px;
+    }
+    }
+`
+
+const FavBtn = (props: { problemId: number }) => {
+    const [isFav, setFavState] = useState(false)
+    const toggleFav = () => {
+        fetch(`/api/user/favorites/${props.problemId}`, { method: isFav ? "DELETE" : "POST", headers: { Authorization: localStorage.getItem("tk")! } })
+            .then((resp) => resp.json())
+            .then((data) => { if (data.status) setFavState(!isFav) })
+    }
+    useEffect(() => {
+        fetch(`/api/user/favorites/${props.problemId}`, { method: "GET", headers: { Authorization: localStorage.getItem("tk")! } })
+            .then((resp) => resp.json())
+            .then((data) => { if (data.added) setFavState(true) })
+    }, [])
+    return (
+        <TPBtn onClick={toggleFav}>
+            {isFav ? <AiFillStar /> : <AiOutlineStar />}
+        </TPBtn>
+    )
+}
+
+
+export const Description = (props: { mdData: string, problemName: string, solved: number, rating: number, id: number }) => {
     const [markdownReact, setMdSource] = useState(<></>);
     useEffect(() => {
         unified()
@@ -177,6 +219,7 @@ export const Description = (props: { mdData: string, problemName: string, solved
                 <Itm rating={props.rating}>
                     <p className="min">{props.solved} solved</p>
                 </Itm>
+                <FavBtn problemId={props.id} />
             </div>
             {markdownReact}
         </DescHolder>

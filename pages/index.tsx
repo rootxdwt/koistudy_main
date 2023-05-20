@@ -60,7 +60,7 @@ position: relative;
   transform: scale(0.95);
 }
 & h2 {
-  font-size: 12pt;
+  font-size: 16px;
   color: ${props => props.theme.Container.titleColor};
   margin-top: 10px;
   word-break: keep-all;
@@ -68,16 +68,17 @@ position: relative;
   text-align:left;
 }
 & p {
-  font-size: 9pt;
+  font-size: 12px;
   color: ${props => props.theme.Body.TextColorLevels[3]};
   text-align: center;
   margin: 0;
   margin-left: 0;
   margin-right:auto;
   text-align:left;
-  background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgba(46,214,126,1) 0%, rgba(26,115,189,1) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
+  background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-family: 'Poppins',sans-serif;
 }
 & span {
   width: 100%;
@@ -207,24 +208,28 @@ export default function Home() {
     })
   }, [])
   return (
-    <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-      <Header at={[{ name: "home", action: () => router.push("/") }, { name: "problems", action: () => router.push("/problems") }]} currentPage="home" />
-      <GlobalStyle />
-      {loaded ?
-        <>
-          {
-            data ? <Holder>
-              <Myprob problems={data}></Myprob>
-              {/* <h1>대회</h1>
-        <p>현재 진행되고 있는 대회입니다</p>
-        <Probcard></Probcard> */}
-            </Holder> : <Holder>
-              <MainPageSkeleton isDark={isDark} />
-            </Holder>
-          }
-        </>
-        : <></>
-      }
-    </ThemeProvider>
+    <>
+      <Head>
+        <title>KOISTUDY</title>
+        <link rel='shortcut icon' href='favicon.ico' />
+      </Head>
+      <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
+        <Header currentPage="home" />
+        <GlobalStyle />
+        {loaded ?
+          <>
+            {
+              data ? <Holder>
+                <Myprob problems={data}></Myprob>
+                {/* <Probcard></Probcard> */}
+              </Holder> : <Holder>
+                <MainPageSkeleton isDark={isDark} />
+              </Holder>
+            }
+          </>
+          : <></>
+        }
+      </ThemeProvider>
+    </>
   )
 }

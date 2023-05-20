@@ -20,7 +20,7 @@ width: 100vw;
 height: 70px;
 display:flex;
 align-items:center;
-& div.h {
+& div.contentHolder {
     margin-left:auto;
     margin-right:auto;
     width: 1300px;
@@ -28,7 +28,6 @@ align-items:center;
     align-items:center;
     font-family: 'Poppins', sans-serif;
     color: ${props => props.theme.Body.TextColorLevels[3]};
-    justify-content: space-between;
     @media(max-width: 1800px) {
         width: 1200px;
       }
@@ -59,6 +58,7 @@ align-items:center;
     display:flex;
     align-items:center;
     cursor:pointer;
+    margin-left: 10px;
 }
 & span {
     display:flex;
@@ -69,9 +69,11 @@ align-items:center;
 
 const BtnHolder = styled.div`
 display:flex;
+margin-left:auto;
+margin-right:0;
 `
 const BtnComp = styled.p`
-font-size: 13pt;
+font-size: 17px;
 width: 30px;
 height: 30px;
 display:flex;
@@ -84,7 +86,7 @@ cursor:pointer;
 margin:0;
 margin-left: 20px;
 z-index:1;
-font-size:11pt;
+font-size:15px;
 &:hover {
     color: ${props => props.theme.Body.TextColorLevels[2]};
 }
@@ -144,11 +146,13 @@ justify-content:flex-start;
 const DropDownBtn = styled.span<{ isDropped: boolean }>`
     transform: rotate(${props => props.isDropped ? "180" : "0"}deg);
     transition: transform 0.3s cubic-bezier(.5,0,.56,.99);
+    cursor:pointer;
+    margin-left:10px!important;
 `
 
 const MenuNavBtn = styled.div<{ isActive: boolean }>`
 padding: 5px 15px;
-font-size: 9pt;
+font-size: 12px;
 margin-right: 10px;
 cursor:pointer;
 border-radius: 15px;
@@ -196,6 +200,15 @@ const ProfileBtnHolder = styled.div`
 
 `
 
+const LogoArea = styled.div`
+  display:flex;
+  align-items: center;
+  & p {
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+    margin-left: 10px;
+
+  }
+`
 const UserButton = styled.div`
   height: 50px;
   display:flex;
@@ -240,6 +253,9 @@ const UserButton = styled.div`
     text-overflow:ellipsis;
     white-space:nowrap;
   }
+  &:hover {
+    background-color: ${props => props.theme.Container.backgroundColor};
+  }
 
 `
 
@@ -267,6 +283,7 @@ interface UserResp {
   PfpURL: string
   Rank: number
   isAdmin: boolean
+  Uid: string
 }
 
 const HeaderSkeleton = (props: { isDark: boolean }) => {
@@ -283,7 +300,7 @@ const LogOutBtn = styled.div`
   display:flex;
   align-items:center;
   justify-content: flex-end;
-  font-size:10pt;
+  font-size:13px;
   padding: 5px 10px;
   border-radius: 5px;
 
@@ -294,12 +311,21 @@ const LogOutBtn = styled.div`
     color: ${props => props.theme.Body.TextColorLevels[1]};
   }
   & p{
-    font-size:8pt;
+    font-size:11px;
     margin:0;
     margin-left: 5px;
   }
 `
-export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
+
+const LoginInIdentifier = styled.div`
+  color: ${props => props.theme.Body.TextColorLevels[1]};
+  font-size: 13px;
+  display:flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+`
+export const Header = (props: { currentPage: string }) => {
   const dispatch = useDispatch()
   const isDark = useSelector<StateType, boolean>(state => state.theme);
   const [isLoaded, setLoadState] = useState(false)
@@ -311,7 +337,6 @@ export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
   const router = useRouter();
   useEffect(() => {
     if (userInfoShown) {
-      setJson(undefined)
       fetch('/api/user', { method: "POST", headers: { "Authorization": localStorage.getItem("tk") || "" } }).then((resp) => {
         if (!resp.ok) {
           setLogin(false)
@@ -328,12 +353,16 @@ export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
     <>
       {isLoaded ? <>
         < HeaderComp >
-          <div className={`h`}>
-            <p onClick={() => setShown(!isShown)} >{props.currentPage}
-              <DropDownBtn isDropped={isShown} >
-                <FiChevronDown />
-              </DropDownBtn>
-            </p>
+          <div className="contentHolder">
+            <LogoArea onClick={() => router.push("/")}>
+              <Image src="/logo.png" width={35} height={35} alt="koilogo" />
+              <p>
+                KOISTUDY
+              </p>
+            </LogoArea>
+            <DropDownBtn isDropped={isShown} onClick={() => setShown(!isShown)}>
+              <FiChevronDown />
+            </DropDownBtn>
             <BtnHolder>
               <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
                 <RiUser3Fill />
@@ -348,11 +377,12 @@ export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
         </HeaderComp >
         <Subheader isShown={isShown}>
           <SubHolder>
-            {props.at.map((elem, index) => <MenuNavBtn isActive={props.currentPage == elem.name} key={index} onClick={() => { elem.action(); setShown(false) }}>{elem.name}</MenuNavBtn>)}
+            <MenuNavBtn isActive={props.currentPage == "home"} onClick={() => { router.push("/") }}>Home</MenuNavBtn>
+            <MenuNavBtn isActive={props.currentPage == "problems"} onClick={() => { router.push("/problems") }}>Problems</MenuNavBtn>
           </SubHolder>
         </Subheader>
         {userInfoShown ?
-          <ProfileBtnHolder>
+          <ProfileBtnHolder onClick={() => { if (typeof userInfoJson !== "undefined") { router.push(`/user/${userInfoJson.Uid}`) } else if (!isLoggedIn) { router.push("/auth/login") } }}>
             <UserButton>
               {typeof userInfoJson !== "undefined" ?
                 <>
@@ -372,7 +402,7 @@ export const Header = (props: { at: Array<PropObj>, currentPage: string }) => {
                   </div>
                 </>
                 : <>
-                  {isLoggedIn ? <><HeaderSkeleton isDark={isDark} /></> : <>로그인하세요</>}
+                  {isLoggedIn ? <><HeaderSkeleton isDark={isDark} /></> : <LoginInIdentifier>로그인하세요</LoginInIdentifier>}
                 </>}
             </UserButton>
             {isLoggedIn && typeof userInfoJson !== "undefined" ? <LogOutBtn onClick={() => { localStorage.removeItem("tk"); router.reload() }}>

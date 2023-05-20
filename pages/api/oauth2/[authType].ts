@@ -40,8 +40,13 @@ export default async function handler(
         const url = 'mongodb://localhost:27017/main';
         mongoose.connect(url)
 
+        if (typeof process.env.JWTKEY === "undefined" || typeof process.env.GOOGLEPRIVATE === "undefined" || typeof process.env.GITHUBPRIVATE === "undefined") {
+            console.log("JWTKEY not specified in .env")
+            return
+        }
+
         if (authType == "github") {
-            var rsp = await fetch(`https://github.com/login/oauth/access_token?client_id=3ee621b68f1950df0ba0&client_secret=db922822fe4535d3a736f1cec8966a484dfe1455&code=${requestedData.code}&redirect_uri=http://localhost:3000/auth/redirect/github`, { method: "POST", headers: { Accept: "application/json" } })
+            var rsp = await fetch(`https://github.com/login/oauth/access_token?client_id=3ee621b68f1950df0ba0&client_secret=${process.env.GITHUBPRIVATE}&code=${requestedData.code}&redirect_uri=http://localhost:3000/auth/redirect/github`, { method: "POST", headers: { Accept: "application/json" } })
             const respJsn = await rsp.json()
 
             const infoReq = await fetch(`https://api.github.com/user/emails`, { headers: { Authorization: `token ${respJsn.access_token}` } })
@@ -51,7 +56,7 @@ export default async function handler(
             const data = await userSchema.find({ Mail: primaryMail.email })
             if (data.length < 1) {
                 accountExists = false
-                uid = crypto.randomBytes(32).toString('hex')
+                uid = crypto.randomBytes(10).toString('hex')
 
                 await userSchema.create({
                     Id: genId(),
@@ -63,7 +68,7 @@ export default async function handler(
                 uid = data[0].Uid
             }
         } else if (authType == "google") {
-            var rsp = await fetch('https://oauth2.googleapis.com/token', { method: "POST", body: JSON.stringify({ client_id: "417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com", client_secret: "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", code: requestedData.code, redirect_uri: "http://localhost:3000/auth/redirect/google", grant_type: "authorization_code" }) })
+            var rsp = await fetch('https://oauth2.googleapis.com/token', { method: "POST", body: JSON.stringify({ client_id: "417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com", client_secret: process.env.GOOGLEPRIVATE, code: requestedData.code, redirect_uri: "http://localhost:3000/auth/redirect/google", grant_type: "authorization_code" }) })
             const respJsn = await rsp.json()
             const infoReq = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${respJsn.id_token}`)
 
@@ -71,7 +76,7 @@ export default async function handler(
 
             const data = await userSchema.find({ Mail: userData.email })
             if (data.length < 1) {
-                uid = crypto.randomBytes(32).toString('hex')
+                uid = crypto.randomBytes(10).toString('hex')
                 accountExists = false
                 await userSchema.create({
                     Id: genId(),
@@ -87,7 +92,8 @@ export default async function handler(
             return
         }
 
-        let token = await generateJWT(uid, "ABCD", true)
+        let token = await generateJWT(uid, process.env.JWTKEY, true)
+
         res.status(200).json({ status: 'Success', accountExists: accountExists, token: token })
         return
     } catch (e) {

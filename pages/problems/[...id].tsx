@@ -106,6 +106,7 @@ interface ProblemDataProp {
     problemName: string
     solved: number
     rating: number
+    id: number
 
 }
 
@@ -118,6 +119,7 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
                 problemName={problemData.problemName}
                 solved={problemData.solved}
                 rating={problemData.rating}
+                id={problemData.id}
             />
         case "champion":
             return <Champion />
@@ -154,18 +156,12 @@ export default function Problem(data: any) {
             <Head>
                 <meta content={isDark ? "dark" : "light"} name="color-scheme" />
                 <title>
-                    {ProblemName}
+                    {ProblemName + " - KOISTUDY"}
                 </title>
             </Head>
             <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-                <Header at={
-                    [
-                        { name: "description", action: () => router.push(`${router.query.id![0]}/description`) },
-                        { name: "submission", action: () => router.push(`${router.query.id![0]}/submission`) },
-                        { name: "champion", action: () => router.push(`${router.query.id![0]}/champion`) }
-                    ]
-                }
-                    currentPage={router.query.id![1]}
+                <Header
+                    currentPage="problems"
                 />
                 <GlobalStyle />
                 <>
@@ -176,7 +172,7 @@ export default function Problem(data: any) {
                             <></>
                         }
                         <Internal rating={rating}>
-                            <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating }} />
+                            <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating, id: parseInt(router.query.id![0]) }} />
                             <CodeEditArea
                                 SupportedLang={SupportedLang}
                                 submitFn={(a: string, b: string) => detCode(a, b)}

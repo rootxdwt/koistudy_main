@@ -142,7 +142,7 @@ width: 90px;
 height: 30px;
 flex-shrink:0;
 font-family: 'Poppins',sans-serif;
-font-size:9pt;
+font-size:12px;
 border-left: solid 2px ${props => props.theme.Container.backgroundColor};
 background-color: ${props => props.theme.Body.backgroundColor};
 color: ${props => props.theme.Body.TextColorLevels[3]};
@@ -156,7 +156,7 @@ cursor:pointer;
 const Current = styled.div`
 padding: 6px 10px;
 font-family: 'Poppins',sans-serif;
-font-size:9pt;
+font-size:12px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -180,6 +180,29 @@ align-items: center;
 transform: rotate(${props => props.isDropped ? "180" : "0"}deg);
 margin-left: 10px;
 `
+
+const AnsIndicator = styled.div<{ bgColor: string }>`
+text-align: center;
+border-radius: 5px;
+background-color: ${props => props.bgColor};
+padding: 2px 10px;
+font-size: 11px;
+color: ${props => props.theme.Body.backgroundColor};
+width: 25px;
+
+`
+
+export const AW = () => {
+  return <AnsIndicator bgColor="rgb(175,80,76)">AW</AnsIndicator>
+}
+
+export const TLE = () => {
+  return <AnsIndicator bgColor="rgb(175, 155, 76)">TLE</AnsIndicator>
+}
+
+export const AC = () => {
+  return <AnsIndicator bgColor="rgb(106,187,105)">AC</AnsIndicator>
+}
 
 export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any }) => {
   const [isDropped, setDropped] = useState(false)

@@ -24,7 +24,7 @@ height: calc(100vh - 100px);
 `
 
 const PolicyContainer = styled.div`
-font-size: 8pt;
+font-size: 11px;
 margin-top: 20px;
 & a {
     color: ${props => props.theme.Body.TextColorLevels[1]};

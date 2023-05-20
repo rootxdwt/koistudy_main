@@ -29,7 +29,7 @@ const SigninBtn = styled.div<{ bgColor: string }>`
 background-color: ${props => props.bgColor};
 color: ${props => props.theme.Body.TextColorLevels[3]};
 margin-top: 13px;
-font-size: 9pt;
+font-size: 12px;
 display:flex;
 align-items:center;
 height: 35px;
@@ -52,7 +52,7 @@ justify-content:center;
 const PolicyContainer = styled.div`
 border-top: solid 1px ${props => props.theme.Button.backgroundColor};
 padding-top: 20px;
-font-size: 8pt;
+font-size: 11px;
 margin-top: 20px;
 & a {
     color: ${props => props.theme.Body.TextColorLevels[1]};
@@ -72,7 +72,7 @@ export default function Login(data: any) {
         <>
             <ThemeProvider theme={isDark ? DarkTheme : LightTheme} >
                 <GlobalStyle />
-                <Header at={[{ name: "home", action: () => router.push("/") }]} currentPage="login" />
+                <Header currentPage="login" />
                 {isLoaded ?
                     <ParentContainer>
                         <SigninBtn bgColor="#fff" onClick={() => router.push(`https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:3000/auth/redirect/google&client_id=417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email&state=${data.nonce}`)}>
