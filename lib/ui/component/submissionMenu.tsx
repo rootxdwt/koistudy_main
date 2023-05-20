@@ -39,11 +39,10 @@ width: 1300px;
     width: 800px;
   }
   @media(max-width: 900px) {
-    width: 80vw;
+    width: 90vw;
   }
-  @media (max-width: 700px) {
-    width: 80vw;
-    left: 10vw;
+  @media (max-width: 770px) {
+    width: 90vw;
 }
 display:flex;
 z-index:2;
@@ -194,7 +193,11 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
     const { contextData } = props
 
     useEffect(() => {
-        setCaseDetail(contextData.matchedTestCase.map(elem => elem.matched).indexOf(false))
+        if (contextData.matchedTestCase.every(elem => elem.matched)) {
+            setCaseDetail(0)
+        } else {
+            setCaseDetail(contextData.matchedTestCase.map(elem => elem.matched).indexOf(false))
+        }
     }, [contextData])
 
     return (

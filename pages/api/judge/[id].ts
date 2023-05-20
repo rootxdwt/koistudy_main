@@ -7,8 +7,9 @@ import ProblemModel from "lib/schema/problemSchema"
 type Data = {
     status: string
     errorStatement: "NONE" | "TLE" | "TC" | "ISE" | "CE" | "MNA"
-    matchedTestCase: Array<number>
+    matchedTestCase: Array<{ matched: boolean, tle: boolean }>
     codeDetail?: string
+    execTime?: number
 }
 
 export default async function handler(
@@ -42,9 +43,11 @@ export default async function handler(
             return
         }
         await judgeInstance.compileCode(container)
-        var matchedTestCase = await judgeInstance.testCode(container, TestProgress)
-        const isCorrect = matchedTestCase.every(e => e.matched)
-        res.status(200).json({ status: isCorrect ? 'Success' : 'Error', matchedTestCase: matchedTestCase, errorStatement: "NONE" })
+        const judgeresult = await judgeInstance.testCode(container, TestProgress)
+        var matchedCases = judgeresult[0]
+        const isCorrect = matchedCases.every(e => e.matched)
+
+        res.status(200).json({ status: isCorrect ? 'Success' : 'Error', matchedTestCase: matchedCases, errorStatement: "NONE", execTime: judgeresult[1] })
     } catch (e: any) {
         let statement: "CE" | "ISE" = e.message == "Compile error" ? "CE" : "ISE"
         res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })

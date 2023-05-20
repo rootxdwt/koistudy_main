@@ -68,7 +68,7 @@ margin-right:auto;
   width: 800px;
 }
 @media(max-width: 900px) {
-  width: 80%;
+  width: 100%;
   margin-left:auto;
   margin-right:auto;
 }

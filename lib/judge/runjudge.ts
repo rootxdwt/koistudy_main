@@ -1,5 +1,5 @@
 import { Docker } from "node-docker-api";
-import { Container } from "node-docker-api/lib/container";
+import container, { Container } from "node-docker-api/lib/container";
 import { spawn, exec } from "child_process";
 import fs from 'fs/promises'
 
@@ -9,9 +9,10 @@ import { LanguageHandler } from "../pref/languageLib";
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
+
+
 const Preferences = {
     defaultContainerPersistTime: 60,
-    workingDir: "/var/execDir"
 }
 
 interface testArgs {
@@ -20,13 +21,19 @@ interface testArgs {
 
 }
 
-const execAsync = (command: string): Promise<void> => {
+const avr = (data: Array<number>) => {
+    let sum = 0
+    for (var i = 0; i < data.length; i++) sum += data[i]
+    return sum / data.length
+}
+
+const execAsync = (command: string): Promise<string> => {
     return new Promise((resolve, reject) => {
-        exec(command, (err) => {
+        exec(command, (err, stdout) => {
             if (err) {
                 reject(err)
             } else {
-                resolve()
+                resolve(stdout.trim())
             }
         })
     })
@@ -46,15 +53,17 @@ export class Judge {
     filePrefix: string
     memory: Number
     languageHandlerInstance: LanguageHandler
+    userName: string
     constructor(lang: AcceptableLanguage, memory: number) {
         this.lang = lang
         this.memory = memory
         this.contName = crypto.randomBytes(10).toString('hex')
         this.languageHandlerInstance = new LanguageHandler(lang, this.contName)
         this.filePrefix = this.languageHandlerInstance.getPrefix()
+        this.userName = `a${crypto.randomBytes(5).toString('hex')}`
     }
 
-    CreateRunEnv = async (codeData: string) => {
+    CreateRunEnv = async (codeData: string): Promise<Container> => {
         try {
             let compiler = this.languageHandlerInstance.getImage()
             const cont = await docker.container.create({
@@ -62,31 +71,33 @@ export class Judge {
                 name: this.contName,
                 UsernsMode: 'host',
                 NetworkDisabled: true,
-                WorkingDir: Preferences.workingDir,
+                Cmd: [`adduser --disabled-password ${this.userName} && chmod 777 /home/${this.userName} && sleep ${Preferences.defaultContainerPersistTime}`],
+                WorkingDir: `/home/${this.userName}`,
                 HostConfig: {
                     Memory: this.memory,
                     Privileged: false,
-                    CpuPercent: 3,
-                    CapDrop: ['MKNOD', 'SYS_ADMIN', 'SYS_CHROOT', 'SYS_BOOT', 'SYS_MODULE', 'SYS_PTRACE', 'SYSLOG']
+                    NanoCpus: 1e9,
+                    CapDrop: ['MKNOD', 'SYS_ADMIN', 'SYS_CHROOT', 'SYS_BOOT', 'SYS_MODULE', 'SYS_PTRACE', 'SYSLOG'],
+                    Ulimits: [
+                        { Name: 'nofile', Soft: 4096, Hard: 8192 },
+                        { Name: 'nproc', Soft: 200, Hard: 400 }
+                    ]
                 },
                 Entrypoint: [
                     "/bin/sh",
                     "-c",
-                    `sleep ${Preferences.defaultContainerPersistTime}`
                 ],
             })
             await cont.start()
 
             const tempFileName = `${this.contName}.${this.filePrefix}`
             await fs.writeFile(tempFileName, codeData)
-            await execAsync(`docker cp ${tempFileName} ${this.contName}:${Preferences.workingDir}`)
+            await execAsync(`docker cp ${tempFileName} ${this.contName}:/home/${this.userName}`)
             await fs.unlink(tempFileName)
             return cont
 
-
-
         } catch (e) {
-            throw new Error("Error")
+            throw new Error("Failed creating container")
         }
     }
     compileCode = async (cont: Container) => {
@@ -99,7 +110,7 @@ export class Judge {
             throw new Error(`Unsupported language`);
         }
         const containerExecutor = await cont.exec.create({
-            Cmd: ["/bin/sh", "-c", compileCommand],
+            Cmd: ["su", "-", this.userName, '-c', compileCommand],
             AttachStdout: true,
             AttachStderr: true,
         });
@@ -134,14 +145,14 @@ export class Judge {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
         }
-        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
+        return spawn('docker', ['exec', '-i', cont.id, "su", "-", this.userName, '-c', runCommand])
     }
 
     endInput = async (cont: Container) => {
         await Terminate(cont)
     }
 
-    testCode = async (cont: Container, test: testArgs) => {
+    testCode = async (cont: Container, test: testArgs): Promise<[Array<{ matched: boolean, tle: boolean }>, number]> => {
 
         let runCommand: string
         try {
@@ -151,14 +162,16 @@ export class Judge {
             throw new Error(`Unsupported language`);
         }
         let matchedCases = Array(test["Tests"].length)
-
+        let caseTime = Array(test["Tests"].length)
         let isTLE: Array<boolean> = []
         await Promise.all(test["Tests"].map((elem, index) => {
             const tle = setTimeout(() => { isTLE[index] = true; if (test["Tests"].length - 1 <= index) Terminate(cont) }, elem.tl)
             return new Promise((resolve, reject) => {
-                let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
+                let baseCommand = spawn('docker', ['exec', '-i', cont.id, "su", "-", this.userName, '-c', runCommand])
                 baseCommand.stdin.write(elem.in.join("\n"))
                 baseCommand.stdin.end();
+                const startTime = Date.now()
+
                 let fullData = ""
 
                 baseCommand.stdout.on('data', (data) => {
@@ -170,6 +183,8 @@ export class Judge {
                     await Terminate(cont)
                 })
                 baseCommand.on('close', async (code) => {
+                    const endTime = Date.now()
+                    caseTime[index] = (endTime - startTime)
                     matchedCases[index] = { matched: false, tle: false, lim: elem.tl }
                     if (code == 137 && isTLE[index]) {
                         matchedCases[index]["tle"] = true
@@ -185,6 +200,6 @@ export class Judge {
         }))
 
         await Terminate(cont)
-        return matchedCases
+        return [matchedCases, Math.round(avr(caseTime) - 60)]
     }
 }

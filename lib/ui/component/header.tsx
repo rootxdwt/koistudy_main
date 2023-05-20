@@ -44,13 +44,12 @@ align-items:center;
         width: 800px;
       }
       @media(max-width: 900px) {
-        width: 80vw;
+        width: 90vw;
         margin-left:auto;
         margin-right:auto;
       }
-      @media (max-width: 700px) {
-        width: 80vw;
-        left: 10vw;
+      @media (max-width: 770px) {
+        width: 90vw;
     }
 
 }
@@ -131,12 +130,12 @@ width: 1300px;
     width: 800px;
   }
   @media(max-width: 900px) {
-    width: 80vw;
+    width: 90vw;
     margin-left:auto;
     margin-right:auto;
   }
-  @media (max-width: 700px) {
-    width: 80vw;
+  @media (max-width: 770px) {
+    width: 90vw;
     left: 10vw;
 }
 display:flex;
@@ -194,7 +193,7 @@ const ProfileBtnHolder = styled.div`
     --hwidth: 800px;
   }
   @media(max-width: 900px) {
-    --hwidth: 80vw;
+    --hwidth: 90vw;
   }
   right: calc((100vw - var(--hwidth))/2);
 

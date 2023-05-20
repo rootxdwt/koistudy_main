@@ -61,7 +61,7 @@ position:relative;
 margin-left:20px;
 overflow:hidden;
 padding-bottom: 70px;
-@media (max-width: 700px) {
+@media (max-width: 770px) {
     padding-left:0px;
     margin-left:0px;
     min-width: 100%!important;
@@ -83,7 +83,7 @@ justify-content:center;
 &:hover {
     background-color: ${props => props.theme.Button.backgroundColor};
 }
-@media (max-width: 700px) {
+@media (max-width: 770px) {
     display:none;
 }
 `

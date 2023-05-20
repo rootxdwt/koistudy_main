@@ -53,7 +53,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
             })
             socket.on('codeData', async msg => {
                 judge = new Judge(msg.typ, 256000000)
-                setTimeout(() => { judge.endInput(container); socket.emit("end", `maximum execution time exceeded(127)`); socket.disconnect() }, 20000)
+                setTimeout(() => { socket.emit("end", `maximum execution time exceeded(127)`); judge.endInput(container); socket.disconnect() }, 20000)
                 container = await judge.CreateRunEnv(msg.data)
                 try {
                     await judge.compileCode(container)
@@ -81,6 +81,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                     socket.emit('compileEnd', '')
                 } catch (msg: any) {
                     socket.emit('error', msg.detail)
+                    await judge.endInput(container)
                 }
             })
         })

@@ -52,8 +52,8 @@ justify-content:center;
 padding: 40px;
 position: relative;
 &:nth-child(1){
-  @media(max-width: 700px) {
-    margin-left: calc((100vw - 80vw)/2);
+  @media(max-width: 770px) {
+    margin-left: 5vw;
   }
 }
 &:hover {
@@ -103,9 +103,9 @@ flex-direction:row;
 &::-webkit-scrollbar {
   display: none;
 }
-@media(max-width: 700px) {
+@media(max-width: 770px) {
   width: 100vw;
-  margin-left: calc((100vw - 80vw)/-2);
+  margin-left: auto;
   margin-right:auto;
 }
 `
@@ -127,7 +127,7 @@ const SkeletonHolder = styled(HcardHolder)`
 & span {
   display:flex;
 }
-@media(max-width: 700px) {
+@media(max-width: 770px) {
   width: 100vw;
   margin-right:auto;
   &>span {

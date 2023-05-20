@@ -27,7 +27,7 @@ padding-bottom: 60px;
 width:100%;
 overflow-y:scroll;
 padding-right:20px;
-@media (max-width: 700px) {
+@media (max-width: 770px) {
     padding-right:0;
 }
 `

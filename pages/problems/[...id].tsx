@@ -49,12 +49,18 @@ background-color: rgba(0,0,0,.7);
 
 const Internal = styled.div<{ rating: number }>`
 width: 100%;
+margin-left:auto;
+margin-right: auto;
 height:calc(100vh - 70px);
 display:flex;
 overflow:hidden;
-@media (max-width: 700px) {
+@media(max-width: 900px) {
+    width: 90%;
+}
+@media (max-width: 770px) {
     height:auto;
     flex-direction:column;
+    width: 90vw;
 }
 & h1 {
     color: ${props => props.theme.Body.TextColorLevels[0]};

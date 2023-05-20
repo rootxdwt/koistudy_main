@@ -97,8 +97,6 @@ export default async function handler(
         res.status(200).json({ status: 'Success', accountExists: accountExists, token: token })
         return
     } catch (e) {
-        console.log(e)
-
         res.status(200).json({ status: 'Failed', detail: 'error' })
         return
     }
