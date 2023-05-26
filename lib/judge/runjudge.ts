@@ -78,7 +78,7 @@ export class Judge {
                     CapDrop: ['MKNOD', 'SYS_ADMIN', 'SYS_CHROOT', 'SYS_BOOT', 'SYS_MODULE', 'SYS_PTRACE', 'SYSLOG'],
                     Ulimits: [
                         { Name: 'nofile', Soft: 4096, Hard: 8192 },
-                        { Name: 'nproc', Soft: 200, Hard: 400 }
+                        { Name: 'nproc', Soft: 30, Hard: 31 }
                     ]
                 },
                 Entrypoint: [
