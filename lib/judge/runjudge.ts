@@ -53,14 +53,12 @@ export class Judge {
     filePrefix: string
     memory: Number
     languageHandlerInstance: LanguageHandler
-    userName: string
     constructor(lang: AcceptableLanguage, memory: number) {
         this.lang = lang
         this.memory = memory
         this.contName = crypto.randomBytes(10).toString('hex')
         this.languageHandlerInstance = new LanguageHandler(lang, this.contName)
         this.filePrefix = this.languageHandlerInstance.getPrefix()
-        this.userName = `a${crypto.randomBytes(5).toString('hex')}`
     }
 
     CreateRunEnv = async (codeData: string): Promise<Container> => {
@@ -71,8 +69,8 @@ export class Judge {
                 name: this.contName,
                 UsernsMode: 'host',
                 NetworkDisabled: true,
-                Cmd: [`adduser --disabled-password ${this.userName} && chmod 777 /home/${this.userName} && sleep ${Preferences.defaultContainerPersistTime}`],
-                WorkingDir: `/home/${this.userName}`,
+                Cmd: [`sleep ${Preferences.defaultContainerPersistTime}`],
+                WorkingDir: `/var/execDir`,
                 HostConfig: {
                     Memory: this.memory,
                     Privileged: false,
@@ -92,7 +90,7 @@ export class Judge {
 
             const tempFileName = `${this.contName}.${this.filePrefix}`
             await fs.writeFile(tempFileName, codeData)
-            await execAsync(`docker cp ${tempFileName} ${this.contName}:/home/${this.userName}`)
+            await execAsync(`docker cp ${tempFileName} ${this.contName}:/var/execDir`)
             await fs.unlink(tempFileName)
             return cont
 
@@ -110,7 +108,7 @@ export class Judge {
             throw new Error(`Unsupported language`);
         }
         const containerExecutor = await cont.exec.create({
-            Cmd: ["su", "-", this.userName, '-c', compileCommand],
+            Cmd: ["/bin/sh", "-c", compileCommand],
             AttachStdout: true,
             AttachStderr: true,
         });
@@ -145,7 +143,7 @@ export class Judge {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
         }
-        return spawn('docker', ['exec', '-i', cont.id, "su", "-", this.userName, '-c', runCommand])
+        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
     }
 
     endInput = async (cont: Container) => {
@@ -167,17 +165,17 @@ export class Judge {
         await Promise.all(test["Tests"].map((elem, index) => {
             const tle = setTimeout(() => { isTLE[index] = true; if (test["Tests"].length - 1 <= index) Terminate(cont) }, elem.tl)
             return new Promise((resolve, reject) => {
-                let baseCommand = spawn('docker', ['exec', '-i', cont.id, "su", "-", this.userName, '-c', runCommand])
+                let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
                 baseCommand.stdin.write(elem.in.join("\n"))
                 baseCommand.stdin.end();
                 const startTime = Date.now()
-
                 let fullData = ""
 
                 baseCommand.stdout.on('data', (data) => {
                     fullData += data.toString()
                 })
                 baseCommand.stderr.on('data', async (data) => {
+                    console.log(data.toString())
                     clearTimeout(tle)
                     reject("stdError")
                     await Terminate(cont)

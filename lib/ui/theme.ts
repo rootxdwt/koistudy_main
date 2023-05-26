@@ -6,8 +6,8 @@ export const DarkTheme = {
         TextColorLevels: [
             "#fff",
             "rgb(220,220,220)",
-            "rgb(170,170,170)",
-            "rgb(140,140,140)",
+            "rgb(180,180,180)",
+            "rgb(150,150,150)",
         ]
     },
     Button: {
@@ -30,9 +30,9 @@ export const LightTheme = {
         backgroundColor: "#fff",
         TextColorLevels: [
             "#000",
-            "rgb(55,55,55)",
-            "rgb(105,105,105)",
-            "rgb(135,135,135)"
+            "rgb(45,45,45)",
+            "rgb(95,95,95)",
+            "rgb(115,115,115)"
         ]
     },
     Button: {

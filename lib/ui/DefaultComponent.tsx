@@ -72,9 +72,16 @@ margin-right:auto;
   margin-left:auto;
   margin-right:auto;
 }
+
 & h1 {
-  margin:0;
-  margin-top:20px;
+ font-size: 25px;
+}
+& h2 {
+  font-size: 14.72px;
+  margin-top: 20px;
+}
+& h3 {
+  font-size: 14.72px;
 }
 & p {
   color: ${props => props.theme.Title.subColor};
@@ -189,6 +196,10 @@ padding: 2px 10px;
 font-size: 11px;
 color: ${props => props.theme.Body.backgroundColor};
 width: 25px;
+display: flex;
+align-items: center;
+justify-content: center;
+
 
 `
 

@@ -11,6 +11,7 @@
   "dependencies": {
     "@next/font": "13.2.4",
     "@reduxjs/toolkit": "^1.9.3",
+    "@sentry/nextjs": "^7.53.1",
     "@types/codemirror": "^5.60.7",
     "@types/node": "18.15.11",
     "@types/react": "18.0.31",

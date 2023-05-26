@@ -26,6 +26,7 @@ align-items:center;
     width: 1300px;
     display:flex;
     align-items:center;
+    justify-content: center;
     font-family: 'Poppins', sans-serif;
     color: ${props => props.theme.Body.TextColorLevels[3]};
     @media(max-width: 1800px) {
@@ -57,6 +58,7 @@ align-items:center;
     display:flex;
     align-items:center;
     cursor:pointer;
+    margin: 0;
     margin-left: 10px;
 }
 & span {

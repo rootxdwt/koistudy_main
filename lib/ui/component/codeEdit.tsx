@@ -140,6 +140,7 @@ margin-left: 20px;
     color: ${props => props.theme.Body.TextColorLevels[2]};
 }
 `
+
 let socket: any
 const RunResult = (props: { codeData: string, codeType: string }) => {
     const [isConsoleEditable, setEditableState] = useState(false)
@@ -147,6 +148,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
     const [fixValue, setValue] = useState("")
     const [consoleCleared, setconsoleCleared] = useState(false)
     const [isCopied, setIsCopied] = useState(false)
+    const [sent, setSent] = useState<string>("A4YOZcb8W2xjnblz")
     const router = useRouter()
     const copyText = (text: string) => {
         setIsCopied(true)
@@ -199,6 +201,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
 
         if (socket) return () => socket.disconnect();
     }, [])
+
     return (
 
         <ResultHolder>
@@ -213,9 +216,14 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
             </ConsoleHeader>
             <CodeMirror
                 height="110px"
-                onChange={(v, _) => setInputData(v)}
+                onChange={(v, _) => setInputData("A4YOZcb8W2xjnblz" + v)}
                 placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Compiling.."}
-                onKeyDown={(e) => { if (e.key == "Enter") { socket.emit("input", inputData?.split("\n")[inputData?.split("\n").length - 2] + "\n") } }}
+                onKeyDown={(e) => {
+                    if (e.key == "Enter") {
+                        socket.emit("input", inputData.split(sent)[1])
+                        setSent(inputData.split(sent)[1])
+                    }
+                }}
                 value={fixValue}
                 basicSetup={
                     {

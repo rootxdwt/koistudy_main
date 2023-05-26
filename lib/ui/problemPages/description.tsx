@@ -13,24 +13,11 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import copy from 'copy-to-clipboard';
 import { TbCopy, TbCheck } from 'react-icons/tb'
-import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
 import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { StateType } from "@/lib/store";
-
-const DescHolder = styled.div`
-display:flex;
-flex-direction:column;
-padding-bottom: 60px;
-width:100%;
-overflow-y:scroll;
-padding-right:20px;
-@media (max-width: 770px) {
-    padding-right:0;
-}
-`
 
 
 const CodeHolder = styled.div`
@@ -66,6 +53,7 @@ justify-content:center;
 const H2Elem = styled.h2`
 padding-bottom: 10px;
 margin-bottom: 10px;
+border-bottom: solid 2px ${props => props.theme.Container.backgroundColor};
 `
 
 const ImgElem = (props: any) => {
@@ -117,76 +105,12 @@ const CodeElem = (prop: any) => {
     </CodeHolder>
 }
 
-const Itm = styled.div<{ rating?: number }>`
-padding: 2px 15px;
-margin-right: 20px;
-border-radius: 5px;
-background-color: ${props => props.theme.Container.backgroundColor};
-font-family: 'Poppins',sans-serif;
-& p{
-    font-size: 11px!important;
-}
-& p.grad {
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-    text-align: center;
-    margin: 0;
-    text-align:left;
-    background: ${props => props.rating && props.rating < 4 ? "linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-& p.min {
-    margin:0;
-    color: ${props => props.theme.Body.TextColorLevels[3]};
-  }
-`
-
-const TPBtn = styled.div`
-
-    width: 29px;
-    height: 29px;
-
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 5px;
-    color: ${props => props.theme.Body.TextColorLevels[2]};
+const CodeText = styled.code`
     background-color: ${props => props.theme.Container.backgroundColor};
-    &:hover {
-        background-color: ${props => props.theme.Button.backgroundColor};
-        &::after {
-        position:absolute;
-        content: "북마크";
-        margin-top: 65px;
-        font-size: 10px;
-        background-color: ${props => props.theme.Container.backgroundColor};
-        padding: 4px 10px;
-        border-radius: 4px;
-    }
-    }
+    border: solid 1px ${props => props.theme.Button.backgroundColor};
+    padding: 0px 2px;
+    border-radius: 2px;
 `
-
-const FavBtn = (props: { problemId: number }) => {
-    const [isFav, setFavState] = useState(false)
-    const toggleFav = () => {
-        fetch(`/api/user/favorites/${props.problemId}`, { method: isFav ? "DELETE" : "POST", headers: { Authorization: localStorage.getItem("tk")! } })
-            .then((resp) => resp.json())
-            .then((data) => { if (data.status) setFavState(!isFav) })
-    }
-    useEffect(() => {
-        fetch(`/api/user/favorites/${props.problemId}`, { method: "GET", headers: { Authorization: localStorage.getItem("tk")! } })
-            .then((resp) => resp.json())
-            .then((data) => { if (data.added) setFavState(true) })
-    }, [])
-    return (
-        <TPBtn onClick={toggleFav}>
-            {isFav ? <AiFillStar /> : <AiOutlineStar />}
-        </TPBtn>
-    )
-}
 
 
 export const Description = (props: { mdData: string, problemName: string, solved: number, rating: number, id: number }) => {
@@ -201,7 +125,7 @@ export const Description = (props: { mdData: string, problemName: string, solved
             .use(rehypeReact, {
                 createElement,
                 Fragment,
-                components: { pre: CodeElem, img: ImgElem, h2: H2Elem },
+                components: { pre: CodeElem, img: ImgElem, h2: H2Elem, code: CodeText },
             })
             .process(props.mdData)
             .then((data) => {
@@ -209,19 +133,8 @@ export const Description = (props: { mdData: string, problemName: string, solved
             });
     }, [])
     return (
-
-        <DescHolder>
-            <h1>{props.problemName}</h1>
-            <div className="tags">
-                <Itm rating={props.rating}>
-                    <p className="grad">Rating {props.rating}</p>
-                </Itm>
-                <Itm rating={props.rating}>
-                    <p className="min">{props.solved} solved</p>
-                </Itm>
-                <FavBtn problemId={props.id} />
-            </div>
+        <>
             {markdownReact}
-        </DescHolder>
+        </>
     )
 }

@@ -41,7 +41,6 @@ const RCPage = async (req: NextApiRequest, res: any) => {
             socket.on('input', async msg => {
                 try {
                     baseCommand.stdin.write(msg)
-
                 } catch (msg: any) {
                     socket.emit('error', msg.detail)
                 }
@@ -66,6 +65,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                             socket.emit("end", `maximum output length exceeded`)
                             socket.disconnect()
                         }
+                        console.log(outdata)
                         socket.emit('data', data.toString())
                     })
                     baseCommand.stderr.on('data', async (data) => {
@@ -74,8 +74,8 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                         socket.disconnect()
                     })
                     baseCommand.on('close', async (code) => {
-                        await judge.endInput(container)
                         socket.emit("end", `${outdata}\nexited with code ${code}`)
+                        await judge.endInput(container)
                         socket.disconnect()
                     });
                     socket.emit('compileEnd', '')
