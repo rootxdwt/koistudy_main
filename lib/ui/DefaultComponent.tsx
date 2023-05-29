@@ -192,10 +192,10 @@ const AnsIndicator = styled.div<{ bgColor: string }>`
 text-align: center;
 border-radius: 5px;
 background-color: ${props => props.bgColor};
-padding: 2px 10px;
+width: 45px;
+height: 20px;
 font-size: 11px;
 color: ${props => props.theme.Body.backgroundColor};
-width: 25px;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -215,12 +215,12 @@ export const AC = () => {
   return <AnsIndicator bgColor="rgb(106,187,105)">AC</AnsIndicator>
 }
 
-export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any }) => {
+export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any, displayName: Array<{ name: any, displayName: string }> }) => {
   const [isDropped, setDropped] = useState(false)
   return (
     <DropDown>
       <Current onClick={() => setDropped(!isDropped)}>
-        {props.active}
+        {props.displayName.filter(elem => elem.name == props.active)[0].displayName}
         <DropArrow isDropped={isDropped}>
           <FiChevronDown />
         </DropArrow>
@@ -229,7 +229,7 @@ export const DropDownMenu = (props: { active: string, items: Array<string>, clic
         {props.items.map((item, index) => {
           return (
             <DButton key={index} isActive={item == props.active} onClick={() => { props.clickEventHandler(item); setDropped(false) }}>
-              {item}
+              {props.displayName[index].displayName}
             </DButton>
           )
         })}

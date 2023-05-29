@@ -7,6 +7,26 @@ export class LanguageHandler {
         this.name = name
         this.containerName = containerName
     }
+    getLangFullName = () => {
+        switch (this.name) {
+            case "python":
+                return "Python3"
+            case "go":
+                return "Go"
+            case "javascript":
+                return "JavaScript"
+            case "swift":
+                return "Swift"
+            case "cpp":
+                return "C++"
+            case "php":
+                return "PHP"
+            case "rust":
+                return "Rust"
+            case "r":
+                return "R"
+        }
+    }
     getPrefix = () => {
         switch (this.name) {
             case "python":

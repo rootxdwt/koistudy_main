@@ -24,6 +24,7 @@ import ProblemModel from "lib/schema/problemSchema"
 import Image from "next/image"
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
 import { FcCheckmark } from 'react-icons/fc'
+import { AcceptableLanguage } from "@/lib/pref/languageLib"
 const ShowSub = keyframes`
 0%{
     opacity:0;
@@ -190,8 +191,14 @@ const submitCode = async (lang: String, code: string, num: number) => {
     const obj = JSON.stringify({ Lang: lang, Code: code })
     const tk = localStorage.getItem("tk") || ""
     const resp = await fetch(`/api/judge/${num}`, { method: "POST", body: obj, headers: { "Content-type": "application/json", "Authorization": tk } })
+    if (resp.status == 429) {
+        throw new Error("toomanyreq")
+    }
+    if (resp.status == 401) {
+        throw new Error("unauthorized")
+    }
     if (!resp.ok) {
-        throw new Error("HTTP")
+        throw new Error("httperror")
     }
     return await resp.json()
 }
@@ -205,6 +212,7 @@ interface ProblemDataProp {
     solved: number
     rating: number
     id: number
+    supportedLang: Array<AcceptableLanguage>
 
 }
 
@@ -264,7 +272,7 @@ const SolvedIndicator = styled.div`
     cursor: pointer;
     border-radius: 5px;
     color: ${props => props.theme.Body.TextColorLevels[2]};
-    /* background-color: ${props => props.theme.Container.backgroundColor}; */
+    background-color: ${props => props.theme.Container.backgroundColor};
     margin-right: 20px;
     &:hover {
         &::after {
@@ -375,7 +383,7 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
                 solved={problemData.solved}
                 rating={problemData.rating}
                 id={problemData.id}
-            /> : currentPage == "submission" ? <SubmissionPage /> : currentPage == "champion" ? <Champion /> : <></>}
+            /> : currentPage == "submission" ? <SubmissionPage id={problemData.id} supportedLang={problemData.supportedLang} /> : currentPage == "champion" ? <Champion /> : <></>}
             <FooterElem />
         </DescHolder>
     )
@@ -398,8 +406,15 @@ export default function Problem(data: any) {
                 setSubmitShowState(false)
                 setContextData(jsn)
             }
-        } catch (e) {
-            router.push("/auth/login")
+        } catch (e: any) {
+            if (e.message == "toomanyreq") {
+                setSubmitShowState(false)
+            } else if (e.message == "unauthorized") {
+                router.push("/auth/login")
+            }
+            else {
+                console.log("unhandled error")
+            }
         }
     }
     return (
@@ -423,7 +438,7 @@ export default function Problem(data: any) {
                             <></>
                         }
                         <Internal rating={rating}>
-                            <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating, id: parseInt(router.query.id![0]) }} />
+                            <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating, id: parseInt(router.query.id![0]), supportedLang: SupportedLang }} />
                             <CodeEditArea
                                 SupportedLang={SupportedLang}
                                 submitFn={(a: string, b: string) => detCode(a, b)}

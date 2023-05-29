@@ -5,8 +5,6 @@ import {
     useEffect,
 } from "react"
 
-import { BsCircle, BsXLg } from "react-icons/bs"
-import { TbLetterT } from 'react-icons/tb'
 import { FiChevronDown } from 'react-icons/fi'
 import { AC, AW, TLE } from "../DefaultComponent"
 
@@ -137,6 +135,7 @@ background-color: ${props => props.isShown ? props.theme.Container.backgroundCol
 height: 43px;
 display:flex;
 align-items:center;
+border-bottom: solid 1px ${props => props.isShown ? "transparent" : props.theme.Button.backgroundColor};
 & .TCtitle {
     font-weight:normal;
     color: ${props => props.theme.Body.TextColorLevels[1]};
@@ -146,7 +145,7 @@ align-items:center;
     color: ${props => props.theme.Body.TextColorLevels[0]};
     font-size:13px;
 }
-border-radius:5px;
+border-radius:${props => props.isShown ? 5 : 0}px;
 cursor:pointer;
 &:hover {
     background-color:${props => props.theme.Container.backgroundColor};
@@ -182,7 +181,7 @@ color: ${props => props.theme.Body.TextColorLevels[3]};
 
 export interface JudgeResponse {
     errorStatement: string
-    matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number }>
+    matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number, exect: number }>
     status: "Success" | "Error"
 }
 
@@ -203,7 +202,7 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
     return (
         <SubmissionResult
             isExtended={isResultExtended}
-            tcLength={contextData.matchedTestCase.length > 5 ? 5 : contextData.matchedTestCase.length}
+            tcLength={contextData.matchedTestCase.length > 5 ? 7 : contextData.matchedTestCase.length + 2}
             isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
         >
             <div className="top" onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}>
@@ -232,16 +231,14 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
                                 <Details isShown={caseDetail == index}>
                                     <span>
                                         <b>
-                                            TL:
+                                            T/TL:
                                         </b>
                                         <p>
-                                            {elem.lim}ms
+                                            {elem.exect}ms/{elem.lim}ms
                                         </p>
                                     </span>
                                     <span>
-                                        {elem.matched ? <BsCircle /> : elem.tle ? <TbLetterT /> : <BsXLg />}
                                         <p>
-
                                             {elem.matched ? "맞았습니다" : elem.tle ? "시간 제한 초과" : "테스트 케이스 불일치"}
                                         </p>
 

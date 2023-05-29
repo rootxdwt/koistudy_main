@@ -15,4 +15,5 @@ const UserSchema = new mongoose.Schema({
     Favorites: { type: [{ id: String }] },
     Badges: { type: [{ id: String }] }
 })
-export default mongoose.models.Users || mongoose.model("Users", UserSchema);
+const model = mongoose.models.Users || mongoose.model("Users", UserSchema);
+export default model

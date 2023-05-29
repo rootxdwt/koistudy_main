@@ -51,7 +51,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                 }
             })
             socket.on('codeData', async msg => {
-                judge = new Judge(msg.typ, 256000000)
+                judge = new Judge(msg.typ, 256000000, 20)
                 setTimeout(() => { socket.emit("end", `maximum execution time exceeded(127)`); judge.endInput(container); socket.disconnect() }, 20000)
                 container = await judge.CreateRunEnv(msg.data)
                 try {
@@ -65,7 +65,6 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                             socket.emit("end", `maximum output length exceeded`)
                             socket.disconnect()
                         }
-                        console.log(outdata)
                         socket.emit('data', data.toString())
                     })
                     baseCommand.stderr.on('data', async (data) => {

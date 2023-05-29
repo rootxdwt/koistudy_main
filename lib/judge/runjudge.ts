@@ -9,12 +9,6 @@ import { LanguageHandler } from "../pref/languageLib";
 
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 
-
-
-const Preferences = {
-    defaultContainerPersistTime: 60,
-}
-
 interface testArgs {
     Tests: Array<{ in: Array<string>, out: Array<string>, tl: number }>
     Disallow: Array<string>
@@ -40,11 +34,13 @@ const execAsync = (command: string): Promise<string> => {
 }
 
 const Terminate = async (cont: Container) => {
-    var st: any = await cont.status()
-    if (["running", "stopped"].indexOf(st["data"]["State"]["Status"]) !== -1) {
-        await cont.kill()
-        await cont.delete({ force: true });
-    }
+    try {
+        var st: any = await cont.status()
+        if (["running", "stopped", "exited"].indexOf(st["data"]["State"]["Status"]) !== -1) {
+            await cont.kill()
+            await cont.delete({ force: true });
+        }
+    } catch (e) { }
 }
 
 export class Judge {
@@ -53,7 +49,9 @@ export class Judge {
     filePrefix: string
     memory: Number
     languageHandlerInstance: LanguageHandler
-    constructor(lang: AcceptableLanguage, memory: number) {
+    containerPresistTime: number
+    constructor(lang: AcceptableLanguage, memory: number, containerPresistTime: number) {
+        this.containerPresistTime = containerPresistTime
         this.lang = lang
         this.memory = memory
         this.contName = crypto.randomBytes(10).toString('hex')
@@ -69,7 +67,7 @@ export class Judge {
                 name: this.contName,
                 UsernsMode: 'host',
                 NetworkDisabled: true,
-                Cmd: [`sleep ${Preferences.defaultContainerPersistTime}`],
+                Cmd: [`sleep ${this.containerPresistTime + 200}&&shutdown -h `],
                 WorkingDir: `/var/execDir`,
                 HostConfig: {
                     Memory: this.memory,
@@ -150,7 +148,7 @@ export class Judge {
         await Terminate(cont)
     }
 
-    testCode = async (cont: Container, test: testArgs): Promise<[Array<{ matched: boolean, tle: boolean }>, number]> => {
+    testCode = async (cont: Container, test: testArgs): Promise<Array<{ matched: boolean, tle: boolean, exect: number }>> => {
 
         let runCommand: string
         try {
@@ -169,21 +167,20 @@ export class Judge {
                 baseCommand.stdin.write(elem.in.join("\n"))
                 baseCommand.stdin.end();
                 const startTime = Date.now()
+
                 let fullData = ""
 
                 baseCommand.stdout.on('data', (data) => {
                     fullData += data.toString()
                 })
                 baseCommand.stderr.on('data', async (data) => {
-                    console.log(data.toString())
                     clearTimeout(tle)
                     reject("stdError")
                     await Terminate(cont)
                 })
                 baseCommand.on('close', async (code) => {
                     const endTime = Date.now()
-                    caseTime[index] = (endTime - startTime)
-                    matchedCases[index] = { matched: false, tle: false, lim: elem.tl }
+                    matchedCases[index] = { matched: false, tle: false, lim: elem.tl, exect: (endTime - startTime - 40) }
                     if (code == 137 && isTLE[index]) {
                         matchedCases[index]["tle"] = true
                     } else {
@@ -198,6 +195,6 @@ export class Judge {
         }))
 
         await Terminate(cont)
-        return [matchedCases, Math.round(avr(caseTime) - 60)]
+        return matchedCases
     }
 }

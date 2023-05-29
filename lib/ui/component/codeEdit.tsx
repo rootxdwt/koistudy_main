@@ -12,6 +12,7 @@ import { connect } from "socket.io-client";
 import copy from 'copy-to-clipboard';
 import { TbCopy } from 'react-icons/tb'
 import { useRouter } from "next/router";
+import { LanguageHandler } from "@/lib/pref/languageLib";
 
 const CodeEditAreaComponent = styled.div`
 display:flex;
@@ -288,7 +289,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
             </Rearrange>
             <LangSelector>
 
-                <DropDownMenu active={currentCodeType} items={props.SupportedLang} clickEventHandler={setCodeType} />
+                <DropDownMenu active={currentCodeType} items={props.SupportedLang} displayName={props.SupportedLang.map((elem) => { return { name: elem, displayName: new LanguageHandler(elem, "").getLangFullName() } })} clickEventHandler={setCodeType} />
             </LangSelector>
             <CodeEditAreaComponent>
                 <CodeMirror
