@@ -1,4 +1,4 @@
-export type AcceptableLanguage = "cpp" | "python" | "go" | "javascript" | "swift" | "php" | "rust" | "r"
+export type AcceptableLanguage = "cpp" | "python" | "go" | "javascript" | "php" | "rust" | "r"
 
 export class LanguageHandler {
     name: AcceptableLanguage
@@ -15,8 +15,6 @@ export class LanguageHandler {
                 return "Go"
             case "javascript":
                 return "JavaScript"
-            case "swift":
-                return "Swift"
             case "cpp":
                 return "C++"
             case "php":
@@ -35,8 +33,6 @@ export class LanguageHandler {
                 return "go"
             case "javascript":
                 return "js"
-            case "swift":
-                return "swift"
             case "cpp":
                 return "cpp"
             case "php":
@@ -50,21 +46,19 @@ export class LanguageHandler {
     getImage = () => {
         switch (this.name) {
             case "python":
-                return "python:alpine3.17"
+                return "dockerfiles-py-koi"
             case "go":
-                return "golang:alpine3.17"
+                return "dockerfiles-golang-koi"
             case "javascript":
-                return "node"
-            case "swift":
-                return "swift"
+                return "dockerfiles-node-koi"
             case "cpp":
-                return "gcc"
+                return "dockerfiles-gcc-koi"
             case "php":
-                return "php"
+                return "dockerfiles-php-koi"
             case "rust":
-                return "rust"
+                return "dockerfiles-rust-koi"
             case "r":
-                return "r-base"
+                return "dockerfiles-r-koi"
         }
     }
     getCompileCommand = () => {
@@ -74,8 +68,6 @@ export class LanguageHandler {
                 return `g++ -o ${containerName} ${containerName}.cpp`
             case "go":
                 return `go build -o ${containerName} ${containerName}.go`
-            case "swift":
-                return `swiftc ${containerName}.swift`
             case "rust":
                 return `rustc ${containerName}.rs -o ${containerName}`
             case "php":
@@ -92,17 +84,16 @@ export class LanguageHandler {
         switch (this.name) {
             case "cpp":
             case "go":
-            case "swift":
             case "rust":
-                return `./${containerName}`
+                return [`./${containerName}`]
             case "python":
-                return `python3 ${containerName}.py`
+                return ['python3', `${containerName}.py`]
             case "javascript":
-                return `node ${containerName}.js`
+                return ['node', `${containerName}.js`]
             case "php":
-                return `php ${containerName}.php`
+                return ['php', `${containerName}.php`]
             case "r":
-                return `Rscript ${containerName}.R`
+                return ['Rscript', `${containerName}.R`]
             default:
                 throw new Error(`Unsupported language`);
         }

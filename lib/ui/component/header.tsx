@@ -72,6 +72,8 @@ const BtnHolder = styled.div`
 display:flex;
 margin-left:auto;
 margin-right:0;
+flex-direction: row;
+align-items: center;
 `
 const BtnComp = styled.p`
 font-size: 17px;
@@ -210,6 +212,24 @@ const LogoArea = styled.div`
 
   }
 `
+
+const LogoIcon = styled.div`
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+  &::before {
+    background: linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%);
+    width: 35px;
+    height: 26px;
+    content: "";
+    display: block;
+    position: absolute;
+    z-index: -1;
+    filter: blur(10px);
+    opacity: 0.7;
+  }
+`
 const UserButton = styled.div`
   height: 50px;
   display:flex;
@@ -326,6 +346,7 @@ const LoginInIdentifier = styled.div`
   height: 100%;
   align-items: center;
 `
+
 export const Header = (props: { currentPage: string }) => {
   const dispatch = useDispatch()
   const isDark = useSelector<StateType, boolean>(state => state.theme);
@@ -356,7 +377,9 @@ export const Header = (props: { currentPage: string }) => {
         < HeaderComp >
           <div className="contentHolder">
             <LogoArea onClick={() => router.push("/")}>
-              <Image src="/logo.png" width={35} height={35} alt="koilogo" />
+              <LogoIcon>
+                <Image src="/logo.png" width={35} height={35} alt="koilogo" />
+              </LogoIcon>
               <p>
                 KOISTUDY
               </p>

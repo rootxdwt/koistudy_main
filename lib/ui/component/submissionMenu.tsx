@@ -8,19 +8,38 @@ import {
 import { FiChevronDown } from 'react-icons/fi'
 import { AC, AW, TLE } from "../DefaultComponent"
 
-const Showresult = keyframes`
+const LoadingAnimation = keyframes`
 0%{
-    bottom: -100px;
+    rotate: 0deg;
 }
 100%{
-    bottom: -0px;
+    rotate: 360deg;
 }
 `
 
-const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number, isCorrect: boolean }>`
+const Loading = styled.span`
+    width: 8px;
+    height: 8px;
+    display: block;
+    border-radius: 10px;
+    border: solid 2px ${props => props.theme.Body.TextColorLevels[2]};
+    border-top: solid 2px ${props => props.theme.Body.backgroundColor};
+    animation: ${LoadingAnimation} 2s ease infinite;
+`
+
+const Circle = styled.span<{ Color: string }>`
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: ${props => props.Color};
+    transition: background-color 0.2s cubic-bezier(.5,0,.56,.99);
+`
+
+const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number }>`
 position:fixed;
 bottom:0;
 width: 1300px;
+border-top: solid 1px ${props => props.theme.Button.backgroundColor};
 @media(max-width: 1800px) {
     width: 1200px;
   }
@@ -47,7 +66,7 @@ z-index:2;
 flex-direction: column;
 align-items:flex-start;
 background-color:${props => props.theme.Body.backgroundColor};
-animation: ${Showresult} 0.5s cubic-bezier(.5,0,.56,.99);
+border-top: solid 1px${props => props.theme.Button.backgroundColor};
 height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "60px"};
 outline:none;
 -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -59,12 +78,6 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
     font-size: 16px;
     width: 100px;
     margin-left: 10px;
-}
-& .circle {
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: ${props => props.isCorrect ? "#48bd5f" : "#bd4848"};
 }
 & p {
     margin:0;
@@ -182,14 +195,25 @@ color: ${props => props.theme.Body.TextColorLevels[3]};
 export interface JudgeResponse {
     errorStatement: string
     matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number, exect: number }>
-    status: "Success" | "Error"
+    status: "Success" | "Error" | ""
 }
 
-export const SubmitResult = (props: { contextData: JudgeResponse }) => {
+export const SubmitResult = (props: { contextData: JudgeResponse | undefined, isJudging: boolean }) => {
     const [caseDetail, setCaseDetail] = useState<number>()
     const [isResultExtended, setExtended] = useState(false)
 
-    const { contextData } = props
+    let contextData: JudgeResponse
+
+    if (typeof props.contextData == "undefined") {
+        contextData = {
+            errorStatement: "",
+            status: "",
+            matchedTestCase: []
+        }
+    } else {
+        contextData = props.contextData
+    }
+
 
     useEffect(() => {
         if (contextData.matchedTestCase.every(elem => elem.matched)) {
@@ -203,17 +227,16 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
         <SubmissionResult
             isExtended={isResultExtended}
             tcLength={contextData.matchedTestCase.length > 5 ? 7 : contextData.matchedTestCase.length + 2}
-            isCorrect={contextData.matchedTestCase.length === contextData.matchedTestCase.filter(items => items.matched == true).length && contextData.status == "Success"}
         >
             <div className="top" onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}>
                 <div className="tHolder">
-                    <span className="circle"></span><h3>{contextData.status}</h3>
+                    <Circle Color={contextData.status == "Success" ? "#48bd5f" : contextData.status == "" ? "#919191" : "#bd4848"} />
                 </div>
                 <div className="mHolder">
-                    <p>{contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "런타임 에러가 발생했습니다" : "틀렸습니다" : "맞았습니다"} </p>
-                    {contextData.errorStatement == "NONE" ? <p className="icon">
-                        <FiChevronDown />
-                    </p> : <></>}
+                    <p>{props.isJudging ? "채점중입니다" : contextData.status == "" ? "채점되지 않았습니다" : contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "런타임 에러가 발생했습니다" : "틀렸습니다" : "맞았습니다"} </p>
+                    <p className="icon">
+                        {contextData.errorStatement == "NONE" ? <FiChevronDown /> : props.isJudging ? <Loading /> : <></>}
+                    </p>
                 </div>
 
             </div>
@@ -234,7 +257,7 @@ export const SubmitResult = (props: { contextData: JudgeResponse }) => {
                                             T/TL:
                                         </b>
                                         <p>
-                                            {elem.exect}ms/{elem.lim}ms
+                                            {elem.exect}s/{elem.lim}s
                                         </p>
                                     </span>
                                     <span>

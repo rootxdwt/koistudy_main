@@ -6,15 +6,44 @@ import { Holder } from "@/lib/ui/DefaultComponent"
 import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import { Header } from "@/lib/ui/component/header"
+import Image from "next/image";
 
 import { useSelector } from 'react-redux';
 import { StateType } from "@/lib/store"
 import { useRouter } from "next/router"
 
+const Banner = styled.div`
+width: 100%;
+height: 300px;
+overflow: hidden;
+position: relative;
+@media(max-width:900px) {
+    border-radius: 0px;
+}
+
+`
+
+const Pfp = styled.div<{ userRank: number }>`
+    margin-top: -50px;
+    border-radius: 100px;
+    overflow: hidden;
+    z-index: 1;
+    width: 100px;
+    height: 100px;
+    margin-left: 20px;
+    border: solid 10px ${props => props.userRank < 1 ? props.theme.Body.backgroundColor : "gold"};
+`
+
+const ProfileHolder = styled(Holder)`
+    padding-top: 0;
+`
+
+
 export default function UserPage(data: any) {
     const isDark = useSelector<StateType, boolean>(state => state.theme);
     const router = useRouter()
     const profileData = data
+    console.log(profileData)
     return (
         <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
             <GlobalStyle />
@@ -22,6 +51,12 @@ export default function UserPage(data: any) {
                 currentPage="user"
             />
             <Holder>
+                <Banner>
+
+                </Banner>
+                <Pfp userRank={profileData.Rank}>
+                    <Image src={profileData.PfpURL} alt="userprofilephoto" width={100} height={100} />
+                </Pfp>
                 <h1>
                     {profileData.Id}
                 </h1>

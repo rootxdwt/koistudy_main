@@ -11,44 +11,11 @@ import rehypeReact from "rehype-react";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import copy from 'copy-to-clipboard';
-import { TbCopy, TbCheck } from 'react-icons/tb'
-import CodeMirror from "@uiw/react-codemirror";
-import { loadLanguage } from '@uiw/codemirror-extensions-langs';
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { StateType } from "@/lib/store";
-
-
-const CodeHolder = styled.div`
-padding: 10px;
-border-radius: 10px;
-position:relative;
-display:flex;
-align-items:center;
-overflow:hidden;
-flex-shrink:0;
-background-color: ${props => props.theme.Container.backgroundColor};
-
-`
-
-const CopyBtn = styled.span`
-position:absolute;
-right: 10px;
-top: 10px;
-width: 25px;
-height: 25px;
-border-radius: 5px;
-color: ${props => props.theme.Body.TextColorLevels[3]};
-background-color: ${props => props.theme.Button.backgroundColor};
-cursor: pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-&:hover{
-    color: ${props => props.theme.Body.TextColorLevels[0]};
-}
-`
+import { CodeElem } from "../component/codeElem";
+import { AcceptableLanguage } from "@/lib/pref/languageLib";
 
 const H2Elem = styled.h2`
 padding-bottom: 10px;
@@ -56,54 +23,45 @@ margin-bottom: 10px;
 border-bottom: solid 2px ${props => props.theme.Container.backgroundColor};
 `
 
+const isValidImgJson = (str: string) => {
+    try {
+        let g = JSON.parse(str);
+        g["width"]
+        g["height"]
+        g["type"]
+        g["alt"]
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+interface ImgDataJSON {
+    alt: string
+    width: number
+    height: number
+    type: "bwDiagram" | "image"
+}
+
 const ImgElem = (props: any) => {
     const isDark = useSelector<StateType, boolean>(state => state.theme);
+    console.log(props.alt)
+    if (!isValidImgJson(props.alt)) {
+        return <></>
+    }
+
+    const ImgAbtJSON: ImgDataJSON = JSON.parse(props.alt)
+
     return (
-        <img src={props.src} alt={props.alt} style={{ objectFit: "contain", filter: props.alt == "bwDiagram" && isDark ? "invert(1)" : "invert(0)" }} />
+        <Image src={props.src}
+            alt={ImgAbtJSON["alt"]}
+            width={ImgAbtJSON["width"]}
+            height={ImgAbtJSON["height"]}
+            style={{ objectFit: "contain", filter: ImgAbtJSON["type"] == "bwDiagram" && isDark ? "invert(1)" : "invert(0)" }}
+        />
     )
 }
 
-const CodeElem = (prop: any) => {
-    const [isCopied, setIsCopied] = useState(false)
-    const [IsActive, setIsActive] = useState(false)
-
-    const copyText = (text: string) => {
-        setIsCopied(true)
-        copy(text)
-        setTimeout(() => setIsCopied(false), 1000)
-    }
-
-    let lang: "cpp" | "python" | "go" | "shell" | "php" | "swift" | "javascript" = "shell"
-    if (typeof prop.children[0].props.className == "string") {
-        lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
-    }
-    return <CodeHolder onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
-        <CodeMirror
-            editable={false}
-            basicSetup={
-                {
-                    drawSelection: false,
-                    lineNumbers: false,
-                    autocompletion: false,
-                    foldGutter: false,
-                    searchKeymap: false,
-                    highlightActiveLine: false,
-                    highlightActiveLineGutter: false
-                }
-            }
-            extensions={
-                [
-                    loadLanguage(lang)!
-                ].filter(Boolean)
-            }
-            value={prop.children[0].props.children[0]}
-            theme={"dark"}
-        />
-        {IsActive ? <CopyBtn onClick={() => copyText(prop.children[0].props.children[0])}>
-            {isCopied ? <TbCheck /> : <TbCopy />}
-        </CopyBtn> : <></>}
-    </CodeHolder>
-}
 
 const CodeText = styled.code`
     background-color: ${props => props.theme.Container.backgroundColor};
@@ -112,6 +70,16 @@ const CodeText = styled.code`
     border-radius: 2px;
 `
 
+
+const InternalCodeElem = (prop: any) => {
+    let lang: AcceptableLanguage | "shell" = "shell"
+    if (typeof prop.children[0].props.className == "string") {
+        lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
+    }
+    return (
+        <CodeElem lang={lang} data={prop.children[0].props.children[0]} />
+    )
+}
 
 export const Description = (props: { mdData: string, problemName: string, solved: number, rating: number, id: number }) => {
     const [markdownReact, setMdSource] = useState(<></>);
@@ -125,7 +93,7 @@ export const Description = (props: { mdData: string, problemName: string, solved
             .use(rehypeReact, {
                 createElement,
                 Fragment,
-                components: { pre: CodeElem, img: ImgElem, h2: H2Elem, code: CodeText },
+                components: { pre: InternalCodeElem, img: ImgElem, h2: H2Elem, code: CodeText },
             })
             .process(props.mdData)
             .then((data) => {

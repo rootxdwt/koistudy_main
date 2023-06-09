@@ -96,9 +96,9 @@ const DescHolder = styled.div`
 display:flex;
 flex-direction:column;
 width:100%;
-overflow-y:scroll;
+overflow-y:auto;
 padding-right:20px;
-
+height: calc(100% - 60px);
 @media (max-width: 770px) {
     padding-right:0;
 }
@@ -111,14 +111,10 @@ padding-right:20px;
 
 const FooterHolder = styled.footer`
     background-color: ${props => props.theme.Body.backgroundColor};
-    margin-bottom: 60px;
     margin-top: auto;
     display:flex;
     padding: 20px 0px;
-
     flex-direction: column;
-
-
 `
 
 
@@ -218,7 +214,7 @@ interface ProblemDataProp {
 
 const Itm = styled.div<{ rating?: number }>`
 padding: 2px 15px;
-margin-right: 20px;
+margin-right: 10px;
 border-radius: 5px;
 background-color: ${props => props.theme.Container.backgroundColor};
 font-family: 'Poppins',sans-serif;
@@ -230,10 +226,8 @@ font-family: 'Poppins',sans-serif;
     text-align: center;
     margin: 0;
     text-align:left;
-    background: ${props => props.rating && props.rating < 4 ? "linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
     -webkit-background-clip: text;
     background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 & p.min {
     margin:0;
@@ -273,7 +267,7 @@ const SolvedIndicator = styled.div`
     border-radius: 5px;
     color: ${props => props.theme.Body.TextColorLevels[2]};
     background-color: ${props => props.theme.Container.backgroundColor};
-    margin-right: 20px;
+    margin-right: 10px;
     &:hover {
         &::after {
         position:absolute;
@@ -342,14 +336,24 @@ const PageNav = styled.div`
     }
 `
 
-const PageBtn = styled.p<{ isActive: boolean }>`
+const PageBtn = styled.div<{ isActive: boolean }>`
     margin: 0;
-    padding: 0px 10px;
+    padding: 0px;
     margin-right: 50px;
-    padding-bottom: 5px;
-    border-bottom: solid 2px ${props => props.isActive ? props.theme.Body.TextColorLevels[2] : "transparent"} ;
+    padding-bottom: 6px;
+
+    border-bottom: solid 2px ${props => props.isActive ? props.theme.Body.TextColorLevels[2] : "transparent"};
     cursor: pointer;
-    font-size: 12px!important;
+    & p:hover {
+        background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+    }
+    & p {
+        transition: background-color 0.1s ease-in-out;
+        margin: 0;
+        font-size: 12px!important;
+        padding: 0px 15px;
+        border-radius: 5px;
+    }
 `
 
 const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDataProp }) => {
@@ -364,35 +368,35 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
                 <Itm rating={problemData.rating}>
                     <p className="grad">Rating {problemData.rating}</p>
                 </Itm>
-                <Itm rating={problemData.rating}>
-                    <p className="min">{problemData.solved} solved</p>
-                </Itm>
                 <FavBtn problemId={problemData.id} />
-                <SolvedIndicator>
+                {/* <SolvedIndicator>
                     <FcCheckmark />
-                </SolvedIndicator>
+                </SolvedIndicator> */}
             </ProbInfo>
             <PageNav>
-                <PageBtn isActive={currentPage == "description"} onClick={() => router.push(`${router.query.id![0]}/description`)}>설명</PageBtn>
-                <PageBtn isActive={currentPage == "submission"} onClick={() => router.push(`${router.query.id![0]}/submission`)}>제출</PageBtn>
-                <PageBtn isActive={currentPage == "champion"} onClick={() => router.push(`${router.query.id![0]}/champion`)}>챔피언</PageBtn>
+                <PageBtn isActive={currentPage == "description"} onClick={() => router.push(`${router.query.id![0]}/description`)}>
+                    <p>설명</p></PageBtn>
+                <PageBtn isActive={currentPage == "submission"} onClick={() => router.push(`${router.query.id![0]}/submission`)}><p>제출</p></PageBtn>
+                <PageBtn isActive={currentPage == "champion"} onClick={() => router.push(`${router.query.id![0]}/champion`)}><p>챔피언</p></PageBtn>
             </PageNav>
-            {currentPage == "description" ? <Description
-                mdData={problemData.mdData}
-                problemName={problemData.problemName}
-                solved={problemData.solved}
-                rating={problemData.rating}
-                id={problemData.id}
-            /> : currentPage == "submission" ? <SubmissionPage id={problemData.id} supportedLang={problemData.supportedLang} /> : currentPage == "champion" ? <Champion /> : <></>}
-            <FooterElem />
+            {currentPage == "description" ? <>
+                <Description
+                    mdData={problemData.mdData}
+                    problemName={problemData.problemName}
+                    solved={problemData.solved}
+                    rating={problemData.rating}
+                    id={problemData.id}
+                />
+                <FooterElem />
+            </> : currentPage == "submission" ? <SubmissionPage id={problemData.id} supportedLang={problemData.supportedLang} /> : currentPage == "champion" ? <Champion /> : <></>}
         </DescHolder>
     )
 }
 
 export default function Problem(data: any) {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved } = data.Oth
-    const [isSubmitShowing, setSubmitShowState] = useState(false)
-    const [contextData, setContextData] = useState<JudgeResponse>()
+    const [isJudging, setIsJudging] = useState(false)
+    const [contextData, setContextData] = useState<JudgeResponse | undefined>()
 
     const router = useRouter()
 
@@ -400,20 +404,21 @@ export default function Problem(data: any) {
 
     const detCode = async (t: string, c: string) => {
         try {
-            setSubmitShowState(true)
+            setContextData(undefined)
+            setIsJudging(true)
             var jsn = await submitCode(t, c, ProblemCode)
             if (jsn) {
-                setSubmitShowState(false)
+                setIsJudging(false)
                 setContextData(jsn)
             }
         } catch (e: any) {
             if (e.message == "toomanyreq") {
-                setSubmitShowState(false)
+                setIsJudging(false)
             } else if (e.message == "unauthorized") {
                 router.push("/auth/login")
             }
             else {
-                console.log("unhandled error")
+                console.error("unhandled error")
             }
         }
     }
@@ -432,21 +437,13 @@ export default function Problem(data: any) {
                 <GlobalStyle />
                 <>
                     <Holder>
-                        {isSubmitShowing ?
-                            <Submitted />
-                            :
-                            <></>
-                        }
                         <Internal rating={rating}>
                             <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating, id: parseInt(router.query.id![0]), supportedLang: SupportedLang }} />
                             <CodeEditArea
                                 SupportedLang={SupportedLang}
-                                submitFn={(a: string, b: string) => detCode(a, b)}
+                                submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
                             />
-                            {contextData && !isSubmitShowing ?
-                                <SubmitResult contextData={contextData} />
-                                :
-                                <></>}
+                            <SubmitResult contextData={contextData} isJudging={isJudging} />
                         </Internal>
                     </Holder></>
             </ThemeProvider>

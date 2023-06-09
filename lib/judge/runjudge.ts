@@ -15,12 +15,6 @@ interface testArgs {
 
 }
 
-const avr = (data: Array<number>) => {
-    let sum = 0
-    for (var i = 0; i < data.length; i++) sum += data[i]
-    return sum / data.length
-}
-
 const execAsync = (command: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         exec(command, (err, stdout) => {
@@ -43,6 +37,28 @@ const Terminate = async (cont: Container) => {
     } catch (e) { }
 }
 
+const GetMem = async (cont: Container): Promise<number> => {
+    const containerExecutor = await cont.exec.create({
+        Cmd: ["cat", "/proc/meminfo"],
+        AttachStdout: true,
+        AttachStderr: true,
+    });
+    const stream: any = await containerExecutor.start({ Detach: false })
+    return new Promise((resolve, reject) => {
+        stream.on('data', (data: Buffer) => {
+            let oriStr = data.toString()
+            resolve(
+                parseInt(oriStr.match(/MemTotal:\s+(\d+)\s+kB/)![1])
+                -
+                parseInt(oriStr.match(/MemAvailable:\s+(\d+)\s+kB/)![1])
+            )
+        })
+        stream.on('error', (data: Buffer) => {
+            reject('failed')
+        })
+    })
+}
+
 export class Judge {
     lang: AcceptableLanguage
     contName: string
@@ -59,7 +75,7 @@ export class Judge {
         this.filePrefix = this.languageHandlerInstance.getPrefix()
     }
 
-    CreateRunEnv = async (codeData: string): Promise<Container> => {
+    CreateRunEnv = async (codeData: string): Promise<any> => {
         try {
             let compiler = this.languageHandlerInstance.getImage()
             const cont = await docker.container.create({
@@ -73,10 +89,26 @@ export class Judge {
                     Memory: this.memory,
                     Privileged: false,
                     NanoCpus: 1e9,
-                    CapDrop: ['MKNOD', 'SYS_ADMIN', 'SYS_CHROOT', 'SYS_BOOT', 'SYS_MODULE', 'SYS_PTRACE', 'SYSLOG'],
+                    CapDrop: [
+                        'MKNOD',
+                        'SYS_ADMIN',
+                        'SYS_CHROOT',
+                        'SYS_BOOT',
+                        'SYS_MODULE',
+                        'SYS_PTRACE',
+                        'SYSLOG'
+                    ],
                     Ulimits: [
-                        { Name: 'nofile', Soft: 4096, Hard: 8192 },
-                        { Name: 'nproc', Soft: 30, Hard: 31 }
+                        {
+                            Name: 'nofile',
+                            Soft: 4096,
+                            Hard: 8192
+                        },
+                        {
+                            Name: 'nproc',
+                            Soft: 30,
+                            Hard: 31
+                        }
                     ]
                 },
                 Entrypoint: [
@@ -93,7 +125,7 @@ export class Judge {
             return cont
 
         } catch (e) {
-            throw new Error("Failed creating container")
+            console.log("docker not running")
         }
     }
     compileCode = async (cont: Container) => {
@@ -134,23 +166,33 @@ export class Judge {
 
 
     runInput = async (cont: Container) => {
-        let runCommand: string
+        let runCommand: Array<string>
         try {
             runCommand = this.languageHandlerInstance.getRunCodeCommand()
         } catch (e) {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
         }
-        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
+        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', ...runCommand])
     }
 
     endInput = async (cont: Container) => {
         await Terminate(cont)
     }
 
-    testCode = async (cont: Container, test: testArgs): Promise<Array<{ matched: boolean, tle: boolean, exect: number }>> => {
+    testCode = async (cont: Container, test: testArgs):
+        Promise<
+            Array<
+                {
+                    matched: boolean,
+                    tle: boolean,
+                    exect: number,
+                    memory: number
+                }
+            >
+        > => {
 
-        let runCommand: string
+        let runCommand: Array<string>
         try {
             runCommand = this.languageHandlerInstance.getRunCodeCommand()
         } catch (e) {
@@ -158,33 +200,55 @@ export class Judge {
             throw new Error(`Unsupported language`);
         }
         let matchedCases = Array(test["Tests"].length)
-        let caseTime = Array(test["Tests"].length)
         let isTLE: Array<boolean> = []
-        await Promise.all(test["Tests"].map((elem, index) => {
-            const tle = setTimeout(() => { isTLE[index] = true; if (test["Tests"].length - 1 <= index) Terminate(cont) }, elem.tl)
-            return new Promise((resolve, reject) => {
-                let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
+        await Promise.all(test["Tests"].map(async (elem, index) => {
+            const tle = setTimeout(
+                () => {
+                    isTLE[index] = true;
+                    if (test["Tests"].length - 1 <= index) Terminate(cont)
+                },
+                elem.tl)
+
+            return new Promise(async (resolve, reject) => {
+
+                let time: number, mem: number
+                let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/usr/bin/time', '-v', ...runCommand])
+
                 baseCommand.stdin.write(elem.in.join("\n"))
                 baseCommand.stdin.end();
                 const startTime = Date.now()
 
                 let fullData = ""
-
-                baseCommand.stdout.on('data', (data) => {
+                baseCommand.stdout.on('data', async (data) => {
                     fullData += data.toString()
                 })
                 baseCommand.stderr.on('data', async (data) => {
-                    clearTimeout(tle)
-                    reject("stdError")
-                    await Terminate(cont)
+                    const dta = data.toString()
+
+                    if (dta.includes("exited with non-zero status")) {
+                        clearTimeout(tle)
+                        reject("stdError")
+                        await Terminate(cont)
+                    } else {
+                        try {
+                            time = parseFloat(dta.match(/Elapsed \(wall clock\) time \(h:mm:ss or m:ss\): \d+m (\d+\.\d+)s/)[1])
+                            mem = parseInt(dta.match(/Maximum resident set size \(kbytes\): (\d+)/)[1])
+                        } catch (e) { }
+                    }
                 })
                 baseCommand.on('close', async (code) => {
                     const endTime = Date.now()
-                    matchedCases[index] = { matched: false, tle: false, lim: elem.tl, exect: (endTime - startTime - 40) }
+                    matchedCases[index] = {
+                        matched: false,
+                        tle: false,
+                        lim: elem.tl / 1000,
+                        exect: typeof time == "undefined" ? ((endTime - startTime) / 1000).toFixed(2) : time,
+                        memory: mem
+                    }
                     if (code == 137 && isTLE[index]) {
                         matchedCases[index]["tle"] = true
                     } else {
-                        if (fullData.trim() === elem.out.join("\n")) {
+                        if (fullData.trim() === elem.out.join("\n").trim()) {
                             matchedCases[index]["matched"] = true
                         }
                     }
@@ -198,3 +262,4 @@ export class Judge {
         return matchedCases
     }
 }
+

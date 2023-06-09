@@ -4,7 +4,7 @@ import { loadLanguage } from '@uiw/codemirror-extensions-langs';
 import { HiOutlineDotsVertical } from 'react-icons/hi'
 import { BsFillPlayFill, BsStopFill } from 'react-icons/bs'
 import { MdDelete } from 'react-icons/md'
-import { DropDownMenu } from "@/lib/ui/DefaultComponent"
+import { DropDownMenu } from "./dropdownmenu"
 import { AcceptableLanguage } from '@/lib/pref/languageLib'
 import styled from "styled-components";
 import { useEffect, useRef, useState } from "react";
@@ -19,8 +19,14 @@ display:flex;
 overflow: hidden;
 overflow-x:scroll;
 margin-top: 30px;
-margin-bottom: 10px;
+padding-bottom: 10px;
 height: 100%;
+-ms-overflow-style: none;
+  scrollbar-width: none; 
+&&::-webkit-scrollbar {
+  display: none;
+}
+
 `
 
 const LangSelector = styled.div`
@@ -35,6 +41,7 @@ width:30px;
 `
 
 const SubmitBtn = styled(Button)`
+
 `
 
 const Submission = styled.div`
@@ -96,7 +103,7 @@ background-color: ${props => props.theme.Body.backgroundColor};
 z-index:2;
 height: 170px;
 overflow:scroll;
-bottom:120px;
+bottom:110px;
 -ms-overflow-style: none;
 scrollbar-width: none; 
 &::-webkit-scrollbar {
@@ -249,7 +256,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
 export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage> }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
-    const [currentWidth, setCurrentWidth] = useState<number>(300)
+    const [currentWidth, setCurrentWidth] = useState<number>(400)
     const [startingXpos, setStartingXpos] = useState<number | null>(null)
     const [isRunning, setRunningState] = useState(false)
 

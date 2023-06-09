@@ -9,6 +9,8 @@ import 'react-loading-skeleton/dist/skeleton.css'
 
 import { useSelector } from 'react-redux';
 import { StateType } from '@/lib/store'
+import { SubmittedCodeElem } from "../component/codeElem";
+import { keyframes } from "styled-components"
 
 const SubMainHolder = styled.div`
 width:100%;
@@ -32,7 +34,7 @@ const SkeletonItem = () => {
 
 const LoadingSkeleton = (props: { isDark: boolean }) => {
     const baseColor = props.isDark ? "rgb(20,20,20)" : "rgb(245,245,245)"
-    const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(255,255,255)"
+    const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(234, 234, 234)"
     return (
         <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
             <SkeletonItem />
@@ -60,12 +62,20 @@ const NoDataHolder = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 431px);
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+    font-size: 14px;
 `
 
 const NoData = () => {
     return (
-        <NoDataHolder>No Data? &gt;:c</NoDataHolder>
+        <NoDataHolder>데이터가 없습니다</NoDataHolder>
+    )
+}
+
+const Loginpls = () => {
+    return (
+        <NoDataHolder>로그인하세요</NoDataHolder>
     )
 }
 
@@ -78,7 +88,7 @@ const SubmissionItm = styled.div`
     padding: 20px;
     display: flex;
     &:hover {
-        background-color: ${props => props.theme.Container.backgroundColor};
+        background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
         cursor: pointer;
     }
     border-bottom: solid 1px ${props => props.theme.Container.backgroundColor};
@@ -145,31 +155,41 @@ const Selection = styled.div`
 const SelectionBtn = styled.div`
         border-radius: 10px;
     height: 35px;
-    background-color: ${props => props.theme.Container.backgroundColor};
+    background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+    border:solid 2px ${props => props.theme.Body.ContainerBgLevels[1]};
     cursor: pointer;
     display: flex;
     align-items: center;
-    width: 100%;
+    width: calc(100% - 4px);
     & p {
         font-size: 13px!important;
         margin-left: 10px;
         margin-right: auto;
+    }
+    &:hover {
+        border:solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
     }
 `
 
 
 const SelectionList = styled.ul<{ isShown: boolean }>`
     position: absolute;
-    top: 40px;
+    top: 45px;
     width: calc(100% - 22px);
-    background-color: ${props => props.theme.Container.backgroundColor};
+    background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
     border:solid 1px ${props => props.theme.Button.backgroundColor};
     border-radius: 10px;
     margin: 0;
     padding: 0;
     padding: 10px;
     max-height: 140px;
-    overflow: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none; 
+    &&::-webkit-scrollbar {
+    display: none;
+    }
+    z-index: 3;
+    overflow: auto;
     display: ${props => props.isShown ? "inherit" : "none"};
 
 `
@@ -190,12 +210,15 @@ const ListItm = styled.li<{ isActive: boolean }>`
     cursor: pointer;
 `
 
+
+
 const ChevRon = styled.div<{ spin: boolean }>`
     rotate: ${props => props.spin ? "180deg" : "0deg"};
     transition: rotate 0.3s cubic-bezier(.5,0,.56,.99);
     margin-right: 10px;
     color: ${props => props.theme.Body.TextColorLevels[3]};
 `
+
 
 export const SubmissionPage = (props: { id: Number, supportedLang: Array<AcceptableLanguage> }) => {
     const [ServerData, setServerData] = useState<Array<ServerResp>>()
@@ -204,6 +227,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
     const [dropDown, setDropDown] = useState("")
     const [filterLang, setFilterLang] = useState<AcceptableLanguage | "">("")
     const [filterStat, setFilterStat] = useState("")
+    const [extended, setExtended] = useState<number>()
 
     const isDark = useSelector<StateType, boolean>(state => state.theme);
 
@@ -251,6 +275,8 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
         return langlib.getLangFullName()
     }
 
+
+
     return (
         <SubMainHolder>
             <SubmissionItmHolder>
@@ -261,9 +287,19 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                             <ChevRon spin={dropDown == "lang"}><FiChevronDown /></ChevRon>
                         </SelectionBtn>
                         <SelectionList isShown={dropDown == "lang"}>
-                            <ListItm isActive={filterLang == ""} onClick={() => { setFilterLang(""); setDropDown("") }}>전체</ListItm>
+                            <ListItm
+                                isActive={filterLang == ""}
+                                onClick={() => { setFilterLang(""); setDropDown("") }}
+                            >
+                                전체
+                            </ListItm>
                             {props.supportedLang.map((elem, index) => {
-                                return <ListItm isActive={filterLang == elem} key={index} onClick={() => { setFilterLang(elem); setDropDown("") }}>{getLangFullname(elem)}</ListItm>
+                                return <ListItm
+                                    isActive={filterLang == elem}
+                                    key={index}
+                                    onClick={() => { setFilterLang(elem); setDropDown("") }}>
+                                    {getLangFullname(elem)}
+                                </ListItm>
                             })}
                         </SelectionList>
                     </Selection>
@@ -275,24 +311,48 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                         <SelectionList isShown={dropDown == "stat"}>
                             <ListItm isActive={filterStat == ""} onClick={() => { setFilterStat(""); setDropDown("") }}>전체</ListItm>
                             {["AC", "AW", "CE", "ISE"].map((elem, index) => {
-                                return <ListItm isActive={filterStat == elem} key={index} onClick={() => { setFilterStat(elem); setDropDown("") }}>{StatusToMsg(elem)}</ListItm>
+                                return <ListItm
+                                    isActive={filterStat == elem}
+                                    key={index}
+                                    onClick={() => { setFilterStat(elem); setDropDown("") }}>
+                                    {StatusToMsg(elem)}
+                                </ListItm>
                             })}
                         </SelectionList>
                     </Selection>
                 </SelectionArea>
                 {!isLoaded ? <LoadingSkeleton isDark={isDark} /> : <>
                     {isError !== "" ?
-                        <>로그인해라</> : <>{
+                        <Loginpls /> : <> {
                             ServerData && ServerData.length < 1 ?
                                 <NoData />
                                 : <>
                                     {ServerData?.sort((a, b) => { return new Date(b.Time).valueOf() - new Date(a.Time).valueOf() }).map((elem, index) => {
-                                        return <SubmissionItm key={index}>
-                                            <ItmRight>
-                                                <HeadingArea><WRTitle isCorrect={elem.Status == "AC"}>{StatusToMsg(elem.Status)}</WRTitle><LangInfo>{new LanguageHandler(elem.Lang, "").getLangFullName()}</LangInfo></HeadingArea>
-                                                <p> {GetDateStr(new Date(elem.Time))}</p>
-                                            </ItmRight>
-                                        </SubmissionItm>
+                                        return (
+                                            <>
+                                                <SubmissionItm
+                                                    key={index}
+                                                    onClick={() => { if (extended !== index) { setExtended(index) } else setExtended(undefined) }}
+                                                >
+                                                    <ItmRight>
+                                                        <HeadingArea>
+                                                            <WRTitle
+                                                                isCorrect={elem.Status == "AC"}
+                                                            >
+                                                                {StatusToMsg(elem.Status)}
+                                                            </WRTitle>
+                                                            <LangInfo>
+                                                                {new LanguageHandler(elem.Lang, "").getLangFullName()}
+                                                            </LangInfo>
+                                                        </HeadingArea>
+                                                        <p> {GetDateStr(new Date(elem.Time))}</p>
+                                                    </ItmRight>
+                                                </SubmissionItm>
+                                                {extended == index ? <>
+                                                    <SubmittedCodeElem lang={elem.Lang} data={elem.Code} />
+                                                </> : <></>}
+                                            </>)
+
                                     })}</>
                         }
                         </>

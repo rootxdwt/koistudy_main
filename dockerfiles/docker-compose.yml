@@ -1,0 +1,23 @@
+version: '3'
+services:
+  gcc-koi:
+    build:
+      context: ./gcc-koi
+  golang-koi:
+    build:
+      context: ./golang-koi
+  node-koi:
+    build:
+      context: ./node-koi
+  php-koi:
+    build:
+      context: ./php-koi
+  py-koi:
+    build:
+      context: ./py-koi
+  r-koi:
+    build:
+      context: ./r-koi
+  rust-koi:
+    build:
+      context: ./rust-koi

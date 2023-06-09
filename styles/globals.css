@@ -7,8 +7,16 @@ html {
 	font-family: 'Noto Sans KR', sans-serif;
 	margin: 0;
 	padding: 0;
+	overflow: hidden;
 }
 
 a {
 	text-decoration: none;
+}
+
+@media (max-width: 770px) {
+	body,
+	html {
+		overflow: auto;
+	}
 }

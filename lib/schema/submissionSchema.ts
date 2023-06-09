@@ -7,6 +7,7 @@ const SubmissionSchema = new mongoose.Schema({
     Time: { type: Date, default: Date.now },
     CodeLength: Number,
     TCTime: { type: [Number], default: [] },
+    TCMem: { type: [Number], default: [] },
     Prob: Number,
     SubCode: String,
     Lang: { type: String }

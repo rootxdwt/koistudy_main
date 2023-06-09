@@ -13,6 +13,11 @@ type Data = {
     matchedTestCase: Array<{ matched: boolean, tle: boolean }>
     codeDetail?: string
 }
+const avr = (data: Array<number>) => {
+    let sum = 0
+    for (var i = 0; i < data.length; i++) sum += data[i]
+    return sum / data.length
+}
 
 export default async function handler(
     req: NextApiRequest,
@@ -80,10 +85,10 @@ export default async function handler(
             Status: isCorrect ? 'AC' : 'AW',
             CodeLength: CodeData.length,
             TCTime: matchedCases.map(elem => elem.exect),
+            TCMem: matchedCases.map(elem => elem.memory),
             Prob: parseInt(sanitize(id)),
             SubCode: SubmissionCode,
             Lang: Lang
-
         })
         res.status(200).json({ status: isCorrect ? 'Success' : 'Error', matchedTestCase: matchedCases, errorStatement: "NONE" })
         return
@@ -102,5 +107,4 @@ export default async function handler(
         res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })
         return
     }
-    res.status(400)
 }

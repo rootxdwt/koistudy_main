@@ -140,7 +140,7 @@ const SkeletonHolder = styled(HcardHolder)`
 
 const MainPageSkeleton = (props: { isDark: boolean }) => {
   const baseColor = props.isDark ? "rgb(20,20,20)" : "rgb(245,245,245)"
-  const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(255,255,255)"
+  const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(234, 234, 234)"
   return (
     <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
       <SkeletonHolder>
