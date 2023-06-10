@@ -57,6 +57,7 @@ TestProgress: {
 1. Create a Dockerfile and place it in the `dockerfiles/{your-language}-koi` directory. The base image of your language should be Alpine linux.
 2. Add a reference to your Dockerfile in the `docker-compose.yml` file. You can define a custom image name, or the image name will be automatically set to `dockerfile-{your-language}-koi` if a custom name is not specified.
 3. edit the `lib/pref/languageLib.ts` file. Define the Docker Image used, `Compilecommand` and `Runcommand` in the lib/pref/languageLib.ts file. A more detailed explanation is given below:
+
    - `getLangFullName`: indicates the user the language's real full name. You need to add your case, and make it return the full name of your language (for instance, Golang for go, JavaScript for javascript)
    - `getPrefix`: returns the file prefix of your language. Add the proper file prefix(for instance, py for python)
    - `getImage`: returns the image name of the judging container. It should be dockerfile-{your-language}-koi by default, if a custom image name isn't defined on step 2 above.
