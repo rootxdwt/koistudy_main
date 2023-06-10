@@ -60,7 +60,7 @@ TestProgress: {
 
    - `getLangFullName`: indicates the user the language's real full name. You need to add your case, and make it return the full name of your language (for instance, Golang for go, JavaScript for javascript)
    - `getPrefix`: returns the file prefix of your language. Add the proper file prefix(for instance, py for python)
-   - `getImage`: returns the image name of the judging container. It should be dockerfile-{your-language}-koi by default, if a custom image name isn't defined on step 2 above.
+   - `getImage`: returns the image name of the judging container. It should be `dockerfile-{your-language}-koi` by default, if a custom image name isn't defined on step 2 above.
    - `getCompileCommand`: returns the compile command whch will be executed in the compile progress. The temporary filename is identical to the containerName variable. If your language doesn't require compilling, return a blank string("").
    - `getRunCodeCommand`: returns the run command.
 
