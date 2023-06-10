@@ -166,7 +166,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
     useEffect((): any => {
         const tk = localStorage.getItem("tk") || ""
 
-        socket = connect("localhost:3000", {
+        socket = connect(process.env.REDIRURL!, {
             path: "/api/judge/runcode",
             extraHeaders: {
                 Authorization: tk

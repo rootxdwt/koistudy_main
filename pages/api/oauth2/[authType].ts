@@ -46,7 +46,7 @@ export default async function handler(
         }
 
         if (authType == "github") {
-            var rsp = await fetch(`https://github.com/login/oauth/access_token?client_id=3ee621b68f1950df0ba0&client_secret=${process.env.GITHUBPRIVATE}&code=${requestedData.code}&redirect_uri=http://localhost:3000/auth/redirect/github`, { method: "POST", headers: { Accept: "application/json" } })
+            var rsp = await fetch(`https://github.com/login/oauth/access_token?client_id=3ee621b68f1950df0ba0&client_secret=${process.env.GITHUBPRIVATE}&code=${requestedData.code}&redirect_uri=http://${process.env.REDIRURL}/auth/redirect/github`, { method: "POST", headers: { Accept: "application/json" } })
             const respJsn = await rsp.json()
 
             const infoReq = await fetch(`https://api.github.com/user/emails`, { headers: { Authorization: `token ${respJsn.access_token}` } })
@@ -68,7 +68,7 @@ export default async function handler(
                 uid = data[0].Uid
             }
         } else if (authType == "google") {
-            var rsp = await fetch('https://oauth2.googleapis.com/token', { method: "POST", body: JSON.stringify({ client_id: "417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com", client_secret: process.env.GOOGLEPRIVATE, code: requestedData.code, redirect_uri: "http://localhost:3000/auth/redirect/google", grant_type: "authorization_code" }) })
+            var rsp = await fetch('https://oauth2.googleapis.com/token', { method: "POST", body: JSON.stringify({ client_id: "417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com", client_secret: process.env.GOOGLEPRIVATE, code: requestedData.code, redirect_uri: `http://${process.env.REDIRURL}/auth/redirect/google`, grant_type: "authorization_code" }) })
             const respJsn = await rsp.json()
             const infoReq = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${respJsn.id_token}`)
 

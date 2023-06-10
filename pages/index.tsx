@@ -9,7 +9,7 @@ import { ThemeProvider } from 'styled-components'
 import { DarkTheme, LightTheme } from '@/lib/ui/theme'
 import { Holder } from '@/lib/ui/DefaultComponent'
 import { TbBrandGolang } from "react-icons/tb"
-import { DiSwift, DiRust, DiPhp, DiPython, DiNodejsSmall, DiCode } from 'react-icons/di'
+import { DiRust, DiPhp, DiPython, DiNodejsSmall, DiCode } from 'react-icons/di'
 import { Header } from '@/lib/ui/component/header'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -159,8 +159,6 @@ const LanguageIcon = (props: { langs: Array<string> }) => {
       return <TbBrandGolang />
     case "javascript":
       return <DiNodejsSmall />
-    case "swift":
-      return <DiSwift />
     case "php":
       return <DiPhp />
     case "rust":

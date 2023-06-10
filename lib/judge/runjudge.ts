@@ -1,5 +1,5 @@
 import { Docker } from "node-docker-api";
-import container, { Container } from "node-docker-api/lib/container";
+import { Container } from "node-docker-api/lib/container";
 import { spawn, exec } from "child_process";
 import fs from 'fs/promises'
 
@@ -12,7 +12,6 @@ const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 interface testArgs {
     Tests: Array<{ in: Array<string>, out: Array<string>, tl: number }>
     Disallow: Array<string>
-
 }
 
 const execAsync = (command: string): Promise<string> => {
@@ -35,28 +34,6 @@ const Terminate = async (cont: Container) => {
             await cont.delete({ force: true });
         }
     } catch (e) { }
-}
-
-const GetMem = async (cont: Container): Promise<number> => {
-    const containerExecutor = await cont.exec.create({
-        Cmd: ["cat", "/proc/meminfo"],
-        AttachStdout: true,
-        AttachStderr: true,
-    });
-    const stream: any = await containerExecutor.start({ Detach: false })
-    return new Promise((resolve, reject) => {
-        stream.on('data', (data: Buffer) => {
-            let oriStr = data.toString()
-            resolve(
-                parseInt(oriStr.match(/MemTotal:\s+(\d+)\s+kB/)![1])
-                -
-                parseInt(oriStr.match(/MemAvailable:\s+(\d+)\s+kB/)![1])
-            )
-        })
-        stream.on('error', (data: Buffer) => {
-            reject('failed')
-        })
-    })
 }
 
 export class Judge {
@@ -262,4 +239,3 @@ export class Judge {
         return matchedCases
     }
 }
-

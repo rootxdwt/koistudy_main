@@ -194,7 +194,7 @@ color: ${props => props.theme.Body.TextColorLevels[3]};
 
 export interface JudgeResponse {
     errorStatement: string
-    matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number, exect: number }>
+    matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number, exect: number, memory: number }>
     status: "Success" | "Error" | ""
 }
 
@@ -242,7 +242,9 @@ export const SubmitResult = (props: { contextData: JudgeResponse | undefined, is
             </div>
             <div className="btm">
                 <h3 className="tch3">Test Cases</h3>
-                <p className="ptge">{Math.round((contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100)}%</p>
+                <p className="ptge">{
+                    Math.round((contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100)
+                }% ㅣ {contextData.status == "" ? "" : contextData.matchedTestCase.map(elem => elem.memory)[0]}KB</p>
                 <TCholder>
                     {contextData.matchedTestCase.map((elem, index) => {
                         return (
@@ -260,9 +262,10 @@ export const SubmitResult = (props: { contextData: JudgeResponse | undefined, is
                                             {elem.exect}s/{elem.lim}s
                                         </p>
                                     </span>
+
                                     <span>
                                         <p>
-                                            {elem.matched ? "맞았습니다" : elem.tle ? "시간 제한 초과" : "테스트 케이스 불일치"}
+                                            {elem.matched ? `맞았습니다` : elem.tle ? "시간 제한 초과" : "테스트 케이스 불일치"}
                                         </p>
 
                                     </span>
