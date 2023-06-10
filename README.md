@@ -51,3 +51,76 @@ TestProgress: {
 ### Service Features
 
 - Intuitive user interface: Focused on simplicity, Supports Dark Mode
+
+### Language Addition Guide(On progress)
+
+1. Create a Dockerfile and place it in the `dockerfiles/{your-language}-koi` directory. The base image of your language should be Alpine linux.
+2. Add a reference to your Dockerfile in the `docker-compose.yml` file. You can define a custom image name, or the image name will be automatically set to `dockerfile-{your-language}-koi` if a custom name is not specified.
+3. edit the `lib/pref/languageLib.ts` file. Define the Docker Image used, `Compilecommand` and `Runcommand` in the lib/pref/languageLib.ts file. A more detailed explanation is given below:
+
+```ts
+export type AcceptableLanguage = "cpp" | "go" ... "python" | "r" //add your language here
+class LanguageHandler {
+	name: AcceptableLanguage
+	/*
+	The getLangFullName method is used inside the user interface to indicate the user the language's real full name. You need to add your case, and make it return the full name of your language (for instance, Golang for go, JavaScript for javascript)
+	*/
+	getLangFullName =() => {
+		switch(this.name){
+			...
+			case "python":
+				return "Python"
+			...
+		}
+	}
+	/*
+	The getPrefix method should return the file prefix of your language. Add the proper file prefix(for instance, py for python)
+	*/
+	getPrefix = () =>{
+        switch (this.name) {
+			...
+            case "python":
+                return "py"
+			...
+		}
+	}
+	/*
+	The getImage method should return the image name of the judging container. It should be dockerfile-{your-language}-koi by default, if a custom image name isn't defined on step 2 above.
+	*/
+	getImage = () =>{
+		switch (this.name) {
+			...
+			case "python":
+				return "dockerfiles-py-koi"
+			...
+		}
+	}
+	/*
+	The getCompileCommand method should return the compile command whch will be executed in the compile progress. The temporary filename is identical to the containerName variable. If your language doesn't require compilling, return a blank string("").
+	*/
+	getCompileCommand = () => {
+		switch(this.name) {
+			case "rust":
+				return `rustc ${containerName}.rs -o ${containerName}`
+			case "php":
+			case "python":
+			case "r":
+			case "javascript":
+				return ""
+		}
+	}
+	/*
+	The getRunCodeCommand method should return the run command.
+	*/
+	getRunCodeCommand = () => {
+		switch (this.name) {
+			case "cpp":
+            case "go":
+            case "rust":
+                return `./${containerName}`
+            case "python":
+                return `python3 ${containerName}.py`
+		}
+	}
+}
+```

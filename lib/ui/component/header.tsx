@@ -308,8 +308,8 @@ interface UserResp {
 }
 
 const HeaderSkeleton = (props: { isDark: boolean }) => {
-  const baseColor = props.isDark ? "rgb(20,20,20)" : "rgb(245,245,245)"
-  const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(255,255,255)"
+  const baseColor = props.isDark ? "rgb(50,50,50)" : "rgb(245,245,245)"
+  const hlColor = props.isDark ? "rgb(70,70,70)" : "rgb(234, 234, 234)"
   return (
     <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
       <Skeleton width={180} height={15} borderRadius={5} count={2} style={{ "flexShrink": "none" }} />

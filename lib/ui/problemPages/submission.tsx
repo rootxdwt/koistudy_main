@@ -33,8 +33,8 @@ const SkeletonItem = () => {
 }
 
 const LoadingSkeleton = (props: { isDark: boolean }) => {
-    const baseColor = props.isDark ? "rgb(20,20,20)" : "rgb(245,245,245)"
-    const hlColor = props.isDark ? "rgb(50,50,50)" : "rgb(234, 234, 234)"
+    const baseColor = props.isDark ? "rgb(50,50,50)" : "rgb(245,245,245)"
+    const hlColor = props.isDark ? "rgb(70,70,70)" : "rgb(234, 234, 234)"
     return (
         <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
             <SkeletonItem />
@@ -88,7 +88,7 @@ const SubmissionItm = styled.div`
     padding: 20px;
     display: flex;
     &:hover {
-        background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+        background-color: ${props => props.theme.Body.ContainerBgLevels[2]};
         cursor: pointer;
     }
     border-bottom: solid 1px ${props => props.theme.Container.backgroundColor};
@@ -204,7 +204,7 @@ const ListItm = styled.li<{ isActive: boolean }>`
     align-items: center;
     color: ${props => props.isActive ? props.theme.Body.TextColorLevels[1] : props.theme.Body.TextColorLevels[3]};
     &:hover {
-        background-color: ${props => props.theme.Button.backgroundColor};
+        background-color: ${props => props.theme.Body.ContainerBgLevels[0]};
     }
     border-radius: 5px;
     cursor: pointer;

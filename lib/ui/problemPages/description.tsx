@@ -40,7 +40,7 @@ interface ImgDataJSON {
     alt: string
     width: number
     height: number
-    type: "bwDiagram" | "image"
+    type: "diagram" | "image"
 }
 
 const ImgElem = (props: any) => {
@@ -56,7 +56,7 @@ const ImgElem = (props: any) => {
             alt={ImgAbtJSON["alt"]}
             width={ImgAbtJSON["width"]}
             height={ImgAbtJSON["height"]}
-            style={{ objectFit: "contain", filter: ImgAbtJSON["type"] == "bwDiagram" && isDark ? "invert(1)" : "invert(0)" }}
+            style={{ objectFit: "contain" }}
         />
     )
 }
