@@ -143,14 +143,14 @@ export class Judge {
 
 
     runInput = async (cont: Container) => {
-        let runCommand: Array<string>
+        let runCommand: string
         try {
             runCommand = this.languageHandlerInstance.getRunCodeCommand()
         } catch (e) {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
         }
-        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', ...runCommand])
+        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
     }
 
     endInput = async (cont: Container) => {
@@ -169,12 +169,13 @@ export class Judge {
             >
         > => {
 
-        let runCommand: Array<string>
+        let runCommand: string
         try {
             runCommand = this.languageHandlerInstance.getRunCodeCommand()
         } catch (e) {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
+
         }
         let matchedCases = Array(test["Tests"].length)
         let isTLE: Array<boolean> = []
@@ -189,7 +190,7 @@ export class Judge {
             return new Promise(async (resolve, reject) => {
 
                 let time: number, mem: number
-                let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/usr/bin/time', '-v', ...runCommand])
+                let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/usr/bin/time', '-v', ...runCommand.split(" ")])
 
                 baseCommand.stdin.write(elem.in.join("\n"))
                 baseCommand.stdin.end();

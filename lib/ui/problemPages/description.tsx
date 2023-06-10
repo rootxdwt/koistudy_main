@@ -45,7 +45,6 @@ interface ImgDataJSON {
 
 const ImgElem = (props: any) => {
     const isDark = useSelector<StateType, boolean>(state => state.theme);
-    console.log(props.alt)
     if (!isValidImgJson(props.alt)) {
         return <></>
     }

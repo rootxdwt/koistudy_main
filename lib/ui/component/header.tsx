@@ -226,8 +226,8 @@ position: relative;
     display: block;
     position: absolute;
     z-index: -1;
-    filter: blur(10px);
-    opacity: 0.7;
+    filter: blur(7px);
+    opacity: 0.8;
   }
 `
 const UserButton = styled.div`

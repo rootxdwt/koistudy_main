@@ -43,7 +43,6 @@ export default function UserPage(data: any) {
     const isDark = useSelector<StateType, boolean>(state => state.theme);
     const router = useRouter()
     const profileData = data
-    console.log(profileData)
     return (
         <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
             <GlobalStyle />

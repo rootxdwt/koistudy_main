@@ -85,15 +85,15 @@ export class LanguageHandler {
             case "cpp":
             case "go":
             case "rust":
-                return [`./${containerName}`]
+                return `./${containerName}`
             case "python":
-                return ['python3', `${containerName}.py`]
+                return `python3 ${containerName}.py`
             case "javascript":
-                return ['node', `${containerName}.js`]
+                return `node ${containerName}.js`
             case "php":
-                return ['php', `${containerName}.php`]
+                return `php ${containerName}.php`
             case "r":
-                return ['Rscript', `${containerName}.R`]
+                return `Rscript ${containerName}.R`
             default:
                 throw new Error(`Unsupported language`);
         }
