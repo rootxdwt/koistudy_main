@@ -17,10 +17,11 @@ background-color: ${props => props.theme.Body.backgroundColor};
 z-index:10;
 top:0;
 width: 100vw;
-height: 70px;
 display:flex;
 align-items:center;
 & div.contentHolder {
+    border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
+    padding: 15px 0px;
     margin-left:auto;
     margin-right:auto;
     width: 1300px;
@@ -97,6 +98,7 @@ font-size:15px;
 `
 
 const Subheader = styled.div<{ isShown: boolean }>`
+
     z-index: 9;
     position:fixed;
     top: ${props => props.isShown ? "70" : "0"}px;
@@ -356,7 +358,9 @@ export const Header = (props: { currentPage: string }) => {
   const [userInfoJson, setJson] = useState<UserResp>()
   const [isLoggedIn, setLogin] = useState<boolean>(true)
 
+
   const router = useRouter();
+
   useEffect(() => {
     if (userInfoShown) {
       fetch('/api/user', { method: "POST", headers: { "Authorization": localStorage.getItem("tk") || "" } }).then((resp) => {
@@ -374,7 +378,7 @@ export const Header = (props: { currentPage: string }) => {
   return (
     <>
       {isLoaded ? <>
-        < HeaderComp >
+        < HeaderComp>
           <div className="contentHolder">
             <LogoArea onClick={() => router.push("/")}>
               <LogoIcon>

@@ -18,7 +18,7 @@ const CodeEditAreaComponent = styled.div`
 display:flex;
 overflow: hidden;
 overflow-x:scroll;
-margin-top: 30px;
+margin-top: 20px;
 padding-bottom: 10px;
 height: 100%;
 -ms-overflow-style: none;

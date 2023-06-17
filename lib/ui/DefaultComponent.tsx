@@ -3,8 +3,17 @@ import { createGlobalStyle } from 'styled-components'
 import { DarkTheme } from "./theme"
 
 export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
+a {
+	text-decoration: none;
+}
+
+
   body,html {
+    margin: 0;
+    padding: 0;
     background-color: ${props => props.theme.Body.backgroundColor};
+    overflow: auto;
+    font-family: 'Noto Sans KR', sans-serif;
   }
   .cm-editor {
     background-color: transparent!important;
@@ -40,6 +49,7 @@ export const GlobalStyle = createGlobalStyle<{ theme: typeof DarkTheme }>`
 .cm-focused {
   outline:none!important;
 }
+
 `
 
 export const Holder = styled.div`

@@ -2,7 +2,7 @@ import {
     useEffect, useState
 } from "react"
 
-import styled, { keyframes, ThemeProvider } from "styled-components"
+import styled, { keyframes, ThemeProvider, createGlobalStyle } from "styled-components"
 import { Holder } from "@/lib/ui/DefaultComponent"
 import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
@@ -323,7 +323,7 @@ const FavBtn = (props: { problemId: number }) => {
 const PageNav = styled.div`
     margin-bottom: 10px;
     z-index:3;
-    border-bottom: solid 2px ${props => props.theme.Container.backgroundColor};
+
     position: sticky;
     font-family: "Noto Sans KR", sans-serif;
     font-weight: 700;
@@ -340,7 +340,7 @@ const PageBtn = styled.div<{ isActive: boolean }>`
     margin: 0;
     padding: 0px;
     margin-right: 50px;
-    padding-bottom: 6px;
+    padding: 4px 0px;
 
     border-bottom: solid 2px ${props => props.isActive ? props.theme.Body.TextColorLevels[2] : "transparent"};
     cursor: pointer;
@@ -351,8 +351,9 @@ const PageBtn = styled.div<{ isActive: boolean }>`
         transition: background-color 0.1s ease-in-out;
         margin: 0;
         font-size: 12px!important;
-        padding: 0px 15px;
+        padding: 3px 15px;
         border-radius: 5px;
+        line-height: 20px;
     }
 `
 
@@ -392,6 +393,18 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
         </DescHolder>
     )
 }
+
+const LocalGlobal = createGlobalStyle`
+    body,html {
+        overflow: hidden!important;
+    }
+    @media (max-width: 770px) {
+	body,
+	html {
+		overflow: auto!important;
+	}
+}
+`
 
 export default function Problem(data: any) {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved } = data.Oth
@@ -434,6 +447,7 @@ export default function Problem(data: any) {
                 <Header
                     currentPage="problems"
                 />
+                <LocalGlobal />
                 <GlobalStyle />
                 <>
                     <Holder>
