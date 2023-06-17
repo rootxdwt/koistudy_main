@@ -33,6 +33,7 @@ const LangSelector = styled.div`
 display:flex;
 margin-top: 20px;
 align-items:center;
+margin-bottom: 30px;
 
 `
 
@@ -240,7 +241,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
                         lineNumbers: false,
                         searchKeymap: false,
                         highlightActiveLine: false,
-                        highlightActiveLineGutter: false
+                        highlightActiveLineGutter: false,
                     }
                 }
                 extensions={
@@ -298,29 +299,29 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
 
                 <DropDownMenu active={currentCodeType} items={props.SupportedLang} displayName={props.SupportedLang.map((elem) => { return { name: elem, displayName: new LanguageHandler(elem, "").getLangFullName() } })} clickEventHandler={setCodeType} />
             </LangSelector>
-            <CodeEditAreaComponent>
-                <CodeMirror
-                    basicSetup={
-                        {
-                            drawSelection: false,
-                            autocompletion: false,
-                            searchKeymap: false,
-                            highlightActiveLine: false,
-                            highlightActiveLineGutter: false
-                        }
-                    }
 
-                    height="calc(100vh - 260px)"
-                    extensions={
-                        [
-                            loadLanguage(currentCodeType)!
-                        ].filter(Boolean)
+            <CodeMirror
+                basicSetup={
+                    {
+                        drawSelection: true,
+                        autocompletion: false,
+                        searchKeymap: false,
+                        highlightActiveLine: false,
+                        highlightActiveLineGutter: false
                     }
-                    onChange={(v, _) => setCodeData(v)}
-                    theme={"dark"}
-                    placeholder={"여기에 코드를 작성하세요"}
-                />
-            </CodeEditAreaComponent>
+                }
+
+                height="calc(100vh - 260px)"
+                extensions={
+                    [
+                        loadLanguage(currentCodeType)!
+                    ].filter(Boolean)
+                }
+                onChange={(v, _) => setCodeData(v)}
+                theme={"dark"}
+                placeholder={"여기에 코드를 작성하세요"}
+            />
+
             {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
             <Submission><SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</SubmitBtn>
                 <RunBtn onClick={() => setRunningState(!isRunning)}>

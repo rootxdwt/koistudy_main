@@ -21,7 +21,7 @@ a {
     flex-grow:1;
 }
 .cm-gutters {
-  background-color: transparent!important;
+  background-color: ${props => props.theme.Body.backgroundColor}!important;
 }
   .cm-activeLine {
     background-color: ${props => props.theme.Button.backgroundColor}!important;
@@ -44,6 +44,9 @@ a {
       
       ::-webkit-scrollbar-thumb:hover {
         background: #555; 
+      }
+      ::-webkit-scrollbar-corner {
+        background: transparent;
       }
 }
 .cm-focused {
