@@ -7,13 +7,15 @@ import styled, { keyframes } from 'styled-components';
 import { useState } from 'react';
 import { AcceptableLanguage } from '@/lib/pref/languageLib';
 const CodeHolder = styled.div`
-padding: 10px 0px;
+padding: 10px 10px;
 border-radius: 10px;
 position:relative;
 display:flex;
 align-items:center;
 overflow:hidden;
 flex-shrink:0;
+background-color: ${props => props.theme.Body.ContainerBgLevels[2]};
+border: solid .5px ${props => props.theme.Button.backgroundColor};
 
 `
 

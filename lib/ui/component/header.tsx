@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import { RiUser3Fill } from 'react-icons/ri'
 import { MdDarkMode, MdLightMode, MdLogout, MdOutlineSearch, MdVerified } from 'react-icons/md'
 import { FiChevronDown } from 'react-icons/fi'
@@ -7,43 +7,47 @@ import { StateType } from "../../store";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/router'
 import Image from "next/image";
+import Link from "next/link";
 
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const HeaderComp = styled.header`
+const HeaderComp = styled.header<{ isTop: boolean }>`
 position:fixed;
-background-color: ${props => props.theme.Body.backgroundColor};
-z-index:10;
+
+z-index:20;
 top:0;
 width: 100vw;
 display:flex;
 align-items:center;
+
+background-color: ${props => props.theme.Body.backgroundColor};
+
 & div.contentHolder {
-    border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
-    padding: 15px 0px;
+    border-bottom: solid 2px ${props => props.isTop ? "transparent" : props.theme.Body.ContainerBgLevels[1]};
+    padding: 13px 0px;
     margin-left:auto;
     margin-right:auto;
-    width: 1300px;
+    width: 1400px;
     display:flex;
     align-items:center;
     justify-content: center;
     font-family: 'Poppins', sans-serif;
     color: ${props => props.theme.Body.TextColorLevels[3]};
     @media(max-width: 1800px) {
-        width: 1200px;
+        width: 1300px;
       }
       @media(max-width: 1700px) {
-        width: 1100px;
+        width: 1200px;
       }
       @media(max-width: 1500px) {
-        width: 1000px;
+        width: 1100px;
       }
       @media(max-width: 1300px) {
-        width: 900px;
+        width: 1000px;
       }
       @media(max-width: 1200px) {
-        width: 800px;
+        width: 900px;
       }
       @media(max-width: 900px) {
         width: 90vw;
@@ -97,81 +101,15 @@ font-size:15px;
 
 `
 
-const Subheader = styled.div<{ isShown: boolean }>`
-
-    z-index: 9;
-    position:fixed;
-    top: ${props => props.isShown ? "70" : "0"}px;
-    transition: top 0.3s cubic-bezier(.5,0,.56,.99);
-
-    background-color: ${props => props.theme.Body.backgroundColor};
-    width: 100vw;
-    display:flex;
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
-    overflow-x:scroll;
-    scrollbar-width: none; 
-    &::-webkit-scrollbar {
-    display: none;
-    }
-
-`
-
-const SubHolder = styled.div`
-width: 1300px;
-@media(max-width: 1800px) {
-    width: 1200px;
-  }
-  @media(max-width: 1700px) {
-    width: 1100px;
-  }
-  @media(max-width: 1500px) {
-    width: 1000px;
-  }
-  @media(max-width: 1300px) {
-    width: 900px;
-  }
-  @media(max-width: 1200px) {
-    width: 800px;
-  }
-  @media(max-width: 900px) {
-    width: 90vw;
-    margin-left:auto;
-    margin-right:auto;
-  }
-  @media (max-width: 770px) {
-    width: 90vw;
-    left: 10vw;
-}
-display:flex;
-justify-content:flex-start;
-`
 
 const DropDownBtn = styled.span<{ isDropped: boolean }>`
-    transform: rotate(${props => props.isDropped ? "180" : "0"}deg);
+    transform: rotate(${props => props.isDropped ? "90" : "-90"}deg);
     transition: transform 0.3s cubic-bezier(.5,0,.56,.99);
     cursor:pointer;
-    margin-left:10px!important;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
 `
-
-const MenuNavBtn = styled.div<{ isActive: boolean }>`
-padding: 5px 15px;
-font-size: 12px;
-margin-right: 10px;
-cursor:pointer;
-border-radius: 15px;
-color: ${props => props.theme.Container.logoSubColor};
-font-family: 'Poppins', sans-serif;
-color: ${props => props.theme.Body.TextColorLevels[3]};
-background-color: ${props => props.isActive ? props.theme.Button.backgroundColor : props.theme.Body.backgroundColor};
-margin-bottom: 10px;
-`
-
-interface PropObj {
-  name: string,
-  action: any
-}
 
 const ProfileBtnHolder = styled.div`
   width: 200px;
@@ -182,21 +120,21 @@ const ProfileBtnHolder = styled.div`
   border:solid 2px ${props => props.theme.Container.backgroundColor};
   border-radius: 10px;
   padding: 5px;
-  --hwidth: 1300px;
+  --hwidth: 1400px;
 @media(max-width: 1800px) {
-  --hwidth: 1200px;
+  --hwidth: 1300px;
   }
   @media(max-width: 1700px) {
-    --hwidth: 1100px;
+    --hwidth: 1200px;
   }
   @media(max-width: 1500px) {
-    --hwidth: 1000px;
+    --hwidth: 1100px;
   }
   @media(max-width: 1300px) {
-    --hwidth: 900px;
+    --hwidth: 1000px;
   }
   @media(max-width: 1200px) {
-    --hwidth: 800px;
+    --hwidth: 900px;
   }
   @media(max-width: 900px) {
     --hwidth: 90vw;
@@ -222,8 +160,8 @@ justify-content: center;
 position: relative;
   &::before {
     background: linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%);
-    width: 35px;
-    height: 26px;
+    width: 100%;
+    height: 23px;
     content: "";
     display: block;
     position: absolute;
@@ -349,6 +287,72 @@ const LoginInIdentifier = styled.div`
   align-items: center;
 `
 
+const ProbListBtn = styled.div`
+  display: flex;
+  padding: 3px;
+  border-radius: 5px;
+  font-family: 'Noto Sans KR', sans-serif;
+  margin-left: 15px;
+  cursor: pointer;
+  & p {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    margin-left: 3px;
+    padding-right: 5px;
+  }
+  &:hover {
+    background-color: ${props => props.theme.Button.backgroundColor};
+  }
+`
+
+const LeftProbList = styled.div<{ isShown: boolean }>`
+  position:fixed;
+  left: ${props => props.isShown ? 0 : -300}px;
+  transition: left 0.3s cubic-bezier(.5,0,.56,.99);
+  top: 0;
+  height: 100vh;
+  width: 300px;
+  background-color: ${props => props.theme.Body.backgroundColor};
+  z-index: 999;
+  border-right: solid 1px ${props => props.theme.Button.backgroundColor};
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`
+
+const ProbItem = styled.div`
+display: flex;
+  width: 90%;
+  height: 50px;
+
+  font-size: 13px;
+  align-items: center;
+  border-bottom: solid 1px ${props => props.theme.Button.backgroundColor};
+  color: ${props => props.theme.Body.TextColorLevels[2]};
+`
+const Showan = keyframes`
+0% {
+  opacity: 0;
+}
+100% {
+  opacity: 0.8;
+}
+`
+
+const BgHdn = styled.div<{ isShown: boolean }>`
+background-color: ${props => props.theme.Body.backgroundColor};
+animation: ${Showan} 0.3s cubic-bezier(.5,0,.56,.99);
+opacity: 0.8;
+position: fixed;
+width: 100vw;
+height: 100vh;
+z-index: 998;
+top:0;
+left: 0;
+display: ${props => props.isShown ? "block" : "none"};
+`
+
 export const Header = (props: { currentPage: string }) => {
   const dispatch = useDispatch()
   const isDark = useSelector<StateType, boolean>(state => state.theme);
@@ -357,6 +361,20 @@ export const Header = (props: { currentPage: string }) => {
   const [userInfoShown, setuserInfo] = useState(false)
   const [userInfoJson, setJson] = useState<UserResp>()
   const [isLoggedIn, setLogin] = useState<boolean>(true)
+  const [isTop, setIsTop] = useState(true)
+
+  const verticalListner = () => {
+    if (window.scrollY == 0) {
+      setIsTop(true)
+    } else {
+      setIsTop(false)
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', verticalListner)
+    return () => window.removeEventListener('scroll', verticalListner)
+  }, [])
 
 
   const router = useRouter();
@@ -378,19 +396,28 @@ export const Header = (props: { currentPage: string }) => {
   return (
     <>
       {isLoaded ? <>
-        < HeaderComp>
+        < HeaderComp isTop={isTop}>
+          <BgHdn isShown={isShown} onClick={() => setShown(false)} />
+          <LeftProbList isShown={isShown}>
+            <ProbItem>Wonderland Chase</ProbItem>
+            <ProbItem>이진트리의 전위순회</ProbItem>
+            <ProbItem>이진트리의 중위순회</ProbItem>
+
+          </LeftProbList>
           <div className="contentHolder">
-            <LogoArea onClick={() => router.push("/")}>
-              <LogoIcon>
-                <Image src="/logo.png" width={35} height={35} alt="koilogo" />
-              </LogoIcon>
-              <p>
-                KOISTUDY
-              </p>
+            <LogoArea>
+              <Link href="/">
+                <LogoIcon>
+                  <Image src="/logo.png" width={33} height={33} alt="koilogo" />
+                </LogoIcon>
+              </Link>
+
             </LogoArea>
-            <DropDownBtn isDropped={isShown} onClick={() => setShown(!isShown)}>
-              <FiChevronDown />
-            </DropDownBtn>
+            <ProbListBtn onClick={() => setShown(!isShown)}>
+              <DropDownBtn isDropped={isShown}>
+                <FiChevronDown />
+              </DropDownBtn>
+            </ProbListBtn>
             <BtnHolder>
               <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
                 <RiUser3Fill />
@@ -403,12 +430,6 @@ export const Header = (props: { currentPage: string }) => {
             </BtnHolder>
           </div>
         </HeaderComp >
-        <Subheader isShown={isShown}>
-          <SubHolder>
-            <MenuNavBtn isActive={props.currentPage == "home"} onClick={() => { router.push("/") }}>Home</MenuNavBtn>
-            <MenuNavBtn isActive={props.currentPage == "problems"} onClick={() => { router.push("/problems") }}>Problems</MenuNavBtn>
-          </SubHolder>
-        </Subheader>
         {userInfoShown ?
           <ProfileBtnHolder onClick={() => { if (typeof userInfoJson !== "undefined") { router.push(`/user/${userInfoJson.Uid}`) } else if (!isLoggedIn) { router.push("/auth/login") } }}>
             <UserButton>

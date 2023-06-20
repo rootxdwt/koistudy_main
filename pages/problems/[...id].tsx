@@ -101,6 +101,7 @@ padding-right:20px;
 height: calc(100% - 60px);
 @media (max-width: 770px) {
     padding-right:0;
+    height: auto;
 }
 & .probInfo {
     display:flex;
@@ -126,7 +127,7 @@ const FooterBottom = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    border-top: solid 2px ${props => props.theme.Container.backgroundColor};
+    border-top: solid 1px ${props => props.theme.Button.backgroundColor};
     & p {
         color: ${props => props.theme.Body.TextColorLevels[3]};
         font-size: 12px;
@@ -228,6 +229,7 @@ font-family: 'Poppins',sans-serif;
     text-align:left;
     -webkit-background-clip: text;
     background-clip: text;
+    white-space: nowrap;
   }
 & p.min {
     margin:0;
@@ -239,10 +241,12 @@ const Titleholder = styled.div`
     display:flex;
     flex-direction: row;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 30px;
     & h1 {
         margin:0;
         margin-right: 20px;
+        font-size: 22px;
+        font-weight: bold;
     }
 `
 
@@ -331,6 +335,7 @@ const PageNav = styled.div`
     top: 0px;
     background-color: ${props => props.theme.Body.backgroundColor};
     margin-top: 10px;
+    border-bottom: solid 2px ${props => props.theme.Container.backgroundColor};
     @media(max-width: 770px) {
         position: relative;
     }
@@ -341,6 +346,7 @@ const PageBtn = styled.div<{ isActive: boolean }>`
     padding: 0px;
     margin-right: 50px;
     padding: 4px 0px;
+    white-space: nowrap;
 
     border-bottom: solid 2px ${props => props.isActive ? props.theme.Body.TextColorLevels[2] : "transparent"};
     cursor: pointer;
@@ -356,10 +362,46 @@ const PageBtn = styled.div<{ isActive: boolean }>`
         line-height: 20px;
     }
 `
+const SolvedCount = styled.span<{ isSolved: boolean }>`
+    padding: 0px 5px;
+    margin-left:10px;
+    border-radius: 10px;
+    font-size: 8px!important;
+    background-color: ${props => props.isSolved ? "#48bd5f" : props.theme.Body.TextColorLevels[3]};
+    color:  ${props => props.theme.Body.backgroundColor};
+    position: relative;
+    z-index: 2;
+    &:after {
+        left: 0;
+        top:0;
+        background-color: ${props => props.isSolved ? "#48bd5f" : props.theme.Body.TextColorLevels[3]};
+        width: 100%;
+        height: 60%;
+        top: 20%;
+        content: "";
+        display: block;
+        position: absolute;
+        z-index: -1;
+        filter: blur(7px);
+    }
+    
+`
 
 const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDataProp }) => {
     const router = useRouter()
     const { currentPage, problemData } = props
+    const [submissionData, setsubmisstionData] = useState<{ isSolved: boolean, dataLength: number }>()
+    useEffect(() => {
+        fetch(`/api/user/submission/${problemData.id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
+            (resp) => {
+                if (resp.ok) {
+                    return resp.json()
+                }
+            }).then(
+                (data) => {
+                    setsubmisstionData(data)
+                })
+    }, [problemData.id, currentPage])
     return (
         <DescHolder>
             <Titleholder>
@@ -370,14 +412,18 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
                     <p className="grad">Rating {problemData.rating}</p>
                 </Itm>
                 <FavBtn problemId={problemData.id} />
-                {/* <SolvedIndicator>
-                    <FcCheckmark />
-                </SolvedIndicator> */}
             </ProbInfo>
             <PageNav>
                 <PageBtn isActive={currentPage == "description"} onClick={() => router.push(`${router.query.id![0]}/description`)}>
                     <p>설명</p></PageBtn>
-                <PageBtn isActive={currentPage == "submission"} onClick={() => router.push(`${router.query.id![0]}/submission`)}><p>제출</p></PageBtn>
+                <PageBtn isActive={currentPage == "submission"} onClick={() => router.push(`${router.query.id![0]}/submission`)}>
+                    <p>
+                        제출
+                        {typeof submissionData !== "undefined" ? <SolvedCount isSolved={submissionData.isSolved}>
+                            {submissionData.dataLength}
+                        </SolvedCount> : <></>}
+                    </p>
+                </PageBtn>
                 <PageBtn isActive={currentPage == "champion"} onClick={() => router.push(`${router.query.id![0]}/champion`)}><p>챔피언</p></PageBtn>
             </PageNav>
             {currentPage == "description" ? <>
@@ -423,6 +469,7 @@ export default function Problem(data: any) {
             if (jsn) {
                 setIsJudging(false)
                 setContextData(jsn)
+                router.push(`/problems/${ProblemCode}/submission`)
             }
         } catch (e: any) {
             if (e.message == "toomanyreq") {

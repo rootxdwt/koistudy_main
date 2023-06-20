@@ -10,6 +10,7 @@ import { DarkTheme, LightTheme } from '@/lib/ui/theme'
 import { Holder } from '@/lib/ui/DefaultComponent'
 import { TbBrandGolang } from "react-icons/tb"
 import { DiRust, DiPhp, DiPython, DiNodejsSmall, DiCode } from 'react-icons/di'
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 import { Header } from '@/lib/ui/component/header'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -93,10 +94,10 @@ position: relative;
 }
 `
 
-const HcardHolder = styled.div`
+const HHolderParent = styled.div`
+position: relative;
 display:flex;
 overflow-x: scroll;
-overflow-y: hidden;
 -ms-overflow-style: none;
 scrollbar-width: none; 
 flex-direction:row;
@@ -109,6 +110,37 @@ flex-direction:row;
   margin-right:auto;
 }
 `
+const HcardHolder = styled.div`
+display: flex;
+position: relative;
+`
+
+const LeftBlurBorder = styled.div`
+  height: 230px;
+  position: absolute;
+  left: 0;
+  width: 30px;
+  z-index: 10;
+  background: linear-gradient(90deg, ${props => props.theme.Body.backgroundColor} 0%, rgba(255,255,255,0) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${props => props.theme.Body.TextColorLevels[3]};
+  padding-right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  @media(max-width: 770px) {
+    display: none;
+  }
+`
+const RightBlurBorder = styled(LeftBlurBorder)`
+  right: 0;
+  left:auto;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, ${props => props.theme.Body.backgroundColor} 100%);
+  padding-right: 0;
+  padding-left: 20px;
+`
+
 const Fullview = styled.div`
 width: 200px;
 height: 200px;
@@ -170,22 +202,62 @@ const LanguageIcon = (props: { langs: Array<string> }) => {
 
 
 const Myprob = (props: { problems: Array<sugprobDetails> }) => {
+  const scrollRef = useRef<any>()
+  const [isLeftArrowShown, setLeftArrowState] = useState(false)
+  const [isRightArrowShown, setRightArrowState] = useState(true)
   const router = useRouter()
+  const moveCont = (isLeft: boolean) => {
+    if (isLeft) {
+      scrollRef.current.scrollBy({
+        top: 0,
+        left: -200,
+        behavior: "smooth",
+      })
+    } else {
+      scrollRef.current.scrollBy({
+        top: 0,
+        left: 200,
+        behavior: "smooth",
+      })
+    }
+  }
+  const listner = () => {
+    if (scrollRef.current.scrollLeft == 0) {
+      setLeftArrowState(false)
+    } else {
+      setLeftArrowState(true)
+    }
+    if (scrollRef.current.offsetWidth + scrollRef.current.scrollLeft >= scrollRef.current.scrollWidth) {
+      setRightArrowState(false)
+    } else {
+      setRightArrowState(true)
+    }
+  }
+  useEffect(() => {
+    let currentElem = scrollRef.current
+    listner()
+    currentElem.addEventListener('scroll', listner)
+    return () => currentElem.removeEventListener('scroll', listner)
+  }, [])
   return (
     <>
       <HcardHolder>
-        {props.problems.map((item, index) => {
-          return (
-            <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}/description`)}>
-              <p>Rating {item.rating}</p>
-              <h2>{item.ProblemName}</h2>
-              <span>
-                <LanguageIcon langs={item.SupportedLang} />
-              </span>
-            </Hcard>
-          )
-        })}
-        <Fullview><p>전체 문제 보기</p></Fullview>
+        {isLeftArrowShown ? <LeftBlurBorder onClick={() => moveCont(true)}><IoIosArrowBack /></LeftBlurBorder> : <></>}
+        {isRightArrowShown ? <RightBlurBorder onClick={() => moveCont(false)} ><IoIosArrowForward /></RightBlurBorder> : <></>}
+        <HHolderParent ref={scrollRef}>
+          {props.problems.map((item, index) => {
+            return (
+              <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}/description`)}>
+                <p>Rating {item.rating}</p>
+                <h2>{item.ProblemName}</h2>
+                <span>
+                  <LanguageIcon langs={item.SupportedLang} />
+                </span>
+              </Hcard>
+            )
+          })}
+          <Fullview><p>전체 문제 보기</p></Fullview>
+        </HHolderParent>
 
       </HcardHolder>
     </>

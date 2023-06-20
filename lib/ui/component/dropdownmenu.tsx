@@ -14,24 +14,9 @@ max-height: 150px;
 overflow-y:scroll;
 overflow-x:hidden;
 -ms-overflow-style: none;
-background-color: ${props => props.theme.Body.backgroundColor}; 
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background-color: ${props => props.theme.Body.backgroundColor}; 
-  }
-   
-  ::-webkit-scrollbar-thumb {
-    background-color: ${props => props.theme.Container.backgroundColor};
-    border-radius: 2.5px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${props => props.theme.Button.backgroundColor};
-  }
+background-color: ${props => props.theme.Button.backgroundColor};
+border-radius: 10px;
+padding: 10px;
 `
 
 const DButton = styled.div<{ isActive: boolean }>`
@@ -44,27 +29,29 @@ height: 30px;
 flex-shrink:0;
 font-family: 'Poppins',sans-serif;
 font-size:12px;
-border-left: solid 2px ${props => props.theme.Container.backgroundColor};
-background-color: ${props => props.theme.Body.backgroundColor};
 color: ${props => props.theme.Body.TextColorLevels[3]};
 z-index:1;
 cursor:pointer;
+border-radius: 10px;
 &:hover {
-  color: ${props => props.theme.Body.TextColorLevels[2]};
-  border-left: solid 2px ${props => props.theme.Body.TextColorLevels[2]};
+  background-color: ${props => props.theme.Body.ContainerBgLevels[0]};
 }
 `
 const Current = styled.div`
-padding: 6px 10px;
+background-color: ${props => props.theme.Button.backgroundColor};
+padding:3px 10px;
 font-family: 'Poppins',sans-serif;
 font-size:12px;
 display:flex;
 align-items:center;
 justify-content:center;
-background-color: ${props => props.theme.Container.backgroundColor};
 color: ${props => props.theme.Body.TextColorLevels[3]};
 border-radius: 5px;
 cursor:pointer;
+border: solid 2px transparent;
+&:hover {
+  border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
+}
 `
 
 const DropDown = styled.div`
@@ -83,24 +70,24 @@ margin-left: 10px;
 `
 
 export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any, displayName: Array<{ name: any, displayName: string }> }) => {
-    const [isDropped, setDropped] = useState(false)
-    return (
-        <DropDown>
-            <Current onClick={() => setDropped(!isDropped)}>
-                {props.displayName.filter(elem => elem.name == props.active)[0].displayName}
-                <DropArrow isDropped={isDropped}>
-                    <FiChevronDown />
-                </DropArrow>
-            </Current>
-            {isDropped ? <ParentHolder>
-                {props.items.map((item, index) => {
-                    return (
-                        <DButton key={index} isActive={item == props.active} onClick={() => { props.clickEventHandler(item); setDropped(false) }}>
-                            {props.displayName[index].displayName}
-                        </DButton>
-                    )
-                })}
-            </ParentHolder> : <></>}
-        </DropDown>
-    )
+  const [isDropped, setDropped] = useState(false)
+  return (
+    <DropDown>
+      <Current onClick={() => setDropped(!isDropped)}>
+        {props.displayName.filter(elem => elem.name == props.active)[0].displayName}
+        <DropArrow isDropped={isDropped}>
+          <FiChevronDown />
+        </DropArrow>
+      </Current>
+      {isDropped ? <ParentHolder>
+        {props.items.map((item, index) => {
+          return (
+            <DButton key={index} isActive={item == props.active} onClick={() => { props.clickEventHandler(item); setDropped(false) }}>
+              {props.displayName[index].displayName}
+            </DButton>
+          )
+        })}
+      </ParentHolder> : <></>}
+    </DropDown>
+  )
 }

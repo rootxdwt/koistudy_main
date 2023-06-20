@@ -12,7 +12,7 @@ export const DarkTheme = {
         ContainerBgLevels: [
             "rgb(60,60,60)",
             "rgb(40,40,40)",
-            "rgb(30,30,30)"
+            "rgb(31,32,34)"
         ]
     },
     Button: {

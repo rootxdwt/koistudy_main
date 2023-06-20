@@ -31,9 +31,9 @@ height: 100%;
 
 const LangSelector = styled.div`
 display:flex;
-margin-top: 20px;
 align-items:center;
-margin-bottom: 30px;
+padding-bottom: 10px;
+margin-top: 4px;
 
 `
 
@@ -47,10 +47,11 @@ const SubmitBtn = styled(Button)`
 
 const Submission = styled.div`
 width: 100%;
+border-radius: 10px;
 height: 50px;
 display:flex;
 align-items: center;
-justify-content: flex-start;
+
 `
 
 interface WidthIn {
@@ -257,7 +258,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
 export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage> }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
-    const [currentWidth, setCurrentWidth] = useState<number>(400)
+    const [currentWidth, setCurrentWidth] = useState<number>(500)
     const [startingXpos, setStartingXpos] = useState<number | null>(null)
     const [isRunning, setRunningState] = useState(false)
 
@@ -274,14 +275,21 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
             setCurrentWidth(currentWidth + startingXpos - e.touches[0].pageX)
         }
     }
+    const ResetPos = () => {
+        setStartingXpos(null)
+    }
 
     useEffect(() => {
         window.addEventListener('mousemove', mouseMoveHandler)
         window.addEventListener('touchmove', touchMoveHandler)
+        window.addEventListener('mouseup', ResetPos)
+        window.addEventListener('touchend', ResetPos)
 
         return () => {
             window.removeEventListener('mousemove', mouseMoveHandler)
             window.removeEventListener('touchmove', touchMoveHandler)
+            window.removeEventListener('mouseup', ResetPos)
+            window.removeEventListener('touchend', ResetPos)
         }
     }, [startingXpos])
 
@@ -290,8 +298,8 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
             <Rearrange
                 onMouseDown={(e) => setStartingXpos(e.pageX)}
                 onTouchStart={(e) => setStartingXpos(e.touches[0].pageX)}
-                onMouseUp={() => setStartingXpos(null)}
-                onTouchEnd={() => setStartingXpos(null)}
+                onMouseUp={ResetPos}
+                onTouchEnd={ResetPos}
             >
                 <HiOutlineDotsVertical />
             </Rearrange>
@@ -311,7 +319,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                     }
                 }
 
-                height="calc(100vh - 260px)"
+                height="calc(100vh - 220px)"
                 extensions={
                     [
                         loadLanguage(currentCodeType)!
@@ -323,10 +331,11 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
             />
 
             {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
-            <Submission><SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</SubmitBtn>
+            <Submission>
                 <RunBtn onClick={() => setRunningState(!isRunning)}>
                     {isRunning ? <BsStopFill /> : <BsFillPlayFill />}
                 </RunBtn>
+                <SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</SubmitBtn>
             </Submission>
         </SubmitHolder >
     )

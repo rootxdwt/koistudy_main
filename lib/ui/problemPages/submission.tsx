@@ -227,7 +227,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
     const [dropDown, setDropDown] = useState("")
     const [filterLang, setFilterLang] = useState<AcceptableLanguage | "">("")
     const [filterStat, setFilterStat] = useState("")
-    const [extended, setExtended] = useState<number>()
+    const [extended, setExtended] = useState<number | undefined>()
 
     const isDark = useSelector<StateType, boolean>(state => state.theme);
 

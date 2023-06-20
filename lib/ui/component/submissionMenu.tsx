@@ -7,6 +7,7 @@ import {
 
 import { FiChevronDown } from 'react-icons/fi'
 import { AC, AW, TLE } from "../DefaultComponent"
+import { useRouter } from "next/router"
 
 const LoadingAnimation = keyframes`
 0%{
@@ -33,27 +34,28 @@ const Circle = styled.span<{ Color: string }>`
     border-radius: 5px;
     background-color: ${props => props.Color};
     transition: background-color 0.2s cubic-bezier(.5,0,.56,.99);
+    position: relative;
 `
 
 const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number }>`
 position:fixed;
 bottom:0;
-width: 1300px;
+width: 1400px;
 border-top: solid 1px ${props => props.theme.Button.backgroundColor};
 @media(max-width: 1800px) {
-    width: 1200px;
+    width: 1300px;
   }
   @media(max-width: 1700px) {
-    width: 1100px;
+    width: 1200px;
   }
   @media(max-width: 1500px) {
-    width: 1000px;
+    width: 1100px;
   }
   @media(max-width: 1300px) {
-    width: 900px;
+    width: 1000px;
   }
   @media(max-width: 1200px) {
-    width: 800px;
+    width: 900px;
   }
   @media(max-width: 900px) {
     width: 90vw;
@@ -201,6 +203,7 @@ export interface JudgeResponse {
 export const SubmitResult = (props: { contextData: JudgeResponse | undefined, isJudging: boolean }) => {
     const [caseDetail, setCaseDetail] = useState<number>()
     const [isResultExtended, setExtended] = useState(false)
+    const router = useRouter()
 
     let contextData: JudgeResponse
 

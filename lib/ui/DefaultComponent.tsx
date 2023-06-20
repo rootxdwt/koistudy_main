@@ -27,6 +27,7 @@ a {
     background-color: ${props => props.theme.Button.backgroundColor}!important;
 }
   .cm-scroller {
+    overflow: auto;
     -ms-overflow-style: none;
     ::-webkit-scrollbar {
         width: 5px;
@@ -38,12 +39,12 @@ a {
       }
        
       ::-webkit-scrollbar-thumb {
-        background: #888; 
+        background: rgba(131, 131, 131, 0.1); 
         border-radius: 2.5px;
       }
       
       ::-webkit-scrollbar-thumb:hover {
-        background: #555; 
+        background: rgba(126, 126, 126, 0.2); 
       }
       ::-webkit-scrollbar-corner {
         background: transparent;
@@ -58,25 +59,25 @@ a {
 export const Holder = styled.div`
 display:flex;
 flex-direction: column;
-width: 1300px;
-padding-top: 70px;
+width: 1400px;
+padding-top: 65px;
 color: ${props => props.theme.Title.textColor};
 margin-left:auto;
 margin-right:auto;
 @media(max-width: 1800px) {
-  width: 1200px;
+  width: 1300px;
 }
 @media(max-width: 1700px) {
-  width: 1100px;
+  width: 1200px;
 }
 @media(max-width: 1500px) {
-  width: 1000px;
+  width: 1100px;
 }
 @media(max-width: 1300px) {
-  width: 900px;
+  width: 1000px;
 }
 @media(max-width: 1200px) {
-  width: 800px;
+  width: 900px;
 }
 @media(max-width: 900px) {
   width: 100%;
