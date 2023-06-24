@@ -98,7 +98,7 @@ export const Description = (props: { mdData: string, problemName: string, solved
             .then((data) => {
                 setMdSource(data.result);
             });
-    }, [])
+    }, [props])
     return (
         <>
             {markdownReact}

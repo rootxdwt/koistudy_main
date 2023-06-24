@@ -210,6 +210,7 @@ interface ProblemDataProp {
     rating: number
     id: number
     supportedLang: Array<AcceptableLanguage>
+    currentPage: string
 
 }
 
@@ -335,7 +336,7 @@ const PageNav = styled.div`
     top: 0px;
     background-color: ${props => props.theme.Body.backgroundColor};
     margin-top: 10px;
-    border-bottom: solid 2px ${props => props.theme.Container.backgroundColor};
+    border-bottom: solid 1px ${props => props.theme.Button.backgroundColor};
     @media(max-width: 770px) {
         position: relative;
     }
@@ -387,12 +388,13 @@ const SolvedCount = styled.span<{ isSolved: boolean }>`
     
 `
 
-const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDataProp }) => {
+const ProblemPageHandler = (props: ProblemDataProp) => {
     const router = useRouter()
-    const { currentPage, problemData } = props
+    const { currentPage, mdData, problemName, solved, rating, id, supportedLang } = props
     const [submissionData, setsubmisstionData] = useState<{ isSolved: boolean, dataLength: number }>()
     useEffect(() => {
-        fetch(`/api/user/submission/${problemData.id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
+        console.log(mdData)
+        fetch(`/api/user/submission/${id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
             (resp) => {
                 if (resp.ok) {
                     return resp.json()
@@ -401,17 +403,17 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
                 (data) => {
                     setsubmisstionData(data)
                 })
-    }, [problemData.id, currentPage])
+    }, [id, currentPage])
     return (
         <DescHolder>
             <Titleholder>
-                <h1>{problemData.problemName}</h1>
+                <h1>{problemName}</h1>
             </Titleholder>
             <ProbInfo>
-                <Itm rating={problemData.rating}>
-                    <p className="grad">Rating {problemData.rating}</p>
+                <Itm rating={rating}>
+                    <p className="grad">Rating {rating}</p>
                 </Itm>
-                <FavBtn problemId={problemData.id} />
+                <FavBtn problemId={id} />
             </ProbInfo>
             <PageNav>
                 <PageBtn isActive={currentPage == "description"} onClick={() => router.push(`${router.query.id![0]}/description`)}>
@@ -428,14 +430,14 @@ const ProblemPageHandler = (props: { currentPage: string, problemData: ProblemDa
             </PageNav>
             {currentPage == "description" ? <>
                 <Description
-                    mdData={problemData.mdData}
-                    problemName={problemData.problemName}
-                    solved={problemData.solved}
-                    rating={problemData.rating}
-                    id={problemData.id}
+                    mdData={mdData}
+                    problemName={problemName}
+                    solved={solved}
+                    rating={rating}
+                    id={id}
                 />
                 <FooterElem />
-            </> : currentPage == "submission" ? <SubmissionPage id={problemData.id} supportedLang={problemData.supportedLang} /> : currentPage == "champion" ? <Champion /> : <></>}
+            </> : currentPage == "submission" ? <SubmissionPage id={id} supportedLang={supportedLang} /> : currentPage == "champion" ? <Champion /> : <></>}
         </DescHolder>
     )
 }
@@ -453,13 +455,18 @@ const LocalGlobal = createGlobalStyle`
 `
 
 export default function Problem(data: any) {
-    const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved } = data.Oth
+    const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable } = data
     const [isJudging, setIsJudging] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse | undefined>()
 
     const router = useRouter()
 
     const isDark = useSelector<StateType, boolean>(state => state.theme);
+
+    useEffect(() => {
+        setContextData(undefined)
+        setIsJudging(false)
+    }, [ProblemCode])
 
     const detCode = async (t: string, c: string) => {
         try {
@@ -493,13 +500,15 @@ export default function Problem(data: any) {
             <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
                 <Header
                     currentPage="problems"
+                    forwardNavigatable={navigatable[0] ? { target: parseInt(ProblemCode) - 1 } : undefined}
+                    backwardNavigatable={navigatable[1] ? { target: parseInt(ProblemCode) + 1 } : undefined}
                 />
                 <LocalGlobal />
                 <GlobalStyle />
                 <>
                     <Holder>
                         <Internal rating={rating}>
-                            <ProblemPageHandler currentPage={router.query.id![1]} problemData={{ mdData: Script, problemName: ProblemName, solved: solved, rating: rating, id: parseInt(router.query.id![0]), supportedLang: SupportedLang }} />
+                            <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} />
                             <CodeEditArea
                                 SupportedLang={SupportedLang}
                                 submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
@@ -525,10 +534,21 @@ export const getServerSideProps = async (context: any) => {
 
     try {
         if (typeof id[0] == "string") {
-            const findDC = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) }).exec();
-            const { TestProgress, ...Oth } = JSON.parse(JSON.stringify(findDC))
+            const findDC = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) }, 'Script solved rating ProblemCode ProblemName SupportedLang Mem')
+
+            const forwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) - 1 }, '-_id ProblemCode')
+            const backwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) + 1 }, '-_id ProblemCode')
+
+            let forward = false
+            let backward = false
+            if (backwardProb !== null) {
+                backward = true
+            }
+            if (forwardProb !== null) {
+                forward = true
+            }
             return {
-                props: { Oth }
+                props: { navigatable: [forward, backward], ...JSON.parse(JSON.stringify(findDC)) }
             };
         } else {
             return {

@@ -20,6 +20,7 @@ top:0;
 width: 100vw;
 display:flex;
 align-items:center;
+border-bottom: solid 1px ${props => props.theme.Button.backgroundColor};
 
 background-color: ${props => props.theme.Body.backgroundColor};
 
@@ -69,7 +70,6 @@ background-color: ${props => props.theme.Body.backgroundColor};
 & span {
     display:flex;
     align-items:center;
-    margin-left:2px;
 }
 `
 
@@ -146,6 +146,7 @@ const ProfileBtnHolder = styled.div`
 const LogoArea = styled.div`
   display:flex;
   align-items: center;
+  margin-right: 10px;
   & p {
     color: ${props => props.theme.Body.TextColorLevels[2]};
     margin-left: 10px;
@@ -287,13 +288,14 @@ const LoginInIdentifier = styled.div`
   align-items: center;
 `
 
-const ProbListBtn = styled.div`
+const ProbNavBtn = styled.div`
   display: flex;
   padding: 3px;
   border-radius: 5px;
   font-family: 'Noto Sans KR', sans-serif;
   margin-left: 15px;
   cursor: pointer;
+  border: solid 1px ${props => props.theme.Button.backgroundColor};;
   & p {
     margin: 0;
     padding: 0;
@@ -306,54 +308,7 @@ const ProbListBtn = styled.div`
   }
 `
 
-const LeftProbList = styled.div<{ isShown: boolean }>`
-  position:fixed;
-  left: ${props => props.isShown ? 0 : -300}px;
-  transition: left 0.3s cubic-bezier(.5,0,.56,.99);
-  top: 0;
-  height: 100vh;
-  width: 300px;
-  background-color: ${props => props.theme.Body.backgroundColor};
-  z-index: 999;
-  border-right: solid 1px ${props => props.theme.Button.backgroundColor};
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-`
-
-const ProbItem = styled.div`
-display: flex;
-  width: 90%;
-  height: 50px;
-
-  font-size: 13px;
-  align-items: center;
-  border-bottom: solid 1px ${props => props.theme.Button.backgroundColor};
-  color: ${props => props.theme.Body.TextColorLevels[2]};
-`
-const Showan = keyframes`
-0% {
-  opacity: 0;
-}
-100% {
-  opacity: 0.8;
-}
-`
-
-const BgHdn = styled.div<{ isShown: boolean }>`
-background-color: ${props => props.theme.Body.backgroundColor};
-animation: ${Showan} 0.3s cubic-bezier(.5,0,.56,.99);
-opacity: 0.8;
-position: fixed;
-width: 100vw;
-height: 100vh;
-z-index: 998;
-top:0;
-left: 0;
-display: ${props => props.isShown ? "block" : "none"};
-`
-
-export const Header = (props: { currentPage: string }) => {
+export const Header = (props: { currentPage: string, forwardNavigatable?: { target: number }, backwardNavigatable?: { target: number } }) => {
   const dispatch = useDispatch()
   const isDark = useSelector<StateType, boolean>(state => state.theme);
   const [isLoaded, setLoadState] = useState(false)
@@ -397,13 +352,6 @@ export const Header = (props: { currentPage: string }) => {
     <>
       {isLoaded ? <>
         < HeaderComp isTop={isTop}>
-          <BgHdn isShown={isShown} onClick={() => setShown(false)} />
-          <LeftProbList isShown={isShown}>
-            <ProbItem>Wonderland Chase</ProbItem>
-            <ProbItem>이진트리의 전위순회</ProbItem>
-            <ProbItem>이진트리의 중위순회</ProbItem>
-
-          </LeftProbList>
           <div className="contentHolder">
             <LogoArea>
               <Link href="/">
@@ -413,11 +361,24 @@ export const Header = (props: { currentPage: string }) => {
               </Link>
 
             </LogoArea>
-            <ProbListBtn onClick={() => setShown(!isShown)}>
-              <DropDownBtn isDropped={isShown}>
-                <FiChevronDown />
-              </DropDownBtn>
-            </ProbListBtn>
+            {props.forwardNavigatable ?
+              <Link href={`/problems/${props.forwardNavigatable.target}/description`}>
+                <ProbNavBtn >
+                  <DropDownBtn isDropped={true}>
+                    <FiChevronDown />
+                  </DropDownBtn>
+                </ProbNavBtn>
+              </Link> : <></>}
+
+            {props.backwardNavigatable ?
+              <Link href={`/problems/${props.backwardNavigatable.target}/description`}>
+                <ProbNavBtn>
+                  <DropDownBtn isDropped={false}>
+                    <FiChevronDown />
+                  </DropDownBtn>
+                </ProbNavBtn>
+              </Link> : <></>}
+
             <BtnHolder>
               <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
                 <RiUser3Fill />

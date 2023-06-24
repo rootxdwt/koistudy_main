@@ -33,7 +33,7 @@ const LangSelector = styled.div`
 display:flex;
 align-items:center;
 padding-bottom: 10px;
-margin-top: 4px;
+margin-top: 7px;
 
 `
 
