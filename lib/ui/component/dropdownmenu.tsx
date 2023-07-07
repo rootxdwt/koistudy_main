@@ -1,13 +1,14 @@
 import styled from "styled-components"
 import { useState } from "react"
 import { FiChevronDown } from "react-icons/fi"
-const ParentHolder = styled.div`
+const ParentHolder = styled.div<{ isDown: boolean }>`
 z-index:3;
 display:flex;
 align-items:center;
 flex-direction:column;
 position:absolute;
-top: 40px;
+bottom: ${props => props.isDown ? "auto" : "40px"};
+top: ${props => props.isDown ? "40px" : "auto"};
 overflow:hidden;
 user-select:none;
 max-height: 150px;
@@ -61,25 +62,25 @@ position:relative;
 margin-left: 5px;
 `
 
-const DropArrow = styled.div<{ isDropped: boolean }>`
+const DropArrow = styled.div<{ isDropped: boolean, defaultPosDown: boolean }>`
 display:flex;
 justify-content: center;
 align-items: center;
-transform: rotate(${props => props.isDropped ? "180" : "0"}deg);
+transform: rotate(${props => props.isDropped ? props.defaultPosDown ? "180" : "0" : props.defaultPosDown ? "0" : "180"}deg);
 margin-left: 10px;
 `
 
-export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any, displayName: Array<{ name: any, displayName: string }> }) => {
+export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any, displayName: Array<{ name: any, displayName: string }>, dropType: "up" | "down" }) => {
   const [isDropped, setDropped] = useState(false)
   return (
     <DropDown>
       <Current onClick={() => setDropped(!isDropped)}>
         {props.displayName.filter(elem => elem.name == props.active)[0].displayName}
-        <DropArrow isDropped={isDropped}>
+        <DropArrow isDropped={isDropped} defaultPosDown={props.dropType == "down"}>
           <FiChevronDown />
         </DropArrow>
       </Current>
-      {isDropped ? <ParentHolder>
+      {isDropped ? <ParentHolder isDown={props.dropType == "down"}>
         {props.items.map((item, index) => {
           return (
             <DButton key={index} isActive={item == props.active} onClick={() => { props.clickEventHandler(item); setDropped(false) }}>

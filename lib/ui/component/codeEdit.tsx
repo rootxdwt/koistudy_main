@@ -39,6 +39,7 @@ margin-top: 7px;
 
 const RunBtn = styled(Button)`
 width:30px;
+margin-left: auto;
 `
 
 const SubmitBtn = styled(Button)`
@@ -48,9 +49,9 @@ const SubmitBtn = styled(Button)`
 const Submission = styled.div`
 width: 100%;
 border-radius: 10px;
-height: 50px;
 display:flex;
 align-items: center;
+margin-top: 8px;
 
 `
 
@@ -304,10 +305,6 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
             >
                 <HiOutlineDotsVertical />
             </Rearrange>
-            <LangSelector>
-
-                <DropDownMenu active={currentCodeType} items={props.SupportedLang} displayName={props.SupportedLang.map((elem) => { return { name: elem, displayName: new LanguageHandler(elem, "").getLangFullName() } })} clickEventHandler={setCodeType} />
-            </LangSelector>
 
             <CodeMirror
                 basicSetup={
@@ -320,7 +317,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                     }
                 }
 
-                height="calc(100vh - 220px)"
+                height="calc(100vh - 174px)"
                 extensions={
                     [
                         loadLanguage(currentCodeType)!
@@ -333,6 +330,8 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
 
             {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
             <Submission>
+                <DropDownMenu active={currentCodeType} dropType="up" items={props.SupportedLang} displayName={props.SupportedLang.map((elem) => { return { name: elem, displayName: new LanguageHandler(elem, "").getLangFullName() } })} clickEventHandler={setCodeType} />
+
                 <RunBtn onClick={() => setRunningState(!isRunning)}>
                     {isRunning ? <BsStopFill /> : <BsFillPlayFill />}
                 </RunBtn>
