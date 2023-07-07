@@ -52,13 +52,14 @@ align-items:center;
 justify-content:center;
 padding: 40px;
 position: relative;
+border: solid 2px transparent;
 &:nth-child(1){
   @media(max-width: 770px) {
     margin-left: 5vw;
   }
 }
 &:hover {
-  transform: scale(0.95);
+  border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
 }
 & h2 {
   font-size: 16px;
@@ -116,7 +117,7 @@ position: relative;
 `
 
 const LeftBlurBorder = styled.div`
-  height: 230px;
+  height: 234px;
   position: absolute;
   left: 0;
   width: 30px;

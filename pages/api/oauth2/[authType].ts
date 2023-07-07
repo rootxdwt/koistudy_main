@@ -55,17 +55,32 @@ export default async function handler(
             const primaryMail = emailData.filter((elem: any) => { return elem.primary })[0]
             const data = await userSchema.find({ Mail: primaryMail.email })
             if (data.length < 1) {
-                accountExists = false
-                uid = crypto.randomBytes(10).toString('hex')
+                let regKey = crypto.randomBytes(10).toString('hex')
 
-                await userSchema.create({
+                let accData = {
                     Id: genId(),
                     Mail: primaryMail.email,
                     MailVerified: primaryMail.verified,
                     Uid: uid,
-                })
+                }
+                await client.set(regKey, JSON.stringify(accData), { EX: 60 });
+
+                // uid = crypto.randomBytes(10).toString('hex')
+                // accountExists = false
+                // await userSchema.create({
+                //     Id: genId(),
+                //     Mail: primaryMail.email,
+                //     MailVerified: primaryMail.verified,
+                //     Uid: uid,
+                // })
+
+                res.status(200).json({ status: 'Success', accountExists: false, regKey: regKey, accData: accData })
+                return
+
             } else {
-                uid = data[0].Uid
+                let token = await generateJWT(data[0].Uid, process.env.JWTKEY, true)
+                res.status(200).json({ status: 'Success', accountExists: true, token: token })
+                return
             }
         } else if (authType == "google") {
             var rsp = await fetch('https://oauth2.googleapis.com/token', { method: "POST", body: JSON.stringify({ client_id: "417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com", client_secret: process.env.GOOGLEPRIVATE, code: requestedData.code, redirect_uri: `http://${process.env.REDIRURL}/auth/redirect/google`, grant_type: "authorization_code" }) })
@@ -76,26 +91,36 @@ export default async function handler(
 
             const data = await userSchema.find({ Mail: userData.email })
             if (data.length < 1) {
-                uid = crypto.randomBytes(10).toString('hex')
-                accountExists = false
-                await userSchema.create({
+                let regKey = crypto.randomBytes(10).toString('hex')
+
+                let accData = {
                     Id: genId(),
                     Mail: userData.email,
                     MailVerified: userData.email_verified,
                     Uid: uid,
-                })
+                }
+                await client.set(regKey, JSON.stringify(accData), { EX: 60 });
+
+                // uid = crypto.randomBytes(10).toString('hex')
+                // accountExists = false
+                // await userSchema.create({
+                //     Id: genId(),
+                //     Mail: userData.email,
+                //     MailVerified: userData.email_verified,
+                //     Uid: uid,
+                // })
+                res.status(200).json({ status: 'Success', accountExists: false, regKey: regKey, accData: accData })
+                return
+
             } else {
-                uid = data[0].Uid
+                let token = await generateJWT(data[0].Uid, process.env.JWTKEY, true)
+                res.status(200).json({ status: 'Success', accountExists: true, token: token })
+                return
             }
         } else {
             res.status(400).json({ status: 'Failed', detail: "unknown auth-type" })
             return
         }
-
-        let token = await generateJWT(uid, process.env.JWTKEY, true)
-
-        res.status(200).json({ status: 'Success', accountExists: accountExists, token: token })
-        return
     } catch (e) {
         res.status(200).json({ status: 'Failed', detail: 'error' })
         return

@@ -116,6 +116,7 @@ const ConsoleHeader = styled.div`
 display:flex;
 font-size: 13px;
 color: ${props => props.theme.Body.TextColorLevels[3]};
+border-top: solid 1px ${props => props.theme.Button.backgroundColor};
 padding: 0px 10px;
 height: 40px;
 align-items:center;
@@ -177,7 +178,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
         socket.on("connect_error", (err: any) => {
             socket.disconnect()
             if (err.description == 401 || err.message == "unauthorized") {
-                router.push("/auth/login")
+                router.push("/auth/")
             } else {
                 setValue("Failed connecting with server")
             }

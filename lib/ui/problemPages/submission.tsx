@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { StateType } from '@/lib/store'
 import { SubmittedCodeElem } from "../component/codeElem";
 import { keyframes } from "styled-components"
+import Link from "next/link"
 
 const SubMainHolder = styled.div`
 width:100%;
@@ -65,6 +66,18 @@ const NoDataHolder = styled.div`
     height: calc(100vh - 431px);
     color: ${props => props.theme.Body.TextColorLevels[3]};
     font-size: 14px;
+    flex-direction: column;
+`
+const LoginBtn = styled.div`
+    padding: 5px 20px;
+    background-color: ${props => props.theme.Button.backgroundColor};
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+    &:hover {
+        background-color: ${props => props.theme.Body.ContainerBgLevels[0]};
+    }
+    color:  ${props => props.theme.Body.TextColorLevels[3]};;
 `
 
 const NoData = () => {
@@ -75,7 +88,13 @@ const NoData = () => {
 
 const Loginpls = () => {
     return (
-        <NoDataHolder>로그인하세요</NoDataHolder>
+        <NoDataHolder>보려면 로그인하세요
+            <Link href="/auth/">
+                <LoginBtn>
+                    로그인
+                </LoginBtn>
+            </Link>
+        </NoDataHolder>
     )
 }
 
@@ -155,7 +174,7 @@ const Selection = styled.div`
 const SelectionBtn = styled.div`
         border-radius: 10px;
     height: 35px;
-    background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+
     border:solid 2px ${props => props.theme.Body.ContainerBgLevels[1]};
     cursor: pointer;
     display: flex;

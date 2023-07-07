@@ -393,7 +393,6 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
     const { currentPage, mdData, problemName, solved, rating, id, supportedLang } = props
     const [submissionData, setsubmisstionData] = useState<{ isSolved: boolean, dataLength: number }>()
     useEffect(() => {
-        console.log(mdData)
         fetch(`/api/user/submission/${id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
             (resp) => {
                 if (resp.ok) {
@@ -482,7 +481,7 @@ export default function Problem(data: any) {
             if (e.message == "toomanyreq") {
                 setIsJudging(false)
             } else if (e.message == "unauthorized") {
-                router.push("/auth/login")
+                router.push("/auth/")
             }
             else {
                 console.error("unhandled error")

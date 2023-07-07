@@ -12,7 +12,7 @@ import Link from "next/link";
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const HeaderComp = styled.header<{ isTop: boolean }>`
+const HeaderComp = styled.header<{ isTop: any }>`
 position:fixed;
 
 z-index:20;
@@ -20,12 +20,11 @@ top:0;
 width: 100vw;
 display:flex;
 align-items:center;
-border-bottom: solid 1px ${props => props.theme.Button.backgroundColor};
+border-bottom: solid 1px ${props => props.isTop ? props.theme.Body.ContainerBgLevels[1] : "transparent"};
 
 background-color: ${props => props.theme.Body.backgroundColor};
 
 & div.contentHolder {
-    border-bottom: solid 2px ${props => props.isTop ? "transparent" : props.theme.Body.ContainerBgLevels[1]};
     padding: 13px 0px;
     margin-left:auto;
     margin-right:auto;
@@ -103,6 +102,7 @@ font-size:15px;
 
 
 const DropDownBtn = styled.span<{ isDropped: boolean }>`
+    color: ${props => props.theme.Body.TextColorLevels[1]};
     transform: rotate(${props => props.isDropped ? "90" : "-90"}deg);
     transition: transform 0.3s cubic-bezier(.5,0,.56,.99);
     cursor:pointer;
@@ -295,7 +295,8 @@ const ProbNavBtn = styled.div`
   font-family: 'Noto Sans KR', sans-serif;
   margin-left: 15px;
   cursor: pointer;
-  border: solid 1px ${props => props.theme.Button.backgroundColor};;
+  color:${props => props.theme.Body.TextColorLevels[1]};
+  border: solid 1px ${props => props.theme.Button.backgroundColor};
   & p {
     margin: 0;
     padding: 0;
@@ -316,22 +317,6 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
   const [userInfoShown, setuserInfo] = useState(false)
   const [userInfoJson, setJson] = useState<UserResp>()
   const [isLoggedIn, setLogin] = useState<boolean>(true)
-  const [isTop, setIsTop] = useState(true)
-
-  const verticalListner = () => {
-    if (window.scrollY == 0) {
-      setIsTop(true)
-    } else {
-      setIsTop(false)
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('scroll', verticalListner)
-    return () => window.removeEventListener('scroll', verticalListner)
-  }, [])
-
-
   const router = useRouter();
 
   useEffect(() => {
@@ -347,11 +332,12 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
       })
     }
   }, [userInfoShown])
-  useEffect(() => setLoadState(true), [])
+
+  useEffect(() => setLoadState(true), [props])
   return (
     <>
       {isLoaded ? <>
-        < HeaderComp isTop={isTop}>
+        < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable}>
           <div className="contentHolder">
             <LogoArea>
               <Link href="/">
@@ -362,22 +348,24 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
 
             </LogoArea>
             {props.forwardNavigatable ?
-              <Link href={`/problems/${props.forwardNavigatable.target}/description`}>
-                <ProbNavBtn >
+              <ProbNavBtn >
+                <Link href={`/problems/${props.forwardNavigatable.target}/description`}>
                   <DropDownBtn isDropped={true}>
                     <FiChevronDown />
                   </DropDownBtn>
-                </ProbNavBtn>
-              </Link> : <></>}
+                </Link>
+              </ProbNavBtn>
+              : <></>}
 
             {props.backwardNavigatable ?
-              <Link href={`/problems/${props.backwardNavigatable.target}/description`}>
-                <ProbNavBtn>
+              <ProbNavBtn>
+                <Link href={`/problems/${props.backwardNavigatable.target}/description`}>
                   <DropDownBtn isDropped={false}>
                     <FiChevronDown />
                   </DropDownBtn>
-                </ProbNavBtn>
-              </Link> : <></>}
+                </Link>
+              </ProbNavBtn>
+              : <></>}
 
             <BtnHolder>
               <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
@@ -392,7 +380,7 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
           </div>
         </HeaderComp >
         {userInfoShown ?
-          <ProfileBtnHolder onClick={() => { if (typeof userInfoJson !== "undefined") { router.push(`/user/${userInfoJson.Uid}`) } else if (!isLoggedIn) { router.push("/auth/login") } }}>
+          <ProfileBtnHolder onClick={() => { if (typeof userInfoJson !== "undefined") { router.push(`/user/${userInfoJson.Uid}`) } else if (!isLoggedIn) { router.push("/auth/") } }}>
             <UserButton>
               {typeof userInfoJson !== "undefined" ?
                 <>
@@ -412,7 +400,9 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
                   </div>
                 </>
                 : <>
-                  {isLoggedIn ? <><HeaderSkeleton isDark={isDark} /></> : <LoginInIdentifier>로그인하세요</LoginInIdentifier>}
+                  {isLoggedIn ? <><HeaderSkeleton isDark={isDark} /></> : <LoginInIdentifier>
+                    로그인하세요
+                  </LoginInIdentifier>}
                 </>}
             </UserButton>
             {isLoggedIn && typeof userInfoJson !== "undefined" ? <LogOutBtn onClick={() => { localStorage.removeItem("tk"); router.reload() }}>
@@ -424,7 +414,8 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
           </ProfileBtnHolder> :
           <></>
         }
-      </> : <></>}
+      </> : <></>
+      }
     </>
   )
 }
