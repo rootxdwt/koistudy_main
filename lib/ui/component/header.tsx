@@ -12,7 +12,7 @@ import Link from "next/link";
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const HeaderComp = styled.header<{ isTop: any }>`
+const HeaderComp = styled.header<{ isTop: any, isTransparent: boolean }>`
 position:fixed;
 
 z-index:20;
@@ -22,7 +22,7 @@ display:flex;
 align-items:center;
 border-bottom: solid 1px ${props => props.isTop ? props.theme.Body.ContainerBgLevels[1] : "transparent"};
 
-background-color: ${props => props.theme.Body.backgroundColor};
+background-color: ${props => props.isTransparent ? "transparent" : props.theme.Body.backgroundColor};
 
 & div.contentHolder {
     padding: 13px 0px;
@@ -337,7 +337,7 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
   return (
     <>
       {isLoaded ? <>
-        < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable}>
+        < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable} isTransparent={props.currentPage == "login"} >
           <div className="contentHolder">
             <LogoArea>
               <Link href="/">
@@ -368,10 +368,10 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
               : <></>}
 
             <BtnHolder>
-              <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
+              {props.currentPage !== "login" ? <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
                 <RiUser3Fill />
 
-              </BtnComp>
+              </BtnComp> : <></>}
               <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
                 {isDark ? <MdDarkMode /> : <MdLightMode />}
 

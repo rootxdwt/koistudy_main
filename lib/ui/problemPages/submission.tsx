@@ -77,7 +77,7 @@ const LoginBtn = styled.div`
     &:hover {
         background-color: ${props => props.theme.Body.ContainerBgLevels[0]};
     }
-    color:  ${props => props.theme.Body.TextColorLevels[3]};;
+    color:  ${props => props.theme.Body.TextColorLevels[3]};
 `
 
 const NoData = () => {
