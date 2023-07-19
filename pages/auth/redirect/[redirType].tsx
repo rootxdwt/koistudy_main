@@ -18,13 +18,13 @@ import { generateJWT } from "@/lib/customCrypto";
 const NormalInput = styled.input`
     background-color: transparent;
     border: none;
-    padding: 10px 0px;
+    padding: 8px 0px;
     max-width: 300px;
     border: solid 1px ${(props) => props.theme.Body.ContainerBgLevels[0]};
     color:${(props) => props.theme.Body.TextColorLevels[1]};
     margin-top: 10px;
     font-size: 13px;
-    border-radius: 10px;
+    border-radius: 5px;
     &:focus {
         outline: none;
     }
@@ -73,7 +73,7 @@ const BtnHolder = styled.div`
 `;
 const NextBtn = styled.div`
     background-color: ${(props) => props.theme.Button.backgroundColor};
-    padding: 5px 20px;
+    padding: 7px 20px;
     border-radius: 5px;
     font-size: 13px;
     cursor: pointer;
@@ -101,8 +101,10 @@ width: 250px;
     color:  ${(props) => props.theme.Body.TextColorLevels[3]};
     margin: 0;
     font-size: 11px;
+    margin-bottom: 10px;
 }
 width: 250px;
+border-radius: 5px;
 `;
 
 const PolicyContainer = styled.div`
@@ -131,7 +133,7 @@ export default function Login(serverData: any) {
     const isDark = useSelector<StateType, boolean>((state) => state.theme);
 
     const [redirResult, setresult] = useState<loginResp>();
-    //{ status: "Success", accountExists: false, regKey: "abc", accData: { Id: "고라니", Mail: "naver@naver.com", MailVerified: true, Uid: "ABCD" } }
+
     const [key, setKey] = useState<string>();
     const [currentStep, setStep] = useState<number>(0);
     const router = useRouter();
@@ -303,7 +305,7 @@ export async function getServerSideProps(context: any) {
                 };
             } else {
                 let token = await generateJWT(data[0].Uid, process.env.JWTKEY, true);
-                return { status: "Success", accountExists: true, token: token };
+                return { props: { status: "Success", accountExists: true, token: token } };
             }
         } else if (redirType == "google") {
             var rsp = await fetch("https://oauth2.googleapis.com/token", {
