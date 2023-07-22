@@ -14,6 +14,7 @@ import { createClient } from "redis";
 import crypto from "crypto";
 import { genId } from "@/lib/pref/idGenerator";
 import { generateJWT } from "@/lib/customCrypto";
+import Head from "next/head";
 
 const NormalInput = styled.input`
     background-color: transparent;
@@ -73,7 +74,7 @@ const BtnHolder = styled.div`
 `;
 const NextBtn = styled.div`
     background-color: ${(props) => props.theme.Button.backgroundColor};
-    padding: 7px 20px;
+    padding: 7px 25px;
     border-radius: 5px;
     font-size: 13px;
     cursor: pointer;
@@ -113,7 +114,19 @@ margin-top: 20px;
 & a {
     color: ${(props) => props.theme.Body.TextColorLevels[1]};
 }
-`;
+`
+
+const AlertfulContainer = styled.div`
+    height: 16.5px;
+    bottom: 30px;
+    margin-top: 20px;
+    right: 30px;
+    text-align: end;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 12px;
+    color: ${props => props.theme.Body.TextColorLevels[3]};
+`
 
 interface loginResp {
     status: "Failed" | "Success";
@@ -138,8 +151,10 @@ export default function Login(serverData: any) {
     const [currentStep, setStep] = useState<number>(0);
     const router = useRouter();
     const NameDataRef = useRef<any>();
+    const [AlertData, setAlertData] = useState<string | undefined>()
 
     const GotoStep = (step: number, data: object) => {
+        setAlertData(undefined)
         fetch(`/api/register/${step - 1}`, {
             method: "POST",
             body: JSON.stringify({ key: key, ...data }),
@@ -151,6 +166,9 @@ export default function Login(serverData: any) {
                 if (data.status == "Success") {
                     setresult(data);
                     setStep(step);
+                } else {
+                    setAlertData(`Error: ${data.detail}`)
+
                 }
             });
     };
@@ -170,6 +188,11 @@ export default function Login(serverData: any) {
 
     return (
         <>
+            <Head>
+                <title>
+                    KOISTUDY
+                </title>
+            </Head>
             <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
                 <GlobalStyle />
                 <Header currentPage="login" />
@@ -215,6 +238,9 @@ export default function Login(serverData: any) {
                             ) : (
                                 <>오류가 발생했습니다</>
                             )}
+                            <AlertfulContainer>
+                                {AlertData}
+                            </AlertfulContainer>
                         </MainContainer>
                         <PolicyContainer>
                             {redirResult.detail ? "Detail:" + redirResult.detail : ""}

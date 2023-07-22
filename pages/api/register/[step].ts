@@ -19,7 +19,7 @@ export default async function handler(
         let redisTempData: any = await client.get(authKey)
 
         if (redisTempData == null) {
-            res.status(401).json({ status: 'Failed', detail: '가입 키가 만료되었거나 인증되지 않았습니다' })
+            res.status(401).json({ status: 'Failed', detail: 'Registeration key expired' })
             return
         }
         redisTempData = JSON.parse(redisTempData)
@@ -42,11 +42,11 @@ export default async function handler(
         } else if (parseInt(step) === 1) {
 
         } else {
-            res.status(400).json({ status: 'Failed', detail: "ㅋㅋ" })
+            res.status(400).json({ status: 'Failed', detail: "none" })
             return
         }
     } catch (e) {
-        res.status(200).json({ status: 'Failed', detail: '오류가 발생했습니다' })
+        res.status(200).json({ status: 'Failed', detail: 'Unknown error' })
         return
     }
 

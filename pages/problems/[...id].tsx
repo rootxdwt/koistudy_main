@@ -1,5 +1,7 @@
 import {
-    useEffect, useState
+    useCallback,
+    useContext,
+    useEffect, useRef, useState
 } from "react"
 
 import styled, { keyframes, ThemeProvider, createGlobalStyle } from "styled-components"
@@ -375,7 +377,7 @@ const SolvedCount = styled.span<{ isSolved: boolean }>`
     &:after {
         left: 0;
         top:0;
-        background-color: ${props => props.isSolved ? "#48bd5f" : props.theme.Body.TextColorLevels[3]};
+        background-color: ${props => props.isSolved ? "#48bd5f" : "transparent"};
         width: 100%;
         height: 60%;
         top: 20%;
@@ -457,6 +459,7 @@ export default function Problem(data: any) {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable } = data
     const [isJudging, setIsJudging] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse | undefined>()
+    const InternalRef = useRef<any>()
 
     const router = useRouter()
 
@@ -488,6 +491,13 @@ export default function Problem(data: any) {
             }
         }
     }
+    useEffect(() => {
+        console.log(getParentWidth())
+    }, [])
+
+    const getParentWidth = useCallback(() => {
+        return InternalRef.current.getBoundingClientRect().width
+    }, [InternalRef])
     return (
         <>
             <Head>
@@ -506,11 +516,12 @@ export default function Problem(data: any) {
                 <GlobalStyle />
                 <>
                     <Holder>
-                        <Internal rating={rating}>
+                        <Internal rating={rating} ref={InternalRef}>
                             <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} />
                             <CodeEditArea
                                 SupportedLang={SupportedLang}
                                 submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
+                                parentWidth={() => getParentWidth()}
                             />
                             <SubmitResult contextData={contextData} isJudging={isJudging} />
                         </Internal>

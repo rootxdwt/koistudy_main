@@ -7,7 +7,7 @@ import { MdDelete } from 'react-icons/md'
 import { DropDownMenu } from "./dropdownmenu"
 import { AcceptableLanguage } from '@/lib/pref/languageLib'
 import styled from "styled-components";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { connect } from "socket.io-client";
 import copy from 'copy-to-clipboard';
 import { TbCopy } from 'react-icons/tb'
@@ -257,13 +257,13 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
         </ResultHolder>)
 }
 
-export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage> }) => {
+export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, parentWidth: any }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
-    const [currentWidth, setCurrentWidth] = useState<number>(500)
-    const [startingXpos, setStartingXpos] = useState<number | null>(null)
     const [isRunning, setRunningState] = useState(false)
 
+    const [currentWidth, setCurrentWidth] = useState<number>(500)
+    const [startingXpos, setStartingXpos] = useState<number | null>(null)
 
     const mouseMoveHandler = (e: MouseEvent) => {
         if (startingXpos !== null) {
@@ -281,6 +281,9 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
         setStartingXpos(null)
     }
 
+    useEffect(() => {
+        setCurrentWidth(props.parentWidth() - 430)
+    }, [])
     useEffect(() => {
         window.addEventListener('mousemove', mouseMoveHandler)
         window.addEventListener('touchmove', touchMoveHandler)
