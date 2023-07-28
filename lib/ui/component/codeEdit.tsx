@@ -13,6 +13,7 @@ import copy from 'copy-to-clipboard';
 import { TbCopy } from 'react-icons/tb'
 import { useRouter } from "next/router";
 import { LanguageHandler } from "@/lib/pref/languageLib";
+import { SubmitResult } from "./submissionMenu";
 
 const CodeEditAreaComponent = styled.div`
 display:flex;
@@ -37,13 +38,24 @@ margin-top: 7px;
 
 `
 
-const RunBtn = styled(Button)`
-width:30px;
-margin-left: auto;
+const DefaultSubmissionAreaBtn = styled(Button)`
+border: solid 2px ${props => props.theme.Button.backgroundColor};
+&:hover {
+    border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
+}
+height: 27.5px;
+user-select: none;
 `
 
-const SubmitBtn = styled(Button)`
+const RunBtn = styled(DefaultSubmissionAreaBtn)`
+width:30px;
+margin-left: auto;
 
+`
+
+const SubmitBtn = styled(DefaultSubmissionAreaBtn)`
+width:auto;
+padding: 0px 20px;
 `
 
 const Submission = styled.div`
@@ -106,7 +118,7 @@ background-color: ${props => props.theme.Body.backgroundColor};
 z-index:2;
 height: 170px;
 overflow:scroll;
-bottom:110px;
+bottom:104px;
 -ms-overflow-style: none;
 scrollbar-width: none; 
 &::-webkit-scrollbar {
@@ -127,7 +139,7 @@ position:sticky;
 top:0;
 background-color: ${props => props.theme.Body.backgroundColor};
 z-index:3;
-font-family: 'Poppins', sans-serif;
+font-family: 'Noto Sans KR', sans-serif;
 `
 
 const ConsoleBtnHolder = styled.div`
@@ -142,14 +154,6 @@ font-size: 17px;
 & p {
     margin-right: 5px;
     font-size: 13px;
-}
-`
-const ConsoleButtonArea = styled(RunBtn)`
-
-margin:0;
-margin-left: 20px;
-&:hover {
-    color: ${props => props.theme.Body.TextColorLevels[2]};
 }
 `
 
@@ -219,17 +223,15 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
         <ResultHolder>
             <ConsoleHeader>
                 <ConsoleName>
-                    <p>console</p>
+                    <p>실행 결과</p>
                 </ConsoleName>
                 <ConsoleBtnHolder>
-                    <ConsoleButtonArea onClick={() => { copyText(fixValue) }}><TbCopy /></ConsoleButtonArea>
-                    <ConsoleButtonArea onClick={() => { setconsoleCleared(true); setValue("") }}><MdDelete /></ConsoleButtonArea>
                 </ConsoleBtnHolder>
             </ConsoleHeader>
             <CodeMirror
                 height="110px"
                 onChange={(v, _) => setInputData("A4YOZcb8W2xjnblz" + v)}
-                placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Compiling.."}
+                placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Running your code..."}
                 onKeyDown={(e) => {
                     if (e.key == "Enter") {
                         socket.emit("input", inputData.split(sent)[1])
@@ -247,17 +249,12 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
                         highlightActiveLineGutter: false,
                     }
                 }
-                extensions={
-                    [
-                        loadLanguage("shell")!
-                    ].filter(Boolean)
-                }
                 editable={isConsoleEditable}
                 theme={"dark"}></CodeMirror>
         </ResultHolder>)
 }
 
-export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, parentWidth: any }) => {
+export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, parentWidth: any, contextData: any, isJudging: boolean }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
     const [isRunning, setRunningState] = useState(false)
@@ -282,7 +279,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
     }
 
     useEffect(() => {
-        setCurrentWidth(props.parentWidth() - 430)
+        setCurrentWidth(props.parentWidth() / 2)
     }, [])
     useEffect(() => {
         window.addEventListener('mousemove', mouseMoveHandler)
@@ -338,8 +335,9 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                 <RunBtn onClick={() => setRunningState(!isRunning)}>
                     {isRunning ? <BsStopFill /> : <BsFillPlayFill />}
                 </RunBtn>
-                <SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>submit</SubmitBtn>
+                <SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>제출</SubmitBtn>
             </Submission>
+            <SubmitResult contextData={props.contextData} isJudging={props.isJudging} />
         </SubmitHolder >
     )
 }

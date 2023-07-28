@@ -38,38 +38,26 @@ const Circle = styled.span<{ Color: string }>`
 `
 
 const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number }>`
-position:fixed;
+user-select: none;
+position: absolute;
 bottom:0;
-width: 1400px;
 border-top: solid 1px ${props => props.theme.Button.backgroundColor};
-@media(max-width: 1800px) {
-    width: 1300px;
-  }
-  @media(max-width: 1700px) {
-    width: 1200px;
-  }
-  @media(max-width: 1500px) {
-    width: 1100px;
-  }
-  @media(max-width: 1300px) {
-    width: 1000px;
-  }
-  @media(max-width: 1200px) {
-    width: 900px;
-  }
-  @media(max-width: 900px) {
+width: calc(100% - 30px);
+padding: 0px 15px;
+margin-top: 20px;
+  @media(max-width: 770px) {
     width: 90vw;
+    position: fixed;
+    padding: 0;
   }
-  @media (max-width: 770px) {
-    width: 90vw;
-}
 display:flex;
 z-index:2;
 flex-direction: column;
 align-items:flex-start;
 background-color:${props => props.theme.Body.backgroundColor};
 border-top: solid 1px${props => props.theme.Button.backgroundColor};
-height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "60px"};
+
+height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "50px"};
 outline:none;
 -webkit-tap-highlight-color: rgba(0,0,0,0);
 transition: height 0.5s cubic-bezier(.5,0,.56,.99);
@@ -109,7 +97,7 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 
 }
 & .top .mHolder p{
-    margin-right: 10px;
+    margin-right: 5px;
 }
 & .top p.icon{
     transform: rotate(${props => props.isExtended ? "0" : "180"}deg);

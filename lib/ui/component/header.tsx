@@ -28,35 +28,18 @@ background-color: ${props => props.isTransparent ? "transparent" : props.theme.B
     padding: 13px 0px;
     margin-left:auto;
     margin-right:auto;
-    width: 1400px;
     display:flex;
     align-items:center;
     justify-content: center;
     font-family: 'Poppins', sans-serif;
     color: ${props => props.theme.Body.TextColorLevels[3]};
-    @media(max-width: 1800px) {
-        width: 1300px;
-      }
-      @media(max-width: 1700px) {
-        width: 1200px;
-      }
-      @media(max-width: 1500px) {
-        width: 1100px;
-      }
-      @media(max-width: 1300px) {
-        width: 1000px;
-      }
-      @media(max-width: 1200px) {
-        width: 900px;
-      }
+    width: 90vw;
+
       @media(max-width: 900px) {
         width: 90vw;
         margin-left:auto;
         margin-right:auto;
       }
-      @media (max-width: 770px) {
-        width: 90vw;
-    }
 
 }
 & p {

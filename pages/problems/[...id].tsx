@@ -52,6 +52,10 @@ color: ${props => props.theme.Body.backgroundColor};
 background-color: rgba(0,0,0,.7);
 `
 
+const InitialHolder = styled(Holder)`
+    width: 90%;
+`
+
 
 const Internal = styled.div<{ rating: number }>`
 width: 100%;
@@ -100,7 +104,7 @@ flex-direction:column;
 width:100%;
 overflow-y:auto;
 padding-right:20px;
-height: calc(100% - 60px);
+height: 100%;
 @media (max-width: 770px) {
     padding-right:0;
     height: auto;
@@ -116,7 +120,7 @@ const FooterHolder = styled.footer`
     background-color: ${props => props.theme.Body.backgroundColor};
     margin-top: auto;
     display:flex;
-    padding: 20px 0px;
+    padding: 15px 0px;
     flex-direction: column;
 `
 
@@ -515,17 +519,17 @@ export default function Problem(data: any) {
                 <LocalGlobal />
                 <GlobalStyle />
                 <>
-                    <Holder>
+                    <InitialHolder>
                         <Internal rating={rating} ref={InternalRef}>
                             <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} />
                             <CodeEditArea
                                 SupportedLang={SupportedLang}
                                 submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
                                 parentWidth={() => getParentWidth()}
+                                contextData={contextData} isJudging={isJudging}
                             />
-                            <SubmitResult contextData={contextData} isJudging={isJudging} />
                         </Internal>
-                    </Holder></>
+                    </InitialHolder></>
             </ThemeProvider>
 
         </>)
