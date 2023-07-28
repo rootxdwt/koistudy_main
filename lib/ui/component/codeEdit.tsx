@@ -45,6 +45,7 @@ border: solid 2px ${props => props.theme.Button.backgroundColor};
 }
 height: 27.5px;
 user-select: none;
+font-size: 12px;
 `
 
 const RunBtn = styled(DefaultSubmissionAreaBtn)`

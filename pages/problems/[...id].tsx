@@ -363,17 +363,17 @@ const PageBtn = styled.div<{ isActive: boolean }>`
     & p {
         transition: background-color 0.1s ease-in-out;
         margin: 0;
-        font-size: 12px!important;
+        font-size: 12px;
         padding: 3px 15px;
         border-radius: 5px;
         line-height: 20px;
     }
 `
 const SolvedCount = styled.span<{ isSolved: boolean }>`
+    font-size:9px;
     padding: 0px 5px;
     margin-left:10px;
     border-radius: 10px;
-    font-size: 8px!important;
     background-color: ${props => props.isSolved ? "#48bd5f" : props.theme.Body.TextColorLevels[3]};
     color:  ${props => props.theme.Body.backgroundColor};
     position: relative;

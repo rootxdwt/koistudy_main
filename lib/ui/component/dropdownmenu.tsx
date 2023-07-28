@@ -26,22 +26,23 @@ display:flex;
 align-items:center;
 justify-content:flex-start;
 width: 90px;
-height: 30px;
+height: 32px;
 flex-shrink:0;
-font-family: 'Poppins',sans-serif;
+font-family: 'Noto Sans KR', sans-serif;
 font-size:12px;
 color: ${props => props.theme.Body.TextColorLevels[3]};
 z-index:1;
 cursor:pointer;
-border-radius: 10px;
+border-radius: 5px;
 &:hover {
   background-color: ${props => props.theme.Body.ContainerBgLevels[0]};
 }
 `
 const Current = styled.div`
+user-select: none;
 background-color: ${props => props.theme.Button.backgroundColor};
 padding:3px 10px;
-font-family: 'Poppins',sans-serif;
+font-family: 'Noto Sans KR', sans-serif;
 font-size:12px;
 display:flex;
 align-items:center;
