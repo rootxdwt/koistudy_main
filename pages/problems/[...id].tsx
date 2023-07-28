@@ -495,9 +495,6 @@ export default function Problem(data: any) {
             }
         }
     }
-    useEffect(() => {
-        console.log(getParentWidth())
-    }, [])
 
     const getParentWidth = useCallback(() => {
         return InternalRef.current.getBoundingClientRect().width
