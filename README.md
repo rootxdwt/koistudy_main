@@ -2,7 +2,7 @@
 
 - Secure: Creates an individual docker container for every code submission. Every containers are sandboxed from the main server.
 
-- Ease-of-use: Promisified judging library with modern syntax
+- Ease-of-use: Async judging library with modern syntax
 
 ```js
 import { Judge } from '@/lib/judge/runjudge';
