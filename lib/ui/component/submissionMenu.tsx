@@ -232,10 +232,10 @@ export const SubmitResult = (props: { contextData: JudgeResponse | undefined, is
 
             </div>
             <div className="btm">
-                <h3 className="tch3">Test Cases</h3>
+                <h3 className="tch3">테스트 케이스</h3>
                 <p className="ptge">{
                     Math.round((contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100)
-                }% ㅣ {contextData.status == "" ? "" : contextData.matchedTestCase.map(elem => elem.memory)[0]}KB</p>
+                }% ㅣ {contextData.status == "" ? "" : Math.max(...contextData.matchedTestCase.map(elem => elem.memory))}KB</p>
                 <TCholder>
                     {contextData.matchedTestCase.map((elem, index) => {
                         return (

@@ -29,7 +29,7 @@ export default async function handler(
             if (TargetStat && TargetStat !== "") {
                 tStatJsn = { Status: TargetStat }
             }
-            const data = await SubmissionSchema.find({ User: uid, Prob: target, ...tLangJsn, ...tStatJsn }, 'Code Status CodeLength Lang TCTime -_id SubCode Time')
+            const data = await SubmissionSchema.find({ User: uid, Prob: target, ...tLangJsn, ...tStatJsn }, 'Code Status CodeLength Lang -_id SubCode Time TC')
             res.status(200).json(data)
             return
         } else {

@@ -1,23 +1,30 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, ThemeConsumer } from 'styled-components'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 
 import { GlobalStyle } from '@/lib/ui/DefaultComponent'
 import { ThemeProvider } from 'styled-components'
 import { DarkTheme, LightTheme } from '@/lib/ui/theme'
-import { Holder } from '@/lib/ui/DefaultComponent'
 import { TbBrandGolang } from "react-icons/tb"
 import { DiRust, DiPhp, DiPython, DiNodejsSmall, DiCode } from 'react-icons/di'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 import { Header } from '@/lib/ui/component/header'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-
+import { Nav } from '@/lib/ui/component/nav'
 import { useSelector } from 'react-redux';
 import { StateType } from '@/lib/store'
 
+const Holder = styled.div`
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  margin-top: 65px;
+  color: ${props => props.theme.Body.TextColorLevels[3]};
+`
 
 const Probcard = styled.div`
 width: 100%;
@@ -102,6 +109,7 @@ overflow-x: scroll;
 -ms-overflow-style: none;
 scrollbar-width: none; 
 flex-direction:row;
+width: calc(90vw - 200px);
 &::-webkit-scrollbar {
   display: none;
 }
@@ -171,15 +179,15 @@ const SkeletonHolder = styled(HcardHolder)`
 
 
 
-const MainPageSkeleton = (props: { isDark: boolean }) => {
-  const baseColor = props.isDark ? "rgb(50,50,50)" : "rgb(245,245,245)"
-  const hlColor = props.isDark ? "rgb(70,70,70)" : "rgb(234, 234, 234)"
+const MainPageSkeleton = () => {
   return (
-    <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
-      <SkeletonHolder>
-        <Skeleton width={200} height={200} borderRadius={20} count={5} style={{ "marginRight": "30px", "flexShrink": "none", "marginTop": "30px" }} />
-      </SkeletonHolder>
-    </SkeletonTheme>
+    <ThemeConsumer>
+      {theme => <SkeletonTheme baseColor={theme.Container.backgroundColor} highlightColor={theme.Body.ContainerBgLevels[0]}>
+        <SkeletonHolder>
+          <Skeleton width={200} height={200} borderRadius={20} count={5} style={{ "marginRight": "30px", "flexShrink": "none", "marginTop": "30px" }} />
+        </SkeletonHolder>
+      </SkeletonTheme>}
+    </ThemeConsumer>
 
   )
 }
@@ -202,7 +210,7 @@ const LanguageIcon = (props: { langs: Array<string> }) => {
 }
 
 
-const Myprob = (props: { problems: Array<sugprobDetails> }) => {
+const Myprob = (props: { problems: Array<sugprobDetails> | undefined }) => {
   const scrollRef = useRef<any>()
   const [isLeftArrowShown, setLeftArrowState] = useState(false)
   const [isRightArrowShown, setRightArrowState] = useState(true)
@@ -242,28 +250,34 @@ const Myprob = (props: { problems: Array<sugprobDetails> }) => {
   }, [])
   return (
     <>
-      <HcardHolder>
-        {isLeftArrowShown ? <LeftBlurBorder onClick={() => moveCont(true)}><IoIosArrowBack /></LeftBlurBorder> : <></>}
-        {isRightArrowShown ? <RightBlurBorder onClick={() => moveCont(false)} ><IoIosArrowForward /></RightBlurBorder> : <></>}
-        <HHolderParent ref={scrollRef}>
-          {props.problems.map((item, index) => {
-            return (
-              <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}/description`)}>
-                <p>Rating {item.rating}</p>
-                <h2>{item.ProblemName}</h2>
-                <span>
-                  <LanguageIcon langs={item.SupportedLang} />
-                </span>
-              </Hcard>
-            )
-          })}
-          <Fullview><p>전체 문제 보기</p></Fullview>
-        </HHolderParent>
+      {isLeftArrowShown ? <LeftBlurBorder onClick={() => moveCont(true)}><IoIosArrowBack /></LeftBlurBorder> : <></>}
+      {isRightArrowShown ? <RightBlurBorder onClick={() => moveCont(false)} ><IoIosArrowForward /></RightBlurBorder> : <></>}
+      <HHolderParent ref={scrollRef}>
+        {typeof props.problems !== "undefined" ?
+          <>
+            {props.problems.map((item, index) => {
+              return (
+                <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}/description`)}>
+                  <p>Rating {item.rating}</p>
+                  <h2>{item.ProblemName}</h2>
+                  <span>
+                    <LanguageIcon langs={item.SupportedLang} />
+                  </span>
+                </Hcard>
+              )
+            })}
+            <Fullview><p>전체 문제 보기</p></Fullview></>
+          : <MainPageSkeleton />}
 
-      </HcardHolder>
+      </HHolderParent>
+
     </>
   )
 }
+
+const MainPageHolder = styled.div`
+display: flex;
+`
 
 export default function Home() {
   const [data, setData] = useState<Array<sugprobDetails>>()
@@ -284,23 +298,20 @@ export default function Home() {
         <title>KOISTUDY</title>
         <link rel='shortcut icon' href='favicon.ico' />
       </Head>
-      <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-        <Header currentPage="home" />
-        <GlobalStyle />
-        {loaded ?
-          <>
-            {
-              data ? <Holder>
-                <Myprob problems={data}></Myprob>
-                {/* <Probcard></Probcard> */}
-              </Holder> : <Holder>
-                <MainPageSkeleton isDark={isDark} />
-              </Holder>
-            }
-          </>
-          : <></>
-        }
-      </ThemeProvider>
+      <Header currentPage="home" />
+      <GlobalStyle />
+      {loaded ?
+        <MainPageHolder>
+          <Holder>
+            <Nav></Nav>
+            <HcardHolder>
+              <Myprob problems={data}></Myprob>
+            </HcardHolder>
+          </Holder>
+
+        </MainPageHolder>
+        : <></>
+      }
     </>
   )
 }

@@ -155,7 +155,7 @@ const LogoHolder = styled.div`
         font-size: 12px;
         justify-content: center;
         & p{
-            font-family: 'Poppins',sans-serif;
+            font-family: 'Noto Sans KR',sans-serif;
             font-size: 13px;
             margin-right: 5px;
             display:flex;
@@ -225,7 +225,7 @@ padding: 2px 15px;
 margin-right: 10px;
 border-radius: 5px;
 background-color: ${props => props.theme.Container.backgroundColor};
-font-family: 'Poppins',sans-serif;
+font-family: 'Noto Sans KR',sans-serif;
 & p{
     font-size: 10px!important;
 }
@@ -248,7 +248,7 @@ const Titleholder = styled.div`
     display:flex;
     flex-direction: row;
     align-items: center;
-    margin-top: 30px;
+    margin-top: 40px;
     & h1 {
         margin:0;
         margin-right: 20px;
@@ -416,7 +416,7 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
             </Titleholder>
             <ProbInfo>
                 <Itm rating={rating}>
-                    <p className="grad">Rating {rating}</p>
+                    <p className="grad">난이도 {rating}</p>
                 </Itm>
                 <FavBtn problemId={id} />
             </ProbInfo>
@@ -431,7 +431,7 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
                         </SolvedCount> : <></>}
                     </p>
                 </PageBtn>
-                <PageBtn isActive={currentPage == "champion"} onClick={() => router.push(`${router.query.id![0]}/champion`)}><p>챔피언</p></PageBtn>
+                <PageBtn isActive={currentPage == "champion"} onClick={() => router.push(`${router.query.id![0]}/champion`)}><p>문제 통계</p></PageBtn>
             </PageNav>
             {currentPage == "description" ? <>
                 <Description
@@ -442,7 +442,7 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
                     id={id}
                 />
                 <FooterElem />
-            </> : currentPage == "submission" ? <SubmissionPage id={id} supportedLang={supportedLang} /> : currentPage == "champion" ? <Champion /> : <></>}
+            </> : currentPage == "submission" ? <SubmissionPage id={id} supportedLang={supportedLang} dataLength={submissionData?.dataLength} /> : currentPage == "champion" ? <Champion /> : <></>}
         </DescHolder>
     )
 }
@@ -459,7 +459,7 @@ const LocalGlobal = createGlobalStyle`
 }
 `
 
-export default function Problem(data: any) {
+export default function Problem(data: any): JSX.Element {
     const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable } = data
     const [isJudging, setIsJudging] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse | undefined>()
@@ -507,27 +507,25 @@ export default function Problem(data: any) {
                     {ProblemName + " - KOISTUDY"}
                 </title>
             </Head>
-            <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-                <Header
-                    currentPage="problems"
-                    forwardNavigatable={navigatable[0] ? { target: parseInt(ProblemCode) - 1 } : undefined}
-                    backwardNavigatable={navigatable[1] ? { target: parseInt(ProblemCode) + 1 } : undefined}
-                />
-                <LocalGlobal />
-                <GlobalStyle />
-                <>
-                    <InitialHolder>
-                        <Internal rating={rating} ref={InternalRef}>
-                            <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} />
-                            <CodeEditArea
-                                SupportedLang={SupportedLang}
-                                submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
-                                parentWidth={() => getParentWidth()}
-                                contextData={contextData} isJudging={isJudging}
-                            />
-                        </Internal>
-                    </InitialHolder></>
-            </ThemeProvider>
+            <Header
+                currentPage="problems"
+                forwardNavigatable={navigatable[0] ? { target: parseInt(ProblemCode) - 1 } : undefined}
+                backwardNavigatable={navigatable[1] ? { target: parseInt(ProblemCode) + 1 } : undefined}
+            />
+            <LocalGlobal />
+            <GlobalStyle />
+            <>
+                <InitialHolder>
+                    <Internal rating={rating} ref={InternalRef}>
+                        <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} />
+                        <CodeEditArea
+                            SupportedLang={SupportedLang}
+                            submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
+                            parentWidth={() => getParentWidth()}
+                            contextData={contextData} isJudging={isJudging}
+                        />
+                    </Internal>
+                </InitialHolder></>
 
         </>)
 }

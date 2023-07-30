@@ -44,7 +44,7 @@ export default function UserPage(data: any) {
     const router = useRouter()
     const profileData = data
     return (
-        <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
+        <>
             <GlobalStyle />
             <Header
                 currentPage="user"
@@ -60,7 +60,7 @@ export default function UserPage(data: any) {
                     {profileData.Id}
                 </h1>
             </Holder>
-        </ThemeProvider>
+        </>
     )
 }
 

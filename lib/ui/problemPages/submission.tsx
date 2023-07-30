@@ -7,11 +7,10 @@ import { FiChevronDown } from 'react-icons/fi'
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
-import { useSelector } from 'react-redux';
-import { StateType } from '@/lib/store'
 import { SubmittedCodeElem } from "../component/codeElem";
-import { keyframes } from "styled-components"
+import { ThemeConsumer } from "styled-components"
 import Link from "next/link"
+
 
 const SubMainHolder = styled.div`
 width:100%;
@@ -33,16 +32,18 @@ const SkeletonItem = () => {
     )
 }
 
-const LoadingSkeleton = (props: { isDark: boolean }) => {
-    const baseColor = props.isDark ? "rgb(50,50,50)" : "rgb(245,245,245)"
-    const hlColor = props.isDark ? "rgb(70,70,70)" : "rgb(234, 234, 234)"
+const LoadingSkeleton = (props: { count: number }) => {
+
     return (
-        <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
-            <SkeletonItem />
-            <SkeletonItem />
-            <SkeletonItem />
-            <SkeletonItem />
-        </SkeletonTheme>
+        <ThemeConsumer>
+            {theme => <SkeletonTheme baseColor={theme.Container.backgroundColor} highlightColor={theme.Body.ContainerBgLevels[0]}>
+                {
+                    new Array(props.count > 10 ? 10 : props.count).fill(0).map((_, index) => {
+                        return <SkeletonItem key={index} />
+                    })
+                }
+            </SkeletonTheme>}
+        </ThemeConsumer>
 
     )
 }
@@ -52,7 +53,7 @@ interface ServerResp {
     Code: string
     Status: "AW" | "AC" | "CE" | "ISE"
     CodeLength: Number
-    TCTime: Array<Number>
+    TC: Array<{ Mem: number, Time: number, State: "AW" | "AC" | "TLE" }>
     SubCode: string
     Time: Date
     Lang: AcceptableLanguage
@@ -239,7 +240,7 @@ const ChevRon = styled.div<{ spin: boolean }>`
 `
 
 
-export const SubmissionPage = (props: { id: Number, supportedLang: Array<AcceptableLanguage> }) => {
+export const SubmissionPage = (props: { id: Number, supportedLang: Array<AcceptableLanguage>, dataLength: number | undefined }) => {
     const [ServerData, setServerData] = useState<Array<ServerResp>>()
     const [isError, setError] = useState<string>("")
     const [isLoaded, setLoadState] = useState<boolean>(false)
@@ -248,13 +249,17 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
     const [filterStat, setFilterStat] = useState("")
     const [extended, setExtended] = useState<number | undefined>()
 
-    const isDark = useSelector<StateType, boolean>(state => state.theme);
-
     useEffect(() => {
         setLoadState(false)
         setError('')
         setServerData(undefined)
-        fetch(`/api/user/submission/${props.id}`, { method: "POST", headers: { 'content-type': 'application/json', "Authorization": localStorage.getItem("tk")! }, body: JSON.stringify({ stat: filterStat, lang: filterLang }) }).then((resp) => {
+        fetch(`/api/user/submission/${props.id}`, {
+            method: "POST", headers: {
+                'content-type': 'application/json', "Authorization": localStorage.getItem("tk")!
+            }, body: JSON.stringify(
+                { stat: filterStat, lang: filterLang }
+            )
+        }).then((resp) => {
             setLoadState(true)
             if (!resp.ok) {
                 setError('HTTP')
@@ -340,43 +345,46 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                         </SelectionList>
                     </Selection>
                 </SelectionArea>
-                {!isLoaded ? <LoadingSkeleton isDark={isDark} /> : <>
-                    {isError !== "" ?
-                        <Loginpls /> : <> {
-                            ServerData && ServerData.length < 1 ?
-                                <NoData />
-                                : <>
-                                    {ServerData?.sort((a, b) => { return new Date(b.Time).valueOf() - new Date(a.Time).valueOf() }).map((elem, index) => {
-                                        return (
-                                            <>
-                                                <SubmissionItm
-                                                    key={index}
-                                                    onClick={() => { if (extended !== index) { setExtended(index) } else setExtended(undefined) }}
-                                                >
-                                                    <ItmRight>
-                                                        <HeadingArea>
-                                                            <WRTitle
-                                                                isCorrect={elem.Status == "AC"}
-                                                            >
-                                                                {StatusToMsg(elem.Status)}
-                                                            </WRTitle>
-                                                            <LangInfo>
-                                                                {new LanguageHandler(elem.Lang, "").getLangFullName()}
-                                                            </LangInfo>
-                                                        </HeadingArea>
-                                                        <p> {GetDateStr(new Date(elem.Time))}</p>
-                                                    </ItmRight>
-                                                </SubmissionItm>
-                                                {extended == index ? <>
-                                                    <SubmittedCodeElem lang={elem.Lang} data={elem.Code} />
-                                                </> : <></>}
-                                            </>)
+                {!isLoaded ?
+                    <LoadingSkeleton count={typeof props.dataLength !== "undefined" ? props.dataLength : 10} />
+                    : <>
+                        {isError !== "" ?
+                            <Loginpls /> : <> {
+                                ServerData && ServerData.length < 1 ?
+                                    <NoData />
+                                    : <>
+                                        {ServerData?.sort((a, b) => { return new Date(b.Time).valueOf() - new Date(a.Time).valueOf() }).map((elem, index) => {
+                                            return (
+                                                <>
+                                                    <SubmissionItm
+                                                        key={index}
+                                                        onClick={() => { if (extended !== index) { setExtended(index) } else setExtended(undefined) }}
+                                                    >
+                                                        <ItmRight>
+                                                            <HeadingArea>
+                                                                <WRTitle
+                                                                    isCorrect={elem.Status == "AC"}
+                                                                >
+                                                                    {StatusToMsg(elem.Status)}
+                                                                </WRTitle>
+                                                                <LangInfo>
+                                                                    {new LanguageHandler(elem.Lang, "").getLangFullName()}
+                                                                </LangInfo>
+                                                            </HeadingArea>
+                                                            <p> {GetDateStr(new Date(elem.Time))}</p>
+                                                        </ItmRight>
+                                                    </SubmissionItm>
+                                                    {extended == index ?
+                                                        <>
+                                                            <SubmittedCodeElem lang={elem.Lang} data={elem.Code} />
+                                                        </> : <></>}
+                                                </>)
 
-                                    })}</>
+                                        })}</>
+                            }
+                            </>
                         }
-                        </>
-                    }
-                </>}
+                    </>}
             </SubmissionItmHolder>
         </SubMainHolder>)
 }

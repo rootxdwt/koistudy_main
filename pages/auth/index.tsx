@@ -99,28 +99,26 @@ export default function Login(data: any) {
                     KOISTUDY
                 </title>
             </Head>
-            <ThemeProvider theme={isDark ? DarkTheme : LightTheme} >
-                <Header currentPage="login" />
-                <GlobalStyle />
-                {isLoaded ?
-                    <ParentContainer>
-                        <h1>통합 로그인</h1>
-                        <p>로그인하고 코드를 작성해 보세요</p>
-                        <SigninBtn bgColor="#fff" txtColor="#303030" onClick={() => router.push(`https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:3000/auth/redirect/google&client_id=417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email&state=${data.nonce}`)}>
-                            <LogoContainer>
-                                <Image alt="google" src="https://cdn.ecdev.me/gLogo.png" width="15" height="15" />
-                            </LogoContainer>
-                            Google로 계속하기</SigninBtn>
-                        <SigninBtn bgColor="#1d1d1d" txtColor="#d6d6d6" onClick={() => router.push(`https://github.com/login/oauth/authorize?client_id=3ee621b68f1950df0ba0&state=${data.nonce}&scope=user:email`)}>
-                            <LogoContainer>
-                                <Image alt="github" src="https://cdn.ecdev.me/github-mark-white.png" width="14" height="14" />
-                            </LogoContainer>Github로 계속하기</SigninBtn>
-                        <PolicyContainer>
-                            계속하면 <a href="">개인정보처리방침</a> 과 <a href="">이용약관</a> 에 동의하는 것으로 간주됩니다.
-                        </PolicyContainer>
-                    </ParentContainer>
-                    : <></>}
-            </ThemeProvider>
+            <Header currentPage="login" />
+            <GlobalStyle />
+            {isLoaded ?
+                <ParentContainer>
+                    <h1>통합 로그인</h1>
+                    <p>로그인하고 코드를 작성해 보세요</p>
+                    <SigninBtn bgColor="#fff" txtColor="#303030" onClick={() => router.push(`https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:3000/auth/redirect/google&client_id=417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email&state=${data.nonce}`)}>
+                        <LogoContainer>
+                            <Image alt="google" src="https://cdn.ecdev.me/gLogo.png" width="15" height="15" />
+                        </LogoContainer>
+                        Google로 계속하기</SigninBtn>
+                    <SigninBtn bgColor="#1d1d1d" txtColor="#d6d6d6" onClick={() => router.push(`https://github.com/login/oauth/authorize?client_id=3ee621b68f1950df0ba0&state=${data.nonce}&scope=user:email`)}>
+                        <LogoContainer>
+                            <Image alt="github" src="https://cdn.ecdev.me/github-mark-white.png" width="14" height="14" />
+                        </LogoContainer>Github로 계속하기</SigninBtn>
+                    <PolicyContainer>
+                        계속하면 <a href="">개인정보처리방침</a> 과 <a href="">이용약관</a> 에 동의하는 것으로 간주됩니다.
+                    </PolicyContainer>
+                </ParentContainer>
+                : <></>}
         </>
     )
 }

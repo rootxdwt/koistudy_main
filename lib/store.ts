@@ -1,17 +1,46 @@
-import { configureStore, createAction, createReducer } from '@reduxjs/toolkit'
-import { createWrapper } from 'next-redux-wrapper';
+import { configureStore, createSlice } from '@reduxjs/toolkit'
+import { createWrapper, HYDRATE } from 'next-redux-wrapper';
 
-const initialState = { theme: typeof window != "undefined" ? localStorage.getItem("theme") == null ? window.matchMedia("(prefers-color-scheme: dark)").matches : localStorage.getItem("theme") == "true" : true, isSideMenuOpen: false }
-const toggle = createAction('theme/toggle')
+import { persistReducer, persistStore } from 'redux-persist';
+import storage from 'redux-persist/lib/storage/session';
 
-const rootReducer = createReducer(initialState, (builder) => {
-    builder.addCase(toggle, (state, _) => { localStorage.setItem("theme", (!state.theme).toString()); state.theme = !state.theme })
+const initialState = { theme: true, }
+const slice = createSlice({
+    name: 'theme',
+    initialState,
+    reducers: {
+        toggle(state, action) {
+            state.theme = !state.theme;
+        },
+    },
+    extraReducers: (builder) => {
+        builder.addCase(HYDRATE, (state, action) => {
+            return state = {
+                ...state,
+                ...action
+            };
+        })
+    },
+});
+
+
+const persistConfig = {
+    key: 'root',
+    storage,
+}
+const persistedReducer = persistReducer(persistConfig, slice.reducer)
+
+const store = configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: false,
+        }),
 })
 
-export type StoreType = ReturnType<typeof store>;
-export type StateType = ReturnType<StoreType['getState']>;
+export type StoreType = any;
+export type StateType = any;
 
-const store = () => configureStore({
-    reducer: rootReducer,
-})
-export const wrapper = createWrapper<StoreType>(store)
+export const persistor = persistStore(store)
+
+export const wrapper = createWrapper<StoreType>(() => store)

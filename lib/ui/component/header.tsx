@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components"
+import styled, { keyframes, ThemeConsumer } from "styled-components"
 import { RiUser3Fill } from 'react-icons/ri'
 import { MdDarkMode, MdLightMode, MdLogout, MdOutlineSearch, MdVerified } from 'react-icons/md'
 import { FiChevronDown } from 'react-icons/fi'
@@ -231,13 +231,13 @@ interface UserResp {
   Uid: string
 }
 
-const HeaderSkeleton = (props: { isDark: boolean }) => {
-  const baseColor = props.isDark ? "rgb(50,50,50)" : "rgb(245,245,245)"
-  const hlColor = props.isDark ? "rgb(70,70,70)" : "rgb(234, 234, 234)"
+const HeaderSkeleton = () => {
   return (
-    <SkeletonTheme baseColor={baseColor} highlightColor={hlColor}>
-      <Skeleton width={180} height={15} borderRadius={5} count={2} style={{ "flexShrink": "none" }} />
-    </SkeletonTheme>
+    <ThemeConsumer>
+      {theme => <SkeletonTheme baseColor={theme.Container.backgroundColor} highlightColor={theme.Body.ContainerBgLevels[0]}>
+        <Skeleton width={180} height={15} borderRadius={5} count={2} style={{ "flexShrink": "none" }} />
+      </SkeletonTheme>}
+    </ThemeConsumer>
   )
 }
 
@@ -383,7 +383,9 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
                   </div>
                 </>
                 : <>
-                  {isLoggedIn ? <><HeaderSkeleton isDark={isDark} /></> : <LoginInIdentifier>
+                  {isLoggedIn ? <>
+                    <HeaderSkeleton />
+                  </> : <LoginInIdentifier>
                     로그인하세요
                   </LoginInIdentifier>}
                 </>}

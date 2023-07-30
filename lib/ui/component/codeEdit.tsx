@@ -39,7 +39,7 @@ margin-top: 7px;
 `
 
 const DefaultSubmissionAreaBtn = styled(Button)`
-border: solid 2px ${props => props.theme.Button.backgroundColor};
+border: solid 2px ${props => props.theme.Container.backgroundColor};
 &:hover {
     border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
 }

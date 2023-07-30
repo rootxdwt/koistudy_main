@@ -193,63 +193,62 @@ export default function Login(serverData: any) {
                     KOISTUDY
                 </title>
             </Head>
-            <ThemeProvider theme={isDark ? DarkTheme : LightTheme}>
-                <GlobalStyle />
-                <Header currentPage="login" />
-                {redirResult ? (
-                    <ParentContainer>
-                        <MainContainer>
-                            {redirResult.status == "Success" ? (
-                                redirResult.accountExists ? (
-                                    <>로그인되었습니다</>
-                                ) : (
-                                    <>
-                                        {currentStep == 0 ? (
-                                            <>
-                                                <h1>이름을 알려주세요</h1>
-                                                <p className="sub">가입 후 언제든지 바꿀 수 있습니다</p>
-                                                <NormalInput
-                                                    placeholder={redirResult.accData?.Id}
-                                                    ref={NameDataRef}
-                                                />
-                                                <BtnHolder>
-                                                    <NextBtn
-                                                        onClick={() =>
-                                                            GotoStep(1, { name: NameDataRef.current.value })
-                                                        }
-                                                    >
-                                                        계속하기
-                                                    </NextBtn>
-                                                </BtnHolder>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {currentStep == 1 ? (
-                                                    <>
-                                                        <h1>단체에 속해 있으신가요?</h1>
-                                                    </>
-                                                ) : (
-                                                    <h1>가입이 완료되었습니다</h1>
-                                                )}
-                                            </>
-                                        )}
-                                    </>
-                                )
+
+            <GlobalStyle />
+            <Header currentPage="login" />
+            {redirResult ? (
+                <ParentContainer>
+                    <MainContainer>
+                        {redirResult.status == "Success" ? (
+                            redirResult.accountExists ? (
+                                <>로그인되었습니다</>
                             ) : (
-                                <>오류가 발생했습니다</>
-                            )}
-                            <AlertfulContainer>
-                                {AlertData}
-                            </AlertfulContainer>
-                        </MainContainer>
-                        <PolicyContainer>
-                            {redirResult.detail ? "Detail:" + redirResult.detail : ""}
-                        </PolicyContainer>
-                    </ParentContainer>
-                ) : (
-                    <>잠시만 기다려주세요..</>
-                )}
-            </ThemeProvider>
+                                <>
+                                    {currentStep == 0 ? (
+                                        <>
+                                            <h1>이름을 알려주세요</h1>
+                                            <p className="sub">가입 후 언제든지 바꿀 수 있습니다</p>
+                                            <NormalInput
+                                                placeholder={redirResult.accData?.Id}
+                                                ref={NameDataRef}
+                                            />
+                                            <BtnHolder>
+                                                <NextBtn
+                                                    onClick={() =>
+                                                        GotoStep(1, { name: NameDataRef.current.value })
+                                                    }
+                                                >
+                                                    계속하기
+                                                </NextBtn>
+                                            </BtnHolder>
+                                        </>
+                                    ) : (
+                                        <>
+                                            {currentStep == 1 ? (
+                                                <>
+                                                    <h1>단체에 속해 있으신가요?</h1>
+                                                </>
+                                            ) : (
+                                                <h1>가입이 완료되었습니다</h1>
+                                            )}
+                                        </>
+                                    )}
+                                </>
+                            )
+                        ) : (
+                            <>오류가 발생했습니다</>
+                        )}
+                        <AlertfulContainer>
+                            {AlertData}
+                        </AlertfulContainer>
+                    </MainContainer>
+                    <PolicyContainer>
+                        {redirResult.detail ? "Detail:" + redirResult.detail : ""}
+                    </PolicyContainer>
+                </ParentContainer>
+            ) : (
+                <>잠시만 기다려주세요..</>
+            )}
         </>
     );
 }

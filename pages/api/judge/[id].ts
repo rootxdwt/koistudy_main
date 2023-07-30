@@ -74,9 +74,12 @@ export default async function handler(
             return
         }
         await judgeInstance.compileCode(container)
-        const judgeresult = await judgeInstance.testCode(container, TestProgress)
-        var matchedCases = judgeresult
+        const matchedCases = await judgeInstance.testCode(container, TestProgress)
         const isCorrect = matchedCases.every(e => e.matched)
+
+        const databaseTCdata = matchedCases.map((elem) => {
+            return { Mem: elem.memory, Time: elem.exect, State: elem.tle ? "TLE" : elem.matched ? "AC" : "AW" }
+        })
 
         await client.del(uid)
         await SubmissionSchema.create({
@@ -84,8 +87,7 @@ export default async function handler(
             Code: sanitize(CodeData),
             Status: isCorrect ? 'AC' : 'AW',
             CodeLength: CodeData.length,
-            TCTime: matchedCases.map(elem => elem.exect),
-            TCMem: matchedCases.map(elem => elem.memory),
+            TC: databaseTCdata,
             Prob: parseInt(sanitize(id)),
             SubCode: SubmissionCode,
             Lang: Lang
@@ -102,6 +104,7 @@ export default async function handler(
             CodeLength: CodeData.length,
             Prob: parseInt(sanitize(id)),
             SubCode: SubmissionCode,
+            TC: [],
             Lang: Lang
         })
         res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })
