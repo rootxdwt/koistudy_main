@@ -41,7 +41,7 @@ const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number }>`
 user-select: none;
 position: absolute;
 bottom:0;
-border-top: solid 1px ${props => props.theme.Button.backgroundColor};
+border-top: solid 2px ${props => props.theme.Button.backgroundColor};
 width: calc(100% - 30px);
 padding: 0px 15px;
 margin-top: 20px;
@@ -55,7 +55,7 @@ z-index:2;
 flex-direction: column;
 align-items:flex-start;
 background-color:${props => props.theme.Body.backgroundColor};
-border-top: solid 1px${props => props.theme.Button.backgroundColor};
+border-top: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
 
 height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "50px"};
 outline:none;
@@ -224,7 +224,7 @@ export const SubmitResult = (props: { contextData: JudgeResponse | undefined, is
                     <Circle Color={contextData.status == "Success" ? "#48bd5f" : contextData.status == "" ? "#919191" : "#bd4848"} />
                 </div>
                 <div className="mHolder">
-                    <p>{props.isJudging ? "채점중입니다" : contextData.status == "" ? "채점되지 않았습니다" : contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "런타임 에러가 발생했습니다" : "틀렸습니다" : "맞았습니다"} </p>
+                    <p>{props.isJudging ? "채점중입니다" : contextData.status == "" ? "여기에 채점 결과가 표시됩니다" : contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "런타임 에러가 발생했습니다" : "틀렸습니다" : "맞았습니다"} </p>
                     <p className="icon">
                         {contextData.errorStatement == "NONE" ? <FiChevronDown /> : props.isJudging ? <Loading /> : <></>}
                     </p>

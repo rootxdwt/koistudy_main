@@ -24,6 +24,13 @@ const Holder = styled.div`
   display: flex;
   margin-top: 65px;
   color: ${props => props.theme.Body.TextColorLevels[3]};
+  flex-direction: column;
+  & h2 {
+    color: ${props => props.theme.Body.TextColorLevels[1]};
+    margin-top: 50px;
+    border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
+    padding-bottom: 20px;
+  }
 `
 
 const Probcard = styled.div`
@@ -46,7 +53,7 @@ interface sugprobDetails {
 const Hcard = styled.div<{ rating: number }>`
 width: 120px;
 border-radius: 20px;
-background-color: ${props => props.theme.Container.backgroundColor};
+
 height: 120px;
 margin-top: 30px;
 margin-right: 30px;
@@ -59,14 +66,14 @@ align-items:center;
 justify-content:center;
 padding: 40px;
 position: relative;
-border: solid 2px transparent;
+border: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
 &:nth-child(1){
   @media(max-width: 770px) {
     margin-left: 5vw;
   }
 }
 &:hover {
-  border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
+  border: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
 }
 & h2 {
   font-size: 16px;
@@ -266,7 +273,7 @@ const Myprob = (props: { problems: Array<sugprobDetails> | undefined }) => {
                 </Hcard>
               )
             })}
-            <Fullview><p>전체 문제 보기</p></Fullview></>
+          </>
           : <MainPageSkeleton />}
 
       </HHolderParent>
@@ -303,7 +310,6 @@ export default function Home() {
       {loaded ?
         <MainPageHolder>
           <Holder>
-            <Nav></Nav>
             <HcardHolder>
               <Myprob problems={data}></Myprob>
             </HcardHolder>

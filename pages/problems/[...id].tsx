@@ -23,6 +23,7 @@ import { SubmitResult, JudgeResponse } from "@/lib/ui/component/submissionMenu";
 import { CodeEditArea } from "@/lib/ui/component/codeEdit"
 import mongoose from "mongoose"
 import ProblemModel from "lib/schema/problemSchema"
+import TagsModel from "lib/schema/tags"
 import Image from "next/image"
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
 import { FcCheckmark } from 'react-icons/fc'
@@ -113,6 +114,8 @@ height: 100%;
     display:flex;
     margin-top: 20px;
     margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: 10px;
   }
 `
 
@@ -217,14 +220,13 @@ interface ProblemDataProp {
     id: number
     supportedLang: Array<AcceptableLanguage>
     currentPage: string
+    tags: Array<{ Name: string, Color: string }>
 
 }
 
 const Itm = styled.div<{ rating?: number }>`
-padding: 2px 15px;
 margin-right: 10px;
 border-radius: 5px;
-background-color: ${props => props.theme.Container.backgroundColor};
 font-family: 'Noto Sans KR',sans-serif;
 & p{
     font-size: 10px!important;
@@ -242,6 +244,19 @@ font-family: 'Noto Sans KR',sans-serif;
     margin:0;
     color: ${props => props.theme.Body.TextColorLevels[3]};
   }
+  &:hover {
+        &::after {
+        margin-left: -20px;
+        content: "Rating ${props => props.rating}";
+        position:absolute;
+        font-size: 10px;
+        background-color: ${props => props.theme.Container.backgroundColor};
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        z-index: 6;
+    }
+    }
 `
 
 const Titleholder = styled.div`
@@ -249,6 +264,7 @@ const Titleholder = styled.div`
     flex-direction: row;
     align-items: center;
     margin-top: 40px;
+    width: 100%;
     & h1 {
         margin:0;
         margin-right: 20px;
@@ -260,16 +276,17 @@ const Titleholder = styled.div`
 
 
 const ProbInfo = styled.div`
-        display:flex;
+    display:flex;
     margin-top: 20px;
     margin-bottom: 10px;
+    margin-left: auto;
     border-radius: 10px;
 
 `
 
 const SolvedIndicator = styled.div`
     width: 29px;
-    height: 29px;
+    height: 27px;
     font-size: 15px;
     display: flex;
     align-items: center;
@@ -277,7 +294,6 @@ const SolvedIndicator = styled.div`
     cursor: pointer;
     border-radius: 5px;
     color: ${props => props.theme.Body.TextColorLevels[2]};
-    background-color: ${props => props.theme.Container.backgroundColor};
     margin-right: 10px;
     &:hover {
         &::after {
@@ -297,13 +313,11 @@ const SolvedIndicator = styled.div`
 const TPBtn = styled(SolvedIndicator)`
 
     &:hover {
-        background-color: ${props => props.theme.Button.backgroundColor};
         &::after {
         margin-left: 0px;
         position:absolute;
         content: "Bookmark";
         font-size: 10px;
-        background-color: ${props => props.theme.Container.backgroundColor};
         padding: 4px 10px;
         border-radius: 4px;
     }
@@ -342,7 +356,7 @@ const PageNav = styled.div`
     top: 0px;
     background-color: ${props => props.theme.Body.backgroundColor};
     margin-top: 10px;
-    border-bottom: solid 1px ${props => props.theme.Button.backgroundColor};
+    border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
     @media(max-width: 770px) {
         position: relative;
     }
@@ -394,9 +408,26 @@ const SolvedCount = styled.span<{ isSolved: boolean }>`
     
 `
 
+const Tags = styled.ul`
+list-style-type: none;
+display: flex;
+padding:0;
+`
+
+const TagItm = styled.li<{ color: string }>`
+
+font-size: 10px;
+padding: 4px 11px;
+margin: 0px 7px;
+border-radius: 12px;
+background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+color: ${props => props.theme.Body.TextColorLevels[3]};
+position: relative;
+`
+
 const ProblemPageHandler = (props: ProblemDataProp) => {
     const router = useRouter()
-    const { currentPage, mdData, problemName, solved, rating, id, supportedLang } = props
+    const { currentPage, mdData, problemName, solved, rating, id, supportedLang, tags } = props
     const [submissionData, setsubmisstionData] = useState<{ isSolved: boolean, dataLength: number }>()
     useEffect(() => {
         fetch(`/api/user/submission/${id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
@@ -413,13 +444,20 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
         <DescHolder>
             <Titleholder>
                 <h1>{problemName}</h1>
+                <ProbInfo>
+                    <Itm rating={rating}>
+                        <p className="grad">R{rating}</p>
+                    </Itm>
+                    <FavBtn problemId={id} />
+                </ProbInfo>
             </Titleholder>
-            <ProbInfo>
-                <Itm rating={rating}>
-                    <p className="grad">난이도 {rating}</p>
-                </Itm>
-                <FavBtn problemId={id} />
-            </ProbInfo>
+            <Tags>
+                {tags.map((elem, index) => {
+                    return (
+                        <TagItm key={elem.Name} color={elem.Color}>{elem.Name}</TagItm>
+                    )
+                })}
+            </Tags>
             <PageNav>
                 <PageBtn isActive={currentPage == "description"} onClick={() => router.push(`${router.query.id![0]}/description`)}>
                     <p>설명</p></PageBtn>
@@ -460,7 +498,7 @@ const LocalGlobal = createGlobalStyle`
 `
 
 export default function Problem(data: any): JSX.Element {
-    const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable } = data
+    const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable, tags } = data
     const [isJudging, setIsJudging] = useState(false)
     const [contextData, setContextData] = useState<JudgeResponse | undefined>()
     const InternalRef = useRef<any>()
@@ -517,7 +555,7 @@ export default function Problem(data: any): JSX.Element {
             <>
                 <InitialHolder>
                     <Internal rating={rating} ref={InternalRef}>
-                        <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} />
+                        <ProblemPageHandler currentPage={router.query.id![1]} mdData={Script} problemName={ProblemName} solved={solved} rating={rating} id={parseInt(router.query.id![0])} supportedLang={SupportedLang} tags={tags} />
                         <CodeEditArea
                             SupportedLang={SupportedLang}
                             submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
@@ -543,7 +581,13 @@ export const getServerSideProps = async (context: any) => {
 
     try {
         if (typeof id[0] == "string") {
-            const findDC = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) }, 'Script solved rating ProblemCode ProblemName SupportedLang Mem')
+            const findDC = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) }, 'Script solved rating ProblemCode ProblemName SupportedLang Mem tags')
+
+            const data = JSON.parse(JSON.stringify(findDC))
+
+            if (data["tags"]) {
+                data["tags"] = JSON.parse(JSON.stringify(await TagsModel.find({ Name: data["tags"] }, 'Name Color -_id')))
+            }
 
             const forwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) - 1 }, '-_id ProblemCode')
             const backwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) + 1 }, '-_id ProblemCode')
@@ -557,7 +601,7 @@ export const getServerSideProps = async (context: any) => {
                 forward = true
             }
             return {
-                props: { navigatable: [forward, backward], ...JSON.parse(JSON.stringify(findDC)) }
+                props: { navigatable: [forward, backward], ...data }
             };
         } else {
             return {

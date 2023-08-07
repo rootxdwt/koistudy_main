@@ -14,9 +14,14 @@ const NavMain = styled.ul`
     flex-direction: column;
     list-style-type: none;
     width: 200px;
+    margin-top: 30px;
+    background-color: ${props => props.theme.Container.backgroundColor};
+    margin-right: 30px;
+    border-radius: 10px;
 `
 
 const NavBtn = styled.li<{ isActive?: boolean }>`
+    padding: 5px 10px;
 
 `
 

@@ -1,5 +1,5 @@
 import styled from "styled-components"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FiChevronDown } from "react-icons/fi"
 const ParentHolder = styled.div<{ isDown: boolean }>`
 z-index:3;
@@ -73,10 +73,14 @@ margin-left: 10px;
 
 export const DropDownMenu = (props: { active: string, items: Array<string>, clickEventHandler: any, displayName: Array<{ name: any, displayName: string }>, dropType: "up" | "down" }) => {
   const [isDropped, setDropped] = useState(false)
+  const [nowActive, setNowActive] = useState<string>()
+  useEffect(() => {
+    setNowActive(props.displayName.filter(elem => elem.name == props.active)[0].displayName)
+  }, [props.active])
   return (
     <DropDown>
       <Current onClick={() => setDropped(!isDropped)}>
-        {props.displayName.filter(elem => elem.name == props.active)[0].displayName}
+        {nowActive}
         <DropArrow isDropped={isDropped} defaultPosDown={props.dropType == "down"}>
           <FiChevronDown />
         </DropArrow>

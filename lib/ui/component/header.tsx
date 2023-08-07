@@ -20,7 +20,7 @@ top:0;
 width: 100vw;
 display:flex;
 align-items:center;
-border-bottom: solid 1px ${props => props.isTop ? props.theme.Body.ContainerBgLevels[1] : "transparent"};
+border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
 
 background-color: ${props => props.isTransparent ? "transparent" : props.theme.Body.backgroundColor};
 
@@ -71,7 +71,6 @@ align-items:center;
 justify-content:center;
 color: ${props => props.theme.Body.TextColorLevels[3]};
 border-radius: 10px;
-background-color: ${props => props.theme.Button.backgroundColor};
 cursor:pointer;
 margin:0;
 margin-left: 20px;
@@ -351,10 +350,10 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
               : <></>}
 
             <BtnHolder>
-              {props.currentPage !== "login" ? <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
+              {/* {props.currentPage !== "login" ? <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
                 <RiUser3Fill />
 
-              </BtnComp> : <></>}
+              </BtnComp> : <></>} */}
               <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
                 {isDark ? <MdDarkMode /> : <MdLightMode />}
 

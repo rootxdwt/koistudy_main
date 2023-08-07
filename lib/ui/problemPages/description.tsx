@@ -20,7 +20,7 @@ import { AcceptableLanguage } from "@/lib/pref/languageLib";
 const H2Elem = styled.h2`
 padding-bottom: 10px;
 margin-bottom: 10px;
-border-bottom: solid 2px ${props => props.theme.Container.backgroundColor};
+border-bottom: solid 1px ${props => props.theme.Container.backgroundColor};
 `
 
 const isValidImgJson = (str: string) => {
@@ -64,14 +64,14 @@ const ImgElem = (props: any) => {
 
 const CodeText = styled.code`
     background-color: ${props => props.theme.Container.backgroundColor};
-    border: solid 1px ${props => props.theme.Button.backgroundColor};
+    border: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
     padding: 0px 2px;
     border-radius: 2px;
 `
 
 
 const InternalCodeElem = (prop: any) => {
-    let lang: AcceptableLanguage | "shell" = "shell"
+    let lang: AcceptableLanguage | undefined
     if (typeof prop.children[0].props.className == "string") {
         lang = prop.children[0].props.className.match(/language-(\w+)/)[1]
     }

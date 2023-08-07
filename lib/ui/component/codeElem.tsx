@@ -8,14 +8,14 @@ import { useState } from 'react';
 import { AcceptableLanguage } from '@/lib/pref/languageLib';
 const CodeHolder = styled.div`
 padding: 10px 10px;
-border-radius: 10px;
+border-radius: 5px;
 position:relative;
 display:flex;
 align-items:center;
 overflow:hidden;
 flex-shrink:0;
-background-color: ${props => props.theme.Body.ContainerBgLevels[2]};
-border: solid .5px ${props => props.theme.Button.backgroundColor};
+background-color: ${props => props.theme.Container.backgroundColor};
+border: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
 
 `
 
@@ -47,10 +47,8 @@ export const CodeElem = (prop: { lang?: AcceptableLanguage | "shell", data: stri
         setTimeout(() => setIsCopied(false), 1000)
     }
 
-    let lang: AcceptableLanguage | "shell" = "shell"
-    if (typeof prop.lang !== "string") {
-        lang = "shell"
-    } else {
+    let lang
+    if (typeof prop.lang == "string") {
         lang = prop.lang
     }
     return <CodeHolder onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)}>
@@ -69,7 +67,7 @@ export const CodeElem = (prop: { lang?: AcceptableLanguage | "shell", data: stri
             }
             extensions={
                 [
-                    loadLanguage(lang)!
+                    loadLanguage(lang!)!
                 ].filter(Boolean)
             }
             value={prop.data}

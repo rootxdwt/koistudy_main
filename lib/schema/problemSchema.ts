@@ -20,6 +20,7 @@ const ProblemSchema = new mongoose.Schema({
     TestProgress: testSchema,
     rating: Number,
     solved: Number,
+    tags: [String]
 })
 const model = mongoose.models.Problems || mongoose.model("Problems", ProblemSchema);
 export default model

@@ -14,6 +14,7 @@ import { TbCopy } from 'react-icons/tb'
 import { useRouter } from "next/router";
 import { LanguageHandler } from "@/lib/pref/languageLib";
 import { SubmitResult } from "./submissionMenu";
+import { FiChevronDown } from 'react-icons/fi'
 
 const CodeEditAreaComponent = styled.div`
 display:flex;
@@ -57,6 +58,8 @@ margin-left: auto;
 const SubmitBtn = styled(DefaultSubmissionAreaBtn)`
 width:auto;
 padding: 0px 20px;
+background-color: ${props => props.theme.Body.TextColorLevels[3]};
+color: ${props => props.theme.Body.backgroundColor};
 `
 
 const Submission = styled.div`
@@ -97,9 +100,10 @@ const Rearrange = styled.span`
 position:fixed;
 height: 100vh;
 top:0;
-background-color: ${props => props.theme.Container.backgroundColor};
+border-left:solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
+border-right:solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
 width:10px;
-margin-left:-20px;
+margin-left:-14px;
 cursor:col-resize;
 display:flex;
 align-items:center;
@@ -130,15 +134,14 @@ const ConsoleHeader = styled.div`
 display:flex;
 font-size: 13px;
 color: ${props => props.theme.Body.TextColorLevels[3]};
-border-top: solid 1px ${props => props.theme.Button.backgroundColor};
+border-top: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
 padding: 0px 10px;
 height: 40px;
 align-items:center;
 justify-content:space-between;
-margin-bottom: 10px;
+
 position:sticky;
 top:0;
-background-color: ${props => props.theme.Body.backgroundColor};
 z-index:3;
 font-family: 'Noto Sans KR', sans-serif;
 `
@@ -156,6 +159,14 @@ font-size: 17px;
     margin-right: 5px;
     font-size: 13px;
 }
+`
+
+const ConsoleBody = styled.div`
+
+width: 100%;
+margin-left: auto;
+margin-right: auto;
+padding-top: 10px;
 `
 
 let socket: any
@@ -227,31 +238,34 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
                     <p>실행 결과</p>
                 </ConsoleName>
                 <ConsoleBtnHolder>
+                    <FiChevronDown />
                 </ConsoleBtnHolder>
             </ConsoleHeader>
-            <CodeMirror
-                height="110px"
-                onChange={(v, _) => setInputData("A4YOZcb8W2xjnblz" + v)}
-                placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Running your code..."}
-                onKeyDown={(e) => {
-                    if (e.key == "Enter") {
-                        socket.emit("input", inputData.split(sent)[1])
-                        setSent(inputData.split(sent)[1])
+            <ConsoleBody>
+                <CodeMirror
+                    height="110px"
+                    onChange={(v, _) => setInputData("A4YOZcb8W2xjnblz" + v)}
+                    placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Running your code..."}
+                    onKeyDown={(e) => {
+                        if (e.key == "Enter") {
+                            socket.emit("input", inputData.split(sent)[1])
+                            setSent(inputData.split(sent)[1])
+                        }
+                    }}
+                    value={fixValue}
+                    basicSetup={
+                        {
+                            drawSelection: false,
+                            autocompletion: false,
+                            lineNumbers: false,
+                            searchKeymap: false,
+                            highlightActiveLine: false,
+                            highlightActiveLineGutter: false,
+                        }
                     }
-                }}
-                value={fixValue}
-                basicSetup={
-                    {
-                        drawSelection: false,
-                        autocompletion: false,
-                        lineNumbers: false,
-                        searchKeymap: false,
-                        highlightActiveLine: false,
-                        highlightActiveLineGutter: false,
-                    }
-                }
-                editable={isConsoleEditable}
-                theme={"dark"}></CodeMirror>
+                    editable={isConsoleEditable}
+                    theme={"dark"}></CodeMirror>
+            </ConsoleBody>
         </ResultHolder>)
 }
 
@@ -304,7 +318,6 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                 onMouseUp={ResetPos}
                 onTouchEnd={ResetPos}
             >
-                <HiOutlineDotsVertical />
             </Rearrange>
 
             <CodeMirror

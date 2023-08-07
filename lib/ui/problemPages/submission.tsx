@@ -140,8 +140,7 @@ const LangInfo = styled.div`
     justify-content: center;
     padding: 2px 12px;
     font-size: 10px;
-    background-color: ${props => props.theme.Button.backgroundColor};
-    border: solid 1px ${props => props.theme.Button.backgroundColor};
+    background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
     color: ${props => props.theme.Body.TextColorLevels[3]}!important;
 `
 
@@ -162,6 +161,7 @@ const GetDateStr = (date: Date) => {
 const SelectionArea = styled.div`
     display:flex;
     justify-content: space-between;
+    margin-top: 10px;
     margin-bottom: 20px;
 
 `
@@ -176,7 +176,7 @@ const SelectionBtn = styled.div`
         border-radius: 10px;
     height: 35px;
 
-    border:solid 2px ${props => props.theme.Body.ContainerBgLevels[1]};
+    border:solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -187,7 +187,7 @@ const SelectionBtn = styled.div`
         margin-right: auto;
     }
     &:hover {
-        border:solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
+        background-color: ${props => props.theme.Body.ContainerBgLevels[2]};
     }
 `
 

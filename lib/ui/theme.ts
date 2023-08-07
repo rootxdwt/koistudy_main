@@ -11,8 +11,8 @@ export const DarkTheme = {
         ],
         ContainerBgLevels: [
             "rgb(60,60,60)",
-            "rgb(40,40,40)",
-            "rgb(31,32,34)"
+            "rgb(50,50,50)",
+            "rgb(40,40,40)"
         ]
     },
     Button: {
@@ -40,9 +40,9 @@ export const LightTheme = {
             "rgb(115,115,115)"
         ],
         ContainerBgLevels: [
-            "rgb(230,230,230)",
-            "rgb(240,240,240)",
-            "rgb(250,250,250)"
+            "rgb(210,210,210)",
+            "rgb(220,220,220)",
+            "rgb(230,230,230)"
         ]
     },
     Button: {
@@ -54,7 +54,7 @@ export const LightTheme = {
         subColor: "rgb(165,165,165)"
     },
     Container: {
-        backgroundColor: "rgb(240,240,240)",
+        backgroundColor: "rgb(247,247,247)",
         titleColor: "rgb(85,85,85)",
         logoSubColor: "rgb(205,205,205)"
     },
