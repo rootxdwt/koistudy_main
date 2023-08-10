@@ -176,7 +176,7 @@ const FooterElem = () => {
                 <LogoHolder>
 
                     <p>
-                        &copy; KOISTUDY
+                        &copy; 코이스터디
                     </p>
                 </LogoHolder>
 
@@ -542,7 +542,7 @@ export default function Problem(data: any): JSX.Element {
             <Head>
                 <meta content={isDark ? "dark" : "light"} name="color-scheme" />
                 <title>
-                    {ProblemName + " - KOISTUDY"}
+                    {ProblemName + " - 코이스터디"}
                 </title>
             </Head>
             <Header

@@ -99,8 +99,8 @@ const ProfileBtnHolder = styled.div`
   top: 75px;
   z-index:99;
   background-color: ${props => props.theme.Body.backgroundColor};
-  border:solid 2px ${props => props.theme.Container.backgroundColor};
-  border-radius: 10px;
+  border:solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
+  border-radius: 0px;
   padding: 5px;
   --hwidth: 1400px;
 @media(max-width: 1800px) {
@@ -121,7 +121,7 @@ const ProfileBtnHolder = styled.div`
   @media(max-width: 900px) {
     --hwidth: 90vw;
   }
-  right: calc((100vw - var(--hwidth))/2);
+  right: 5vw;
 
 `
 
@@ -159,7 +159,7 @@ const UserButton = styled.div`
   align-items: center;
   padding: 0 10px;
   justify-content: space-between;
-  border-radius:10px;
+  border-radius:0px;
   
   cursor:pointer;
 
@@ -350,10 +350,10 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
               : <></>}
 
             <BtnHolder>
-              {/* {props.currentPage !== "login" ? <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
+              {props.currentPage !== "login" ? <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
                 <RiUser3Fill />
 
-              </BtnComp> : <></>} */}
+              </BtnComp> : <></>}
               <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
                 {isDark ? <MdDarkMode /> : <MdLightMode />}
 
@@ -362,7 +362,7 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
           </div>
         </HeaderComp >
         {userInfoShown ?
-          <ProfileBtnHolder onClick={() => { if (typeof userInfoJson !== "undefined") { router.push(`/user/${userInfoJson.Uid}`) } else if (!isLoggedIn) { router.push("/auth/") } }}>
+          <ProfileBtnHolder onClick={() => { if (typeof userInfoJson !== "undefined") { router.push(`/user/${userInfoJson.Uid}`) } else if (!isLoggedIn) { router.push(`/auth/?redir=${encodeURIComponent(router.asPath)}`) } }}>
             <UserButton>
               {typeof userInfoJson !== "undefined" ?
                 <>

@@ -10,6 +10,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { SubmittedCodeElem } from "../component/codeElem";
 import { ThemeConsumer } from "styled-components"
 import Link from "next/link"
+import { useRouter } from "next/router"
 
 
 const SubMainHolder = styled.div`
@@ -88,9 +89,10 @@ const NoData = () => {
 }
 
 const Loginpls = () => {
+    const router = useRouter()
     return (
         <NoDataHolder>보려면 로그인하세요
-            <Link href="/auth/">
+            <Link href={`/auth/?redir=${encodeURIComponent(router.asPath)}`}>
                 <LoginBtn>
                     로그인
                 </LoginBtn>

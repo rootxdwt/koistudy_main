@@ -195,7 +195,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
         socket.on("connect_error", (err: any) => {
             socket.disconnect()
             if (err.description == 401 || err.message == "unauthorized") {
-                router.push("/auth/")
+                router.push(`/auth/?redir=${encodeURIComponent(router.asPath)}`)
             } else {
                 setValue("Failed connecting with server")
             }

@@ -1,143 +1,178 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styled, { keyframes, ThemeConsumer } from 'styled-components'
-import { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/router'
-
-import { GlobalStyle } from '@/lib/ui/DefaultComponent'
-import { ThemeProvider } from 'styled-components'
-import { DarkTheme, LightTheme } from '@/lib/ui/theme'
-import { TbBrandGolang } from "react-icons/tb"
-import { DiRust, DiPhp, DiPython, DiNodejsSmall, DiCode } from 'react-icons/di'
+import styled, { keyframes } from "styled-components"
+import { useEffect, useState, useRef } from "react"
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
-import { Header } from '@/lib/ui/component/header'
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import { Nav } from '@/lib/ui/component/nav'
-import { useSelector } from 'react-redux';
-import { StateType } from '@/lib/store'
+import Head from "next/head"
+import { useRouter } from "next/router"
+import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 
 const Holder = styled.div`
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 0;
+  width: 100vw;
   display: flex;
-  margin-top: 65px;
-  color: ${props => props.theme.Body.TextColorLevels[3]};
   flex-direction: column;
-  & h2 {
-    color: ${props => props.theme.Body.TextColorLevels[1]};
-    margin-top: 50px;
-    border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
-    padding-bottom: 20px;
-  }
-`
-
-const Probcard = styled.div`
-width: 100%;
-border-top-left-radius: 20px;
-border-top-right-radius: 20px;
-background-color: ${props => props.theme.Container.backgroundColor};
-height: 600px;
-margin-top: 30px;
-flex-shrink: 0;
-`
-interface sugprobDetails {
-  ProblemCode: Number
-  ProblemName: string
-  solved: number
-  rating: number
-  SupportedLang: Array<string>
-}
-
-const Hcard = styled.div<{ rating: number }>`
-width: 120px;
-border-radius: 20px;
-
-height: 120px;
-margin-top: 30px;
-margin-right: 30px;
-flex-shrink: 0;
-transition: transform 0.2s ease-in-out;
-cursor:pointer;
-display:flex;
-flex-direction: column;
-align-items:center;
-justify-content:center;
-padding: 40px;
-position: relative;
-border: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
-&:nth-child(1){
-  @media(max-width: 770px) {
-    margin-left: 5vw;
-  }
-}
-&:hover {
-  border: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
-}
-& h2 {
-  font-size: 16px;
-  color: ${props => props.theme.Container.titleColor};
-  margin-top: 10px;
-  word-break: keep-all;
-  width: 100%;
-  text-align:left;
-}
-& p {
-  font-size: 12px;
-  color: ${props => props.theme.Body.TextColorLevels[3]};
-  text-align: center;
   margin: 0;
-  margin-left: 0;
-  margin-right:auto;
-  text-align:left;
-  background: ${props => props.rating < 4 ? "linear-gradient(90deg, rgb(107,157,248) 0%, rgb(131,81,246) 100%)" : "linear-gradient(90deg, rgba(214,123,46,1) 0%, rgba(170,189,26,1) 100%)"};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-family: 'Poppins',sans-serif;
-}
-& span {
-  width: 100%;
-  font-size: 30px;
-  display:flex;
-  align-items:center;
-  margin-top: auto;
-  margin-bottom: 0;
-
-  justify-content:space-between;
-  color: ${props => props.theme.Container.logoSubColor};
-}
+`
+const LandingItm = styled.div`
+width: 100vw;
+height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #1b1c1e;
+  overflow: hidden;
 `
 
-const HHolderParent = styled.div`
-position: relative;
-display:flex;
-overflow-x: scroll;
--ms-overflow-style: none;
-scrollbar-width: none; 
-flex-direction:row;
-width: calc(90vw - 200px);
+const StartBtn = styled.p`
+  color: #fff;
+  margin-top: 100px;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: solid 1px rgba(255,255,255,.5);
+  background-color: rgba(255,255,255,.2);
+`
+
+const H1Align = styled.div`
+  display: flex;
+  white-space:nowrap;
+  overflow: hidden;
+  width: 100vw;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  rotate: -5deg;
+
+  & h1{
+    margin: 0;
+    color: rgba(255,255,255,0.3);
+    margin: 0px 10px;
+    font-size: 30px;
+    line-height: 50px;
+    text-align: center;
+  }
+`
+const ResizeHolder = styled.div`
+display: flex;
+overflow: scroll;
+margin-top: 100px;
+width: 1400px;
 &::-webkit-scrollbar {
   display: none;
 }
-@media(max-width: 770px) {
+
+-ms-overflow-style: none;
+scrollbar-width: none;
+
+@media(max-width: 1800px) {
+  width: 1300px;
+}
+@media(max-width: 1700px) {
+  width: 1200px;
+}
+@media(max-width: 1500px) {
+  width: 1100px;
+}
+@media(max-width: 1300px) {
+  width: 1000px;
+}
+@media(max-width: 1200px) {
+  width: 900px;
+}
+@media(max-width: 900px) {
   width: 100vw;
-  margin-left: auto;
-  margin-right:auto;
 }
 `
-const HcardHolder = styled.div`
-display: flex;
-position: relative;
+
+const LineDraw = keyframes`
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 130px;
+  }
 `
 
+const IntroText = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  & h1.attr {
+    color: rgb(220, 220, 220);
+    font-size: 30px;
+    line-height: 50px;
+    font-weight: 800;
+    margin: 0;
+  }
+  & .grad {
+    position: relative;
+    background-color: transparent;
+    background: linear-gradient(90deg,rgb(107,157,248) 20%,rgb(131,81,246) 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    cursor: pointer;
+    
+  }
+  & .grad:hover::after {
+    position: absolute;
+    width: 130px;
+    height: 2px;
+    content: "";
+    z-index: 1;
+    background: linear-gradient(90deg,rgb(107,157,248) 20%,rgb(131,81,246) 80%);
+    bottom: 5px;
+    left: 0;
+    animation: ${LineDraw} 0.3s ease-in-out;
+  }
+  & .grad::before {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 10px;
+    left: 140px;
+    top: 8px;
+    content: "";
+    font-size: 10px;
+    background:linear-gradient(90deg,rgb(107,157,248) 0%,rgb(131,81,246) 100%);
+    z-index: 2;
+    color: #000;
+  }
+  & span {
+
+      padding-right: 3px;
+      border-radius: 10px;
+      font-size: 30px;
+  }
+`
+
+const Box = styled.div`
+    height: 100px;
+    width: 200px;
+    background-color: rgb(40, 40, 40);
+    margin: 0px 10px;
+    flex-shrink: 0;
+    border-radius: 20px;
+    border: solid 2px rgb(60, 60, 60);
+    cursor: pointer;
+    display: flex;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    &:hover {
+      transform: scale(0.98);
+    }
+    color: rgba(255,255,255,.8);
+`
 const LeftBlurBorder = styled.div`
-  height: 234px;
+  height: 104px;
   position: absolute;
   left: 0;
   width: 30px;
   z-index: 10;
-  background: linear-gradient(90deg, ${props => props.theme.Body.backgroundColor} 0%, rgba(255,255,255,0) 100%);
+  background: linear-gradient(90deg, #1b1c1e 0%, rgba(255,255,255,0) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,76 +187,45 @@ const LeftBlurBorder = styled.div`
 const RightBlurBorder = styled(LeftBlurBorder)`
   right: 0;
   left:auto;
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, ${props => props.theme.Body.backgroundColor} 100%);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #1b1c1e 100%);
   padding-right: 0;
   padding-left: 20px;
 `
 
-const Fullview = styled.div`
-width: 200px;
-height: 200px;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-shrink: 0;
-margin-top: 30px;
-margin-right: 30px;
-& p {
-  height: 10px;
-}
-`
-
-const SkeletonHolder = styled(HcardHolder)`
-& span {
-  display:flex;
-}
-@media(max-width: 770px) {
-  width: 100vw;
-  margin-right:auto;
-  &>span {
-    padding-left: 10vw;
-  }
-}
-`
-
-
-
-const MainPageSkeleton = () => {
-  return (
-    <ThemeConsumer>
-      {theme => <SkeletonTheme baseColor={theme.Container.backgroundColor} highlightColor={theme.Body.ContainerBgLevels[0]}>
-        <SkeletonHolder>
-          <Skeleton width={200} height={200} borderRadius={20} count={5} style={{ "marginRight": "30px", "flexShrink": "none", "marginTop": "30px" }} />
-        </SkeletonHolder>
-      </SkeletonTheme>}
-    </ThemeConsumer>
-
-  )
-}
-
-const LanguageIcon = (props: { langs: Array<string> }) => {
-  switch (props.langs[0]) {
-    case "python":
-      return <DiPython />
-    case "go":
-      return <TbBrandGolang />
-    case "javascript":
-      return <DiNodejsSmall />
-    case "php":
-      return <DiPhp />
-    case "rust":
-      return <DiRust />
-    default:
-      return <DiCode />
-  }
-}
-
-
-const Myprob = (props: { problems: Array<sugprobDetails> | undefined }) => {
+export default function Home() {
   const scrollRef = useRef<any>()
+  const [currentText, setCurrentText] = useState("")
   const [isLeftArrowShown, setLeftArrowState] = useState(false)
   const [isRightArrowShown, setRightArrowState] = useState(true)
+
   const router = useRouter()
+
+  const TextAnimation = (text: string, noDeletion?: boolean): Promise<void> => {
+    return new Promise((resolve, _) => {
+      let ind = 0
+      const textarr = text.split("")
+      let interval = setInterval(() => {
+        if (ind > textarr.length) {
+          if (noDeletion) {
+            clearInterval(interval);
+            resolve()
+          }
+          let sliced = textarr
+          sliced.pop()
+          setCurrentText(sliced!.join(""))
+          if (sliced.length < 1) {
+            clearInterval(interval);
+            resolve()
+          }
+        } else {
+          setCurrentText(textarr.slice(0, ind).join(""))
+          ind++
+        }
+
+      }, 150)//150
+    })
+  }
+
   const moveCont = (isLeft: boolean) => {
     if (isLeft) {
       scrollRef.current.scrollBy({
@@ -255,69 +259,69 @@ const Myprob = (props: { problems: Array<sugprobDetails> | undefined }) => {
     currentElem.addEventListener('scroll', listner)
     return () => currentElem.removeEventListener('scroll', listner)
   }, [])
-  return (
-    <>
-      {isLeftArrowShown ? <LeftBlurBorder onClick={() => moveCont(true)}><IoIosArrowBack /></LeftBlurBorder> : <></>}
-      {isRightArrowShown ? <RightBlurBorder onClick={() => moveCont(false)} ><IoIosArrowForward /></RightBlurBorder> : <></>}
-      <HHolderParent ref={scrollRef}>
-        {typeof props.problems !== "undefined" ?
-          <>
-            {props.problems.map((item, index) => {
-              return (
-                <Hcard rating={item.rating} key={index} onClick={() => router.push(`problems/${item.ProblemCode}/description`)}>
-                  <p>Rating {item.rating}</p>
-                  <h2>{item.ProblemName}</h2>
-                  <span>
-                    <LanguageIcon langs={item.SupportedLang} />
-                  </span>
-                </Hcard>
-              )
-            })}
-          </>
-          : <MainPageSkeleton />}
 
-      </HHolderParent>
-
-    </>
-  )
-}
-
-const MainPageHolder = styled.div`
-display: flex;
-`
-
-export default function Home() {
-  const [data, setData] = useState<Array<sugprobDetails>>()
-  const [loaded, setLoaded] = useState(false)
-  const isDark = useSelector<StateType, boolean>(state => state.theme);
-  const router = useRouter()
   useEffect(() => {
-    setLoaded(true)
-    fetch('/api/main').then((data) => {
-      return data.json()
-    }).then((jsn) => {
-      setData(jsn)
+
+
+    TextAnimation("초보자        ").then(() => {
+      return TextAnimation("코딩 고수        ")
+    }).then(() => {
+      return TextAnimation("모두        ", true)
     })
   }, [])
+  //
   return (
     <>
-      <Head>
-        <title>KOISTUDY</title>
-        <link rel='shortcut icon' href='favicon.ico' />
-      </Head>
-      <Header currentPage="home" />
       <GlobalStyle />
-      {loaded ?
-        <MainPageHolder>
-          <Holder>
-            <HcardHolder>
-              <Myprob problems={data}></Myprob>
-            </HcardHolder>
-          </Holder>
+      <Head>
+        <title>
+          코이스터디 | 모두를 위한 알고리즘 문제해결 플랫폼
+        </title>
+      </Head>
+      <Holder>
+        <LandingItm>
+          <IntroText>
+            <H1Align>
+              <h1>N9TT-9G0A-B7FQ-RAC-QK6A-JI6S-7ETR-SFDR-YXHF-ASDR-SFDR-KIAP-YXHF-ASDR-AISU-LOUD-A9DJ-AS8D</h1>
+              <h1 className="attr"><span>{currentText}</span>를 위한</h1>
+              <h1>SXFP-CHYK-ONI6-S89U-NHLE-L6MI-4GE4-ETEV-7KFM-YWUG-QLWB-GSEF-57TC-AOSD-ISJD-OIJS</h1>
+            </H1Align>
+            <H1Align>
+              <h1>6EAATI-UIL2-9WAX-XHYO-2E62-E3SR-33FI-XHV3-QVHD-E9A4-9JBS-M92U-LSIA-ISOD-QISD-A</h1>
+              <h1 className="attr">알고리즘 문제해결 플랫폼</h1>
+              <h1>7EIQ-72IU-2YNV-3L4Y-VU8X-A5TW-FDFV-FLBE-JHNC-GY78-FLN5-HDCT-OSIA-MXJZ-8JSU</h1>
+            </H1Align>
+            <H1Align>
+              <h1>ZRUH-VNBT-DL4G-G4SVB-XEK8-73H6-P54Y-57TC-FRMS-EHS8-VFZS-KSAU-WG8SA-GHSA-S7Yd-A9DJ&gt;&gt;</h1>
+              <h1 className="grad attr">코이스터디</h1>
+              <h1>&lt;&lt;VK-GK6L-UR4D-UNUP-2E62-E3SR-33FI-XHV3-ZYSW-FUXY-BDFE-DFES-HRSP-A8SD-CNHJ-D1DL-ADSD-SAID</h1>
+            </H1Align>
+          </IntroText>
 
-        </MainPageHolder>
-        : <></>
-      }
+          <StartBtn onClick={() => router.push(`/auth?redir=${encodeURIComponent("/problems")}`)}>시작하기</StartBtn>
+
+        </LandingItm>
+        <LandingItm>
+          <IntroText>
+            <h1 className="attr">무엇을 배우고 싶으신가요?</h1>
+            <ResizeHolder ref={scrollRef}>
+              {isLeftArrowShown ? <LeftBlurBorder onClick={() => moveCont(true)}><IoIosArrowBack /></LeftBlurBorder> : <></>}
+              {isRightArrowShown ? <RightBlurBorder onClick={() => moveCont(false)} ><IoIosArrowForward /></RightBlurBorder> : <></>}
+              <Box>기초</Box>
+              <Box>스택</Box>
+              <Box>큐</Box>
+              <Box>BFS</Box>
+              <Box>DFS</Box>
+              <Box>트리</Box>
+              <Box>재귀</Box>
+
+            </ResizeHolder>
+
+          </IntroText>
+
+        </LandingItm>
+
+      </Holder>
     </>
   )
 }

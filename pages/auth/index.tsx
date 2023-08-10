@@ -12,36 +12,41 @@ import crypto from "crypto"
 import { createClient } from 'redis';
 import Head from "next/head";
 
+const ItemHolder = styled.div`
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    flex-direction: column;
+`
+
 const ParentContainer = styled.div`
-width: 250px;
+width: 290px;
 display:flex;
 color: ${props => props.theme.Body.TextColorLevels[2]};
 font-family: 'Open Sans', sans-serif;
-padding: 30px 50px;
+padding: 50px;
 flex-direction:column;
-position: absolute;
-left: 50%;
+border-radius: 5px;
 top: 300px;
-transform: translate(-50%,-50%);
 justify-content:center;
-border-radius: 20px;
 align-items: center;
 @media(max-width: 590px) {
     width: calc(100% - 100px);
     padding: 0px 50px;
-    height: 100vh;
     margin-top: 0;
     border: none;
 }
 & h1 {
-    font-size: 20px;
+    font-size: 25px;
     margin: 0px;
     margin-top: 20px;
     margin-bottom: 10px;
 } & p {
-    font-size: 11px;
+    font-size: 12px;
     margin: 0px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    color: ${props => props.theme.Body.TextColorLevels[3]};
 }
 `
 
@@ -49,13 +54,14 @@ align-items: center;
 const SigninBtn = styled.div<{ bgColor: string, txtColor: string }>`
 background-color: ${props => props.bgColor};
 color: ${props => props.txtColor};
-margin-top: 13px;
-font-size: 12px;
+margin-top: 15px;
+font-size: 12.5px;
 display:flex;
 align-items:center;
-height: 35px;
+height: 36px;
 width: 100%;
 border-radius:10px;
+justify-content: center;
 overflow:hidden;
 max-width: 300px;
 border:solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
@@ -68,12 +74,26 @@ const LogoContainer = styled.div`
 display:flex;
 margin-right: 10px;
 height:100%;
-width: 60px;
 align-items:center;
 justify-content:center;
 `
-const PolicyContainer = styled.div`
-border-top: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
+
+const Otheroption = styled.div`
+    border-top: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
+    width: 100%;
+    margin-top: 20px;
+    padding-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    & p {
+        cursor: pointer;
+        margin: 0;
+        font-size: 12px;
+        color: ${props => props.theme.Body.TextColorLevels[3]};
+    }
+`
+const PolicyContainer = styled.p`
 padding-top: 20px;
 font-size: 11px;
 margin-top: 20px;
@@ -83,42 +103,71 @@ color: ${props => props.theme.Body.TextColorLevels[3]};
 }
 `
 
+const KSLogoHolder = styled.div`
+    display: flex;
+    font-weight: 400;
+    color: ${props => props.theme.Body.TextColorLevels[2]};
+    align-items: center;
+    margin: 50px 0px;
+    & p {
+        margin: 0;
+        margin-left: 10px;
+    }
+`
+
 export default function Login(data: any) {
     const isDark = useSelector<StateType, boolean>(state => state.theme);
     const [isLoaded, setLoad] = useState(false)
     const router = useRouter()
+    const [stateValue, setStateValue] = useState("")
+    const [usePassWord, setUsePassword] = useState(false)
+
     useEffect(() => {
+
         setLoad(true)
         const interval = setInterval(() => router.replace(router.asPath), 120000)
+        setStateValue(Buffer.from(JSON.stringify({ nonce: data.nonce, redir: router.query.redir })).toString('base64'))
+        console.log(stateValue)
         return () => clearInterval(interval)
     }, [])
     return (
         <>
             <Head>
                 <title>
-                    KOISTUDY
+                    코이스터디
                 </title>
             </Head>
-            <Header currentPage="login" />
             <GlobalStyle />
-            {isLoaded ?
-                <ParentContainer>
-                    <h1>통합 로그인</h1>
-                    <p>로그인하고 코드를 작성해 보세요</p>
-                    <SigninBtn bgColor="#fff" txtColor="#303030" onClick={() => router.push(`https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:3000/auth/redirect/google&client_id=417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email&state=${data.nonce}`)}>
-                        <LogoContainer>
-                            <Image alt="google" src="https://cdn.ecdev.me/gLogo.png" width="15" height="15" />
-                        </LogoContainer>
-                        Google로 계속하기</SigninBtn>
-                    <SigninBtn bgColor="#1d1d1d" txtColor="#d6d6d6" onClick={() => router.push(`https://github.com/login/oauth/authorize?client_id=3ee621b68f1950df0ba0&state=${data.nonce}&scope=user:email`)}>
-                        <LogoContainer>
-                            <Image alt="github" src="https://cdn.ecdev.me/github-mark-white.png" width="14" height="14" />
-                        </LogoContainer>Github로 계속하기</SigninBtn>
-                    <PolicyContainer>
-                        계속하면 <a href="">개인정보처리방침</a> 과 <a href="">이용약관</a> 에 동의하는 것으로 간주됩니다.
-                    </PolicyContainer>
-                </ParentContainer>
-                : <></>}
+            <ItemHolder>
+                <KSLogoHolder>
+
+                </KSLogoHolder>
+                {isLoaded ?
+                    <ParentContainer>
+                        <h1>계속하기</h1>
+                        <p>로그인/가입하고 코드를 작성해 보세요</p>
+                        <SigninBtn bgColor="#fff" txtColor="#303030" onClick={() => router.push(`https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=http://localhost:3000/auth/redirect/google&client_id=417400386686-s890d90hvopobco24fpkocga45p3t3h1.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.email&state=${stateValue}`)}>
+                            <LogoContainer>
+                                <Image alt="google" src="https://cdn.ecdev.me/gLogo.png" width="15" height="15" />
+                            </LogoContainer>
+                            Google 계정을 사용해 계속하기</SigninBtn>
+                        <SigninBtn bgColor="#1d1d1d" txtColor="#d6d6d6" onClick={() => router.push(`https://github.com/login/oauth/authorize?client_id=3ee621b68f1950df0ba0&state=${stateValue}&scope=user:email`)}>
+                            <LogoContainer>
+                                <Image alt="github" src="https://cdn.ecdev.me/github-mark-white.png" width="14" height="14" />
+                            </LogoContainer>Github 계정을 사용해 계속하기
+                        </SigninBtn>
+                        <Otheroption>
+                            <p onClick={() => setUsePassword(!usePassWord)}>
+                                {!usePassWord ? "아이디, 비밀번호 사용하기" : "Oauth2 사용하기"}
+                            </p>
+                        </Otheroption>
+                    </ParentContainer>
+                    : <></>}
+
+                <PolicyContainer>
+                    &copy; 코이스터디  |  <a href="">개인정보처리방침</a>  |  <a href="">이용약관</a>
+                </PolicyContainer>
+            </ItemHolder>
         </>
     )
 }

@@ -2,7 +2,7 @@ import { configureStore, createSlice } from '@reduxjs/toolkit'
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
 
 import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage/session';
+import storage from 'redux-persist/lib/storage';
 
 const initialState = { theme: true, }
 const slice = createSlice({

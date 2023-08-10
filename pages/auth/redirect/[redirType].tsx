@@ -179,9 +179,11 @@ export default function Login(serverData: any) {
             if (!serverData.accountExists) setKey(serverData.regKey);
             if (serverData.status == "Success" && serverData.accountExists) {
                 localStorage.setItem("tk", serverData.token);
-                setTimeout(() => {
+                if (serverData.redir) {
+                    router.replace(serverData.redir);
+                } else {
                     router.replace("/");
-                }, 1000);
+                }
             }
         }
     }, [router.isReady, router]);
@@ -190,7 +192,7 @@ export default function Login(serverData: any) {
         <>
             <Head>
                 <title>
-                    KOISTUDY
+                    코이스터디
                 </title>
             </Head>
 
@@ -201,7 +203,7 @@ export default function Login(serverData: any) {
                     <MainContainer>
                         {redirResult.status == "Success" ? (
                             redirResult.accountExists ? (
-                                <>로그인되었습니다</>
+                                <></>
                             ) : (
                                 <>
                                     {currentStep == 0 ? (
@@ -276,12 +278,15 @@ export async function getServerSideProps(context: any) {
             return { notFound: true }
         }
         const requestedData = context.query;
-        const redisData = await client.get(requestedData.state);
+        let { redir, nonce } = JSON.parse(Buffer.from(requestedData.state, 'base64').toString('ascii'))
+        const redisData = await client.get(nonce);
+
+        if (typeof redir === "undefined") redir = null
+
         if (redisData !== "true") {
             return { props: { detail: "csrf token mismatch" } };
         }
-        await client.del(requestedData.state);
-        console.log(redirType);
+        await client.del(nonce);
         let uid;
         const url = "mongodb://localhost:27017/main";
         mongoose.connect(url);
@@ -326,11 +331,12 @@ export async function getServerSideProps(context: any) {
                         accountExists: false,
                         regKey: regKey,
                         accData: accData,
+                        redir: redir
                     },
                 };
             } else {
                 let token = await generateJWT(data[0].Uid, process.env.JWTKEY, true);
-                return { props: { status: "Success", accountExists: true, token: token } };
+                return { props: { status: "Success", accountExists: true, token: token, redir: redir } };
             }
         } else if (redirType == "google") {
             var rsp = await fetch("https://oauth2.googleapis.com/token", {
@@ -368,12 +374,13 @@ export async function getServerSideProps(context: any) {
                         accountExists: false,
                         regKey: regKey,
                         accData: accData,
+                        redir: redir
                     },
                 };
             } else {
                 let token = await generateJWT(data[0].Uid, process.env.JWTKEY, true);
                 return {
-                    props: { status: "Success", accountExists: true, token: token },
+                    props: { status: "Success", accountExists: true, token: token, redir: redir },
                 };
             }
         }
