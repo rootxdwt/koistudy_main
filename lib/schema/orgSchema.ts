@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 
 const OrgSchema = new mongoose.Schema({
-    Users: [{ isAdmin: Boolean, userId: String }],
+    Admin: [{ userId: String }],
     Name: String,
-    RegValidation: [{ type: String, data: String }],
+    OrgCode: String,
+    RegCodes: [{ classlabel: String, class: String, data: String }],
 })
-const model = mongoose.models.OrgSchema || mongoose.model("Org", OrgSchema);
+const model = mongoose.models.Org || mongoose.model("Org", OrgSchema);
 
 export default model

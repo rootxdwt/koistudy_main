@@ -8,10 +8,6 @@ import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import { Header } from "@/lib/ui/component/header"
 import Image from "next/image";
 
-import { useSelector } from 'react-redux';
-import { StateType } from "@/lib/store"
-import { useRouter } from "next/router"
-
 const Banner = styled.div`
 width: 100%;
 height: 300px;
@@ -40,8 +36,6 @@ const ProfileHolder = styled(Holder)`
 
 
 export default function UserPage(data: any) {
-    const isDark = useSelector<StateType, boolean>(state => state.theme);
-    const router = useRouter()
     const profileData = data
     return (
         <>

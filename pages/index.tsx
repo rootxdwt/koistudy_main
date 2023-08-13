@@ -1,9 +1,25 @@
-import styled, { keyframes } from "styled-components"
+import styled, { keyframes, createGlobalStyle } from "styled-components"
 import { useEffect, useState, useRef } from "react"
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 import Head from "next/head"
 import { useRouter } from "next/router"
-import { GlobalStyle } from "@/lib/ui/DefaultComponent"
+
+
+const GlobalStyle = createGlobalStyle`
+a {
+	text-decoration: none;
+}
+
+
+  body,html {
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    overflow: auto;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+    
+`
 
 const Holder = styled.div`
   padding: 0;
@@ -19,18 +35,22 @@ height: 100vh;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #1b1c1e;
+  background-color: #fff;
   overflow: hidden;
 `
 
 const StartBtn = styled.p`
-  color: #fff;
+  color: #000;
   margin-top: 100px;
   cursor: pointer;
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: solid 1px rgba(255,255,255,.5);
-  background-color: rgba(255,255,255,.2);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  border-radius: 10px;
+  border: solid 2px #1d1d1d;
+  background-color: #fff;
 `
 
 const H1Align = styled.div`
@@ -45,7 +65,7 @@ const H1Align = styled.div`
 
   & h1{
     margin: 0;
-    color: rgba(255,255,255,0.3);
+    color: rgba(0,0,0,0.4);
     margin: 0px 10px;
     font-size: 30px;
     line-height: 50px;
@@ -99,7 +119,7 @@ const IntroText = styled.div`
   position: relative;
   align-items: center;
   & h1.attr {
-    color: rgb(220, 220, 220);
+    color: rgb(20, 20, 20);
     font-size: 30px;
     line-height: 50px;
     font-weight: 800;
@@ -150,11 +170,11 @@ const IntroText = styled.div`
 const Box = styled.div`
     height: 100px;
     width: 200px;
-    background-color: rgb(40, 40, 40);
+    background-color: rgb(220,220,220);
     margin: 0px 10px;
     flex-shrink: 0;
     border-radius: 20px;
-    border: solid 2px rgb(60, 60, 60);
+    border: solid 2px #1d1d1d;
     cursor: pointer;
     display: flex;
     color: #fff;
@@ -164,7 +184,7 @@ const Box = styled.div`
     &:hover {
       transform: scale(0.98);
     }
-    color: rgba(255,255,255,.8);
+    color: rgba(0,0,0,.8);
 `
 const LeftBlurBorder = styled.div`
   height: 104px;
@@ -172,11 +192,11 @@ const LeftBlurBorder = styled.div`
   left: 0;
   width: 30px;
   z-index: 10;
-  background: linear-gradient(90deg, #1b1c1e 0%, rgba(255,255,255,0) 100%);
+  background: linear-gradient(90deg, #fff 0%, rgba(0,0,0,0) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.theme.Body.TextColorLevels[3]};
+  color: rgb(50,50,50);
   padding-right: 20px;
   font-size: 20px;
   cursor: pointer;
@@ -187,7 +207,7 @@ const LeftBlurBorder = styled.div`
 const RightBlurBorder = styled(LeftBlurBorder)`
   right: 0;
   left:auto;
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #1b1c1e 100%);
+  background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #fff 100%);
   padding-right: 0;
   padding-left: 20px;
 `

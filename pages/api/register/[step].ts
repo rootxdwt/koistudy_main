@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import userSchema from '@/lib/schema/userSchema';
+import OrgSchema from '@/lib/schema/orgSchema'
 import mongoose from 'mongoose';
 import { createClient } from 'redis';
 import crypto from "crypto"
@@ -17,6 +18,7 @@ export default async function handler(
         const requestedData = JSON.parse(req.body)
         let authKey = requestedData["key"]
         let redisTempData: any = await client.get(authKey)
+        console.log(redisTempData)
 
         if (redisTempData == null) {
             res.status(401).json({ status: 'Failed', detail: 'Registeration key expired' })
@@ -40,6 +42,48 @@ export default async function handler(
             return
 
         } else if (parseInt(step) === 1) {
+
+            console.log(requestedData["key"])
+
+            if (requestedData["orgCode"]) {
+                const OrgData = JSON.parse(JSON.stringify(await OrgSchema.aggregate([
+                    {
+                        "$match": {
+                            "RegCodes": { "$elemMatch": { data: requestedData["orgCode"] } }
+                        }
+                    },
+                    {
+                        $project: {
+                            Name: 1,
+                            OrgCode: 1,
+                            RegCodes: {
+                                $filter: {
+                                    input: "$RegCodes",
+                                    as: "regCode",
+                                    cond: {
+                                        $eq: ["$$regCode.data", requestedData["orgCode"]]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            Name: 1,
+                            OrgCode: 1,
+                            _id: 0,
+                            "RegCodes.classlabel": 1,
+                            "RegCodes.class": 1,
+                        }
+                    }
+                ])))
+                redisTempData["Org"] = { id: OrgData[0].OrgCode, class: OrgData[0].RegCodes[0].class }
+            }
+
+            await userSchema.create(redisTempData)
+
+            res.status(200).json({ status: 'Success' })
+
 
         } else {
             res.status(400).json({ status: 'Failed', detail: "none" })

@@ -41,7 +41,6 @@ const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number }>`
 user-select: none;
 position: absolute;
 bottom:0;
-border-top: solid 2px ${props => props.theme.Button.backgroundColor};
 width: calc(100% - 30px);
 padding: 0px 15px;
 margin-top: 20px;

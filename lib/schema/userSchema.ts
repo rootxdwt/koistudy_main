@@ -13,7 +13,8 @@ const UserSchema = new mongoose.Schema({
     RegDate: { type: Date, default: Date.now },
     Banner: { type: String, default: "" },
     Favorites: { type: [{ id: String }] },
-    Badges: { type: [{ id: String }] }
+    Badges: { type: [{ id: String }] },
+    Org: { type: { id: String, class: String } }
 })
 const model = mongoose.models.Users || mongoose.model("Users", UserSchema);
 export default model

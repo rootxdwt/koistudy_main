@@ -1,9 +1,8 @@
 import { useSelector } from "react-redux";
 import { StateType } from "@/lib/store";
 import { DarkTheme, LightTheme } from "@/lib/ui/theme";
-import { ThemeProvider } from "styled-components";
-import { GlobalStyle } from "@/lib/ui/DefaultComponent";
-import styled from "styled-components";
+import { ThemeProvider, keyframes } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Header } from "@/lib/ui/component/header";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -15,30 +14,84 @@ import crypto from "crypto";
 import { genId } from "@/lib/pref/idGenerator";
 import { generateJWT } from "@/lib/customCrypto";
 import Head from "next/head";
+import { BsArrowRightShort, BsCheck } from 'react-icons/bs'
+import { GrFormSearch } from 'react-icons/gr'
+import Link from "next/link";
 
-const NormalInput = styled.input`
+const GlobalStyle = createGlobalStyle`
+a {
+	text-decoration: none;
+}
+
+
+  body,html {
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    overflow: auto;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+    
+`
+
+
+const NormalInput = styled.div`
+width: 100%;
+position: relative;
+& input {
     background-color: transparent;
     border: none;
-    padding: 8px 0px;
+    padding: 0px 15px;
+    width: 100%;
+    height: 40px;
     max-width: 300px;
-    border: solid 1px ${(props) => props.theme.Body.ContainerBgLevels[0]};
-    color:${(props) => props.theme.Body.TextColorLevels[1]};
+    border: solid 2px #1d1d1d;
+    
+    color: #1d1d1d;
     margin-top: 10px;
-    font-size: 13px;
-    border-radius: 5px;
+    font-size: 14px;
+    border-radius: 10px;
+    font-weight: 400;
     &:focus {
         outline: none;
+        border-color: rgb(131,81,246);
     }
     letter-spacing: 2px;
-    text-align: center;
+    text-align: start;
     margin-top: 20px;
-    width: 100%;
-    background-color: ${(props) => props.theme.Container.backgroundColor};
-`;
+    width: calc(100% - 34px);
+
+    &::placeholder {
+        color: #3e3e3e;
+    }
+}
+`
+const SubmitBtn = styled.div<{ isShown: boolean }>`
+position: absolute;
+width: 25px;
+height: 25px;
+right: 9px;
+bottom: 9px;
+border-radius: 6px;
+background-color: #1d1d1d;
+cursor: pointer;
+align-items: center;
+justify-content: center;
+color: #fff;
+font-size: 24px;
+display: ${props => props.isShown ? "flex" : "none"};
+& path {
+    stroke: #fff;
+}
+&:hover {
+    background-color: rgb(107,157,248);
+}
+`
+
 const ParentContainer = styled.div`
 
 display:flex;
-color: ${(props) => props.theme.Body.TextColorLevels[2]};
+color: rgb(75, 75, 75);
 font-family: 'Open Sans', sans-serif;
 position: relative;
 height: 100vh;
@@ -54,10 +107,10 @@ margin-right: auto;
     border: none;
 }
 & h1 {
-    font-size: 20px;
+    font-size: 25px;
     margin: 0px;
     margin-top: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
 }
 
 overflow: hidden;
@@ -66,23 +119,42 @@ overflow: hidden;
 
 const BtnHolder = styled.div`
     margin-top: 20px;
-    padding-top: 20px;
     display: flex;
     width: 100%;
     justify-content: flex-end;
-    border-top: solid 2px ${(props) => props.theme.Button.backgroundColor};
-`;
-const NextBtn = styled.div`
-    background-color: ${(props) => props.theme.Button.backgroundColor};
-    padding: 7px 25px;
-    border-radius: 5px;
-    font-size: 13px;
+`
+const BtnArray = styled.div`
+    display: flex;
+    width: 100%;
+    margin-top: 15px;
+`
+const NextBtn = styled.div<{ borderOnly?: boolean, disabled?: boolean }>`
+    background-color: ${props => props.borderOnly ? "transparent" : "#1d1d1d"};
+    filter: ${props => props.disabled ? "brightness(6)" : "none"};
+    border: solid 2px #1d1d1d;
+    width: 100%;
+    color: ${props => props.borderOnly ? "#1d1d1d" : "#fff"};
+    height: 40px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color:  ${(props) => props.theme.Body.TextColorLevels[3]};
-    &:hover {
-        background-color: ${(props) => props.theme.Body.ContainerBgLevels[0]};
+    &:nth-child(1) {
+        margin-right: 10px;
     }
 `;
+
+const mainholderLoadKeyframes = keyframes`
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity:1;
+    }
+`
+
 const MainContainer = styled.div`
 display: flex;
 padding: 30px 50px;
@@ -94,39 +166,90 @@ transform: translate(-50%,-50%);
 justify-content:center;
 border-radius: 5px;
 align-items: center;
-width: 250px;
+width: 290px;
+animation: ${mainholderLoadKeyframes} 0.3s ease-in-out;
 & .min {
     font-size: 10px;
 }
 & .sub {
-    color:  ${(props) => props.theme.Body.TextColorLevels[3]};
+    color: rgb(115,115,115);
     margin: 0;
-    font-size: 11px;
+    font-size: 12px;
     margin-bottom: 10px;
 }
-width: 250px;
 border-radius: 5px;
 `;
 
-const PolicyContainer = styled.div`
-font-size: 11px;
-margin-top: 20px;
-& a {
-    color: ${(props) => props.theme.Body.TextColorLevels[1]};
-}
-`
+
 
 const AlertfulContainer = styled.div`
+    & p {
+        margin: 0;
+        margin-bottom: 10px;
+    }
+    & a {
+        text-decoration: underline;
+        color: rgb(115, 115, 115);
+        font-weight: 500;
+    }
     height: 16.5px;
     bottom: 30px;
     margin-top: 20px;
     right: 30px;
-    text-align: end;
+    text-align: center;
     width: 100%;
     border-radius: 5px;
     font-size: 12px;
-    color: ${props => props.theme.Body.TextColorLevels[3]};
+    color: rgb(115, 115, 115);
 `
+
+const DataHolder = styled.div`
+padding: 10px 15px;
+text-align: left;
+width: calc(100% - 34px);
+border: solid 2px #000;
+border-radius: 10px;
+& p {
+    margin: 0;
+    font-size: 17px;
+}
+& div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+& .check {
+    font-size: 20px;
+    margin: 0;
+    padding: 0;
+    
+}
+& span {
+    font-size: 14px;
+    color: #8a8a8a;
+}
+    
+`
+
+const LoadingAnimation = keyframes`
+0%{
+    rotate: 0deg;
+}
+100%{
+    rotate: 360deg;
+}
+`
+
+const Loading = styled.span`
+    width: 25px;
+    height: 25px;
+    display: block;
+    border-radius: 25px;
+    border: solid 3px #1d1d1d;
+    border-top: solid 2px transparent;
+    animation: ${LoadingAnimation} 1s ease infinite;
+`
+
 
 interface loginResp {
     status: "Failed" | "Success";
@@ -143,7 +266,6 @@ interface loginResp {
 }
 
 export default function Login(serverData: any) {
-    const isDark = useSelector<StateType, boolean>((state) => state.theme);
 
     const [redirResult, setresult] = useState<loginResp>();
 
@@ -151,10 +273,16 @@ export default function Login(serverData: any) {
     const [currentStep, setStep] = useState<number>(0);
     const router = useRouter();
     const NameDataRef = useRef<any>();
+    const OrgCodeRef = useRef<any>()
     const [AlertData, setAlertData] = useState<string | undefined>()
+    const [isCompFilled, setCompFilled] = useState(false)
+    const [orgData, setOrgData] = useState<any>()
+    const [orgCode, setOrgCode] = useState("")
+    const [isPageLoading, setPageLoading] = useState(false)
 
     const GotoStep = (step: number, data: object) => {
         setAlertData(undefined)
+        setPageLoading(true)
         fetch(`/api/register/${step - 1}`, {
             method: "POST",
             body: JSON.stringify({ key: key, ...data }),
@@ -163,6 +291,7 @@ export default function Login(serverData: any) {
                 return resp.json();
             })
             .then((data) => {
+                setPageLoading(false)
                 if (data.status == "Success") {
                     setresult(data);
                     setStep(step);
@@ -188,6 +317,15 @@ export default function Login(serverData: any) {
         }
     }, [router.isReady, router]);
 
+    const VerifyCode = async () => {
+        setOrgCode(OrgCodeRef.current.value)
+        const resp = await fetch("/api/org/code", { method: "POST", body: JSON.stringify({ code: OrgCodeRef.current.value }), headers: { "Content-Type": "application/json" } })
+        const responseData = await resp.json()
+        if (responseData["status"] == "Success" && responseData["data"] != null) {
+            setOrgData(responseData["data"])
+        }
+    }
+
     return (
         <>
             <Head>
@@ -197,10 +335,10 @@ export default function Login(serverData: any) {
             </Head>
 
             <GlobalStyle />
-            <Header currentPage="login" />
+
             {redirResult ? (
                 <ParentContainer>
-                    <MainContainer>
+                    {isPageLoading ? <><Loading /></> : <MainContainer>
                         {redirResult.status == "Success" ? (
                             redirResult.accountExists ? (
                                 <></>
@@ -209,26 +347,65 @@ export default function Login(serverData: any) {
                                     {currentStep == 0 ? (
                                         <>
                                             <h1>이름을 알려주세요</h1>
-                                            <p className="sub">가입 후 언제든지 바꿀 수 있습니다</p>
-                                            <NormalInput
-                                                placeholder={redirResult.accData?.Id}
-                                                ref={NameDataRef}
-                                            />
+                                            <NormalInput>
+                                                <input placeholder={redirResult.accData?.Id}
+                                                    ref={NameDataRef} />
+                                                <SubmitBtn isShown={true} onClick={() =>
+                                                    GotoStep(1, { name: NameDataRef.current.value })
+                                                }>
+                                                    <BsArrowRightShort />
+                                                </SubmitBtn>
+                                            </NormalInput>
                                             <BtnHolder>
-                                                <NextBtn
-                                                    onClick={() =>
-                                                        GotoStep(1, { name: NameDataRef.current.value })
-                                                    }
-                                                >
-                                                    계속하기
-                                                </NextBtn>
                                             </BtnHolder>
                                         </>
                                     ) : (
                                         <>
                                             {currentStep == 1 ? (
                                                 <>
-                                                    <h1>단체에 속해 있으신가요?</h1>
+                                                    {typeof orgData !== "undefined" ? <h1>아래 정보로 계속합니다</h1> : <h1>단체에 속해 있으신가요?</h1>}
+
+                                                    {typeof orgData !== "undefined" ? <DataHolder>
+                                                        <div>
+                                                            <p>{orgData.Name}</p>
+                                                            <b className="check">
+
+                                                                <BsCheck />
+                                                            </b>
+                                                        </div>
+
+                                                        <span>{orgData.RegCodes[0].class}{orgData.RegCodes[0].classlabel}</span>
+                                                    </DataHolder> :
+                                                        <NormalInput>
+                                                            <input placeholder="초대 코드를 입력하세요"
+                                                                ref={OrgCodeRef} onChange={(e) => setCompFilled(e.target.value.length > 0)} />
+                                                            <SubmitBtn isShown={isCompFilled} onClick={VerifyCode}>
+                                                                <GrFormSearch />
+                                                            </SubmitBtn>
+                                                        </NormalInput>
+                                                    }
+                                                    <BtnArray>
+                                                        <NextBtn
+                                                            borderOnly={true}
+                                                            onClick={() =>
+
+                                                                GotoStep(2, { orgCode: null })
+                                                            }
+                                                        >
+                                                            건너뛰기
+                                                        </NextBtn>
+                                                        <NextBtn
+                                                            disabled={typeof orgData == "undefined"}
+                                                            onClick={() => {
+                                                                if (typeof orgData !== "undefined") GotoStep(2, { orgCode: orgCode })
+                                                            }
+                                                            }
+                                                        >
+                                                            계속하기
+                                                        </NextBtn>
+                                                    </BtnArray>
+
+
                                                 </>
                                             ) : (
                                                 <h1>가입이 완료되었습니다</h1>
@@ -238,15 +415,19 @@ export default function Login(serverData: any) {
                                 </>
                             )
                         ) : (
-                            <>오류가 발생했습니다</>
+                            <>다시 시도해보세요</>
                         )}
                         <AlertfulContainer>
-                            {AlertData}
+                            {AlertData || redirResult.detail ?
+                                <p>
+                                    {AlertData}
+                                    {redirResult.detail ? "Detail:" + redirResult.detail : ""}
+                                </p> : <></>
+                            }
+
+                            <Link href="/auth">로그인 페이지로 돌아가기</Link>
                         </AlertfulContainer>
-                    </MainContainer>
-                    <PolicyContainer>
-                        {redirResult.detail ? "Detail:" + redirResult.detail : ""}
-                    </PolicyContainer>
+                    </MainContainer>}
                 </ParentContainer>
             ) : (
                 <>잠시만 기다려주세요..</>
