@@ -190,7 +190,7 @@ export default function Login(data: any) {
 
         setLoad(true)
         const interval = setInterval(() => router.replace(router.asPath), 600000)
-        setStateValue(Buffer.from(JSON.stringify({ nonce: data.nonce, redir: router.query.redir })).toString('base64'))
+        setStateValue(Buffer.from(JSON.stringify({ nonce: data.nonce, redir: router.query.redir, orgRegKey: router.query.orgRegKey })).toString('base64'))
         console.log(stateValue)
         return () => clearInterval(interval)
     }, [])

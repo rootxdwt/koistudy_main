@@ -49,6 +49,7 @@ export default async function handler(
 
         if (data.length < 1) {
             res.status(200).json({ data: null, status: "Success" })
+            return
         }
 
         res.status(200).json({ data: data[0], status: "Success" })

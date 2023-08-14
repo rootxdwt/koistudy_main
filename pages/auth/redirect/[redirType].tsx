@@ -134,7 +134,7 @@ const NextBtn = styled.div<{ borderOnly?: boolean, disabled?: boolean }>`
     border: solid 2px #1d1d1d;
     width: 100%;
     color: ${props => props.borderOnly ? "#1d1d1d" : "#fff"};
-    height: 40px;
+    height: 35px;
     border-radius: 10px;
     font-size: 14px;
     display: flex;
@@ -217,6 +217,12 @@ border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+& a {
+    font-size: 12px;
+    text-decoration: underline;
+    color: #5f5f5f;
+    cursor: pointer;
 }
 & .check {
     font-size: 20px;
@@ -315,11 +321,22 @@ export default function Login(serverData: any) {
                 }
             }
         }
-    }, [router.isReady, router]);
+    }, [router.isReady, router, serverData]);
 
-    const VerifyCode = async () => {
-        setOrgCode(OrgCodeRef.current.value)
-        const resp = await fetch("/api/org/code", { method: "POST", body: JSON.stringify({ code: OrgCodeRef.current.value }), headers: { "Content-Type": "application/json" } })
+    useEffect(() => {
+        if (currentStep == 1) {
+            let urlQuery: any = router.query.state
+            if (typeof urlQuery !== "undefined") {
+                const { orgRegKey } = JSON.parse(Buffer.from(urlQuery, 'base64').toString('ascii'))
+                console.log(orgRegKey)
+                if (typeof orgRegKey !== "undefined") VerifyCode(orgRegKey)
+            }
+        }
+    }, [currentStep, router.query.state])
+
+    const VerifyCode = async (code: string) => {
+        setOrgCode(code)
+        const resp = await fetch("/api/org/code", { method: "POST", body: JSON.stringify({ code: code }), headers: { "Content-Type": "application/json" } })
         const responseData = await resp.json()
         if (responseData["status"] == "Success" && responseData["data"] != null) {
             setOrgData(responseData["data"])
@@ -374,12 +391,17 @@ export default function Login(serverData: any) {
                                                             </b>
                                                         </div>
 
-                                                        <span>{orgData.RegCodes[0].class}{orgData.RegCodes[0].classlabel}</span>
+                                                        <div>
+                                                            <span>{orgData.RegCodes[0].class}{orgData.RegCodes[0].classlabel}</span>
+                                                            <a onClick={() => setOrgData(undefined)}>
+                                                                다시 선택하기
+                                                            </a>
+                                                        </div>
                                                     </DataHolder> :
                                                         <NormalInput>
                                                             <input placeholder="초대 코드를 입력하세요"
                                                                 ref={OrgCodeRef} onChange={(e) => setCompFilled(e.target.value.length > 0)} />
-                                                            <SubmitBtn isShown={isCompFilled} onClick={VerifyCode}>
+                                                            <SubmitBtn isShown={isCompFilled} onClick={() => VerifyCode(OrgCodeRef.current.value)}>
                                                                 <GrFormSearch />
                                                             </SubmitBtn>
                                                         </NormalInput>
