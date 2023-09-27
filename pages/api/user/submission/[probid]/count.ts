@@ -11,7 +11,11 @@ export default async function handler(
         if (req.method == "GET") {
 
             const uid = req.headers["x-middleware-uid"]
-            const url = 'mongodb://localhost:27017/main';
+            const url = process.env.MONGOCONNSTR!;
+            if(!url) {
+                res.status(500)
+                return
+            }
             mongoose.connect(url)
             const { probid } = req.query
             const target = sanitize(probid)

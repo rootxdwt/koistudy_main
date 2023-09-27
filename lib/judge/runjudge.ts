@@ -1,4 +1,5 @@
 import { Docker } from "node-docker-api";
+
 import { Container } from "node-docker-api/lib/container";
 import { spawn, exec } from "child_process";
 import fs from 'fs/promises'
@@ -119,7 +120,7 @@ export class Judge {
             AttachStdout: true,
             AttachStderr: true,
         });
-        const stream: any = await containerExecutor.start({ Detach: false })
+        const stream: any = await containerExecutor.start({ Detach: false,stdin:true })
 
         return await new Promise((resolve, reject) => {
             let udata = '';
@@ -150,7 +151,14 @@ export class Judge {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
         }
-        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
+
+        const containerExecutor= await cont.exec.create({
+            Cmd: ["/bin/sh", "-c", runCommand],
+            AttachStdout: true,
+            AttachStderr: true,
+            AttachStdin:true,
+        });
+        return await containerExecutor.start({ Detach: false, stdin:true })
     }
 
     endInput = async (cont: Container) => {

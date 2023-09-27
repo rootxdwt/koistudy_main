@@ -1,5 +1,5 @@
 {
-	"name": "ps",
+	"name": "koistudy",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
@@ -11,7 +11,6 @@
 	"dependencies": {
 		"@next/font": "13.2.4",
 		"@reduxjs/toolkit": "^1.9.3",
-		"@sentry/nextjs": "^7.53.1",
 		"@types/codemirror": "^5.60.7",
 		"@types/node": "18.15.11",
 		"@types/react": "18.0.31",
@@ -57,6 +56,7 @@
 		"unified": "^10.1.2"
 	},
 	"devDependencies": {
+		"@types/dockerode": "^3.3.19",
 		"@types/mongo-sanitize": "^1.0.1",
 		"@types/nprogress": "^0.2.0",
 		"@types/react-syntax-highlighter": "^15.5.6"

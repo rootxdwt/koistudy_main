@@ -59,7 +59,7 @@ export default function UserPage(data: any) {
 }
 
 export const getServerSideProps = async (context: any) => {
-    const url = 'mongodb://localhost:27017/main';
+    const url = process.env.MONGOCONNSTR!;
     mongoose.connect(url)
     const { userId } = context.query;
 

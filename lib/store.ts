@@ -1,8 +1,8 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit'
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
-
+import createWebStorage from 'redux-persist/lib/storage/createWebStorage';
 import { persistReducer, persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+  
 
 const initialState = { theme: true, }
 const slice = createSlice({
@@ -23,6 +23,24 @@ const slice = createSlice({
     },
 });
 
+const createNoopStorage = () => {
+    return {
+      getItem(_key: any) {
+        return Promise.resolve(null);
+      },
+      setItem(_key: any, value: any) {
+        return Promise.resolve(value);
+      },
+      removeItem(_key: any) {
+        return Promise.resolve();
+      },
+    };
+  };
+  
+  const storage =
+    typeof window === 'undefined'
+      ? createNoopStorage()
+      : createWebStorage('local');
 
 const persistConfig = {
     key: 'root',

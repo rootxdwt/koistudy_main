@@ -47,7 +47,7 @@ export const CodeElem = (prop: { lang?: AcceptableLanguage | "shell", data: stri
         setTimeout(() => setIsCopied(false), 1000)
     }
 
-    let lang
+    let lang:any
     if (typeof prop.lang == "string") {
         lang = prop.lang
     }

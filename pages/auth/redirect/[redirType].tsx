@@ -491,16 +491,18 @@ export async function getServerSideProps(context: any) {
         }
         await client.del(nonce);
         let uid;
-        const url = "mongodb://localhost:27017/main";
-        mongoose.connect(url);
         if (
             typeof process.env.JWTKEY === "undefined" ||
             typeof process.env.GOOGLEPRIVATE === "undefined" ||
-            typeof process.env.GITHUBPRIVATE === "undefined"
+            typeof process.env.GITHUBPRIVATE === "undefined" ||
+            typeof process.env.MONGOCONNSTR === "undefined"
         ) {
             console.log("JWTKEY not specified in .env");
             return { props: { detail: "error" } };
         }
+
+        const url = process.env.MONGOCONNSTR;
+        mongoose.connect(url);
 
         if (redirType == "github") {
             var rsp = await fetch(
@@ -558,6 +560,10 @@ export async function getServerSideProps(context: any) {
                 `https://oauth2.googleapis.com/tokeninfo?id_token=${respJsn.id_token}`
             );
 
+            if(infoReq.status !== 200) {
+                return { props: { detail: "error" } };
+            }
+
             const userData: IdToken = await infoReq.json();
 
             const data = await userSchema.find({ Mail: userData.email });
@@ -588,6 +594,7 @@ export async function getServerSideProps(context: any) {
             }
         }
     } catch (e) {
+        console.log(e)
         return { props: { detail: "unknown error" } };
     }
 }

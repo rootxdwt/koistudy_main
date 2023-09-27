@@ -5,6 +5,7 @@ import { Judge } from "@/lib/judge/runjudge";
 import { Container } from "node-docker-api/lib/container";
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { verifyJWT } from "@/lib/customCrypto";
+import { Exec } from "node-docker-api/lib/container";
 
 export const config = {
     api: {
@@ -37,7 +38,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
         });
 
         io.on('connection', async socket => {
-            let baseCommand: ChildProcessWithoutNullStreams
+            let baseCommand: any
             socket.on('input', async msg => {
                 try {
                     baseCommand.stdin.write(msg)
@@ -58,7 +59,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                     await judge.compileCode(container)
                     baseCommand = await judge.runInput(container)
                     let outdata = ""
-                    baseCommand.stdout.on('data', async (data) => {
+                    baseCommand.stdout.on('data', async (data:Buffer) => {
                         outdata += data.toString()
                         if (data.length > 1000 || outdata.length > 1000) {
                             await judge.endInput(container)
@@ -67,12 +68,12 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                         }
                         socket.emit('data', data.toString())
                     })
-                    baseCommand.stderr.on('data', async (data) => {
+                    baseCommand.stderr.on('data', async (data:Buffer) => {
                         await judge.endInput(container)
                         socket.emit('error', data.toString())
                         socket.disconnect()
                     })
-                    baseCommand.on('close', async (code) => {
+                    baseCommand.on('close', async (code:number) => {
                         socket.emit("end", `${outdata}\nexited with code ${code}`)
                         await judge.endInput(container)
                         socket.disconnect()

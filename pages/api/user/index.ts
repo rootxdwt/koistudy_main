@@ -9,7 +9,11 @@ export default async function handler(
 ) {
     try {
         const uid = req.headers["x-middleware-uid"]
-        const url = 'mongodb://localhost:27017/main';
+        const url = process.env.MONGOCONNSTR!;
+        if(!url) {
+            res.status(500)
+            return
+        }
         mongoose.connect(url)
         const data = await userSchema.find({ Uid: uid, }, 'Id Mail MailVerified Uid -_id PfpURL isAdmin Rank')
         res.status(200).json(data[0])

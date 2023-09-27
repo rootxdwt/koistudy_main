@@ -11,7 +11,11 @@ export default async function handler(
         if (req.method !== 'POST') {
             res.status(405).json({ status: 'Failed', detail: 'method not allowed' })
         }
-        const url = 'mongodb://localhost:27017/main';
+        const url = process.env.MONGOCONNSTR!;
+        if(!url) {
+            res.status(500)
+            return
+        }
         mongoose.connect(url)
         const { code } = req.body
 

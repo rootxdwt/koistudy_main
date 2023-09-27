@@ -7,7 +7,11 @@ export default async function handler(
     res: NextApiResponse
 ) {
     try {
-        const url = 'mongodb://localhost:27017/main';
+        const url = process.env.MONGOCONNSTR!;
+        if(!url) {
+            res.status(500)
+            return
+        }
         mongoose.connect(url)
         const data = await ProblemModel.find({}, ' -Script -TestProgress -_id -Mem')
         res.status(200).json(data)

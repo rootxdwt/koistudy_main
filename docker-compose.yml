@@ -1,0 +1,7 @@
+version: '0.1'
+
+services:
+  koistudy-main:
+    
+  redis:
+    image: "redis:alpine"

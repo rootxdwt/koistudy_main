@@ -50,7 +50,11 @@ export default async function handler(
         } else {
             await client.set(uid, 'true', { EX: 60 });
         }
-        const url = 'mongodb://localhost:27017/main';
+        const url = process.env.MONGOCONNSTR!;
+        if(!url) {
+            res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "ISE" })
+            return
+        }
         mongoose.connect(url)
 
         const { TestProgress, SupportedLang, Mem } = JSON.parse(JSON.stringify(data))

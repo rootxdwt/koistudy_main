@@ -569,8 +569,13 @@ export default function Problem(data: any): JSX.Element {
 }
 
 export const getServerSideProps = async (context: any) => {
-    const url = 'mongodb://localhost:27017/main';
-    mongoose.connect(url)
+    if (
+        typeof process.env.MONGOCONNSTR === "undefined"
+    ) {
+        console.log("DB Connection str not specified in .env");
+        return { props: { detail: "error" } };
+    }
+    mongoose.connect(process.env.MONGOCONNSTR)
     const { id } = context.query;
 
     if (["description", "submission", "champion"].indexOf(id[1]) == -1) {

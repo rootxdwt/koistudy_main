@@ -28,7 +28,11 @@ export default async function handler(
         let { step } = req.query
         step = step![0]
 
-        const url = 'mongodb://localhost:27017/main';
+        const url = process.env.MONGOCONNSTR!;
+        if(!url) {
+            res.status(500)
+            return
+        }
         mongoose.connect(url)
 
         if (parseInt(step) === 0) {
