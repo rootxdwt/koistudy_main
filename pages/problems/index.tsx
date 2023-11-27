@@ -4,7 +4,7 @@ import { Header } from "@/lib/ui/component/header"
 const Holder = styled.div`
     background-color: ${props => props.theme.Body.backgroundColor};
     padding-top: 60px;
-    width: 90%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     display: flex;

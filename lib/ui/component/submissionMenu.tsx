@@ -8,6 +8,10 @@ import {
 import { FiChevronDown } from 'react-icons/fi'
 import { AC, AW, TLE } from "../DefaultComponent"
 import { useRouter } from "next/router"
+import { Button } from "../DefaultComponent"
+import { LanguageHandler } from "@/lib/pref/languageLib"
+import { DropDownMenu } from "./dropdownmenu"
+import { AcceptableLanguage } from "@/lib/pref/languageLib"
 
 const LoadingAnimation = keyframes`
 0%{
@@ -37,7 +41,7 @@ const Circle = styled.span<{ Color: string }>`
     position: relative;
 `
 
-const SubmissionResult = styled.div<{ isExtended: boolean, tcLength: number }>`
+const SubmissionResult = styled.div<{ isExtended: boolean, }>`
 user-select: none;
 position: absolute;
 bottom:0;
@@ -54,9 +58,8 @@ z-index:2;
 flex-direction: column;
 align-items:flex-start;
 background-color:${props => props.theme.Body.backgroundColor};
-border-top: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
 
-height: ${props => props.isExtended ? props.tcLength * 45 + 120 + "px" : "50px"};
+height: 50px;
 outline:none;
 -webkit-tap-highlight-color: rgba(0,0,0,0);
 transition: height 0.5s cubic-bezier(.5,0,.56,.99);
@@ -107,7 +110,7 @@ transition: height 0.5s cubic-bezier(.5,0,.56,.99);
 }
 & .btm {
     transition: height 0.5s cubic-bezier(.5,0,.56,.99);
-    height:${props => props.isExtended ? props.tcLength * 45 + 60 + "px" : "0px"};
+    height:0px;
     overflow:${props => props.isExtended ? "scroll" : "hidden"};
     overflow-x: hidden;
     -ms-overflow-style: none;
@@ -181,56 +184,62 @@ color: ${props => props.theme.Body.TextColorLevels[3]};
 
 `
 
+const DefaultSubmissionAreaBtn = styled(Button)`
+border: solid 2px ${props => props.theme.Container.backgroundColor};
+&:hover {
+    border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
+}
+height: 27.5px;
+user-select: none;
+font-size: 12px;
+margin: 0;
+margin-left: 10px;
+`
+
+const SubmitBtn = styled(DefaultSubmissionAreaBtn)`
+width:auto;
+padding: 0px 20px;
+background-color: ${props => props.theme.Body.TextColorLevels[3]};
+color: ${props => props.theme.Body.backgroundColor};
+`
+
+
+
 export interface JudgeResponse {
     errorStatement: string
     matchedTestCase: Array<{ matched: boolean, tle: boolean, lim: number, exect: number, memory: number }>
     status: "Success" | "Error" | ""
 }
 
-export const SubmitResult = (props: { contextData: JudgeResponse | undefined, isJudging: boolean }) => {
-    const [caseDetail, setCaseDetail] = useState<number>()
-    const [isResultExtended, setExtended] = useState(false)
-    const router = useRouter()
-
-    let contextData: JudgeResponse
-
-    if (typeof props.contextData == "undefined") {
-        contextData = {
-            errorStatement: "",
-            status: "",
-            matchedTestCase: []
-        }
-    } else {
-        contextData = props.contextData
-    }
-
-
-    useEffect(() => {
-        if (contextData.matchedTestCase.every(elem => elem.matched)) {
-            setCaseDetail(0)
-        } else {
-            setCaseDetail(contextData.matchedTestCase.map(elem => elem.matched).indexOf(false))
-        }
-    }, [contextData])
-
+export const SubmitResult = (props:
+    {
+        currentCodeType: AcceptableLanguage,
+        SupportedLang: AcceptableLanguage[],
+        runFn: Function,
+        submitFn: Function,
+        setCodeType: Function
+    }) => {
     return (
         <SubmissionResult
-            isExtended={isResultExtended}
-            tcLength={contextData.matchedTestCase.length > 5 ? 7 : contextData.matchedTestCase.length + 2}
+            isExtended={false}
         >
-            <div className="top" onClick={() => { if (contextData.errorStatement == "NONE") setExtended(!isResultExtended) }}>
-                <div className="tHolder">
-                    <Circle Color={contextData.status == "Success" ? "#48bd5f" : contextData.status == "" ? "#919191" : "#bd4848"} />
-                </div>
+            <div className="top">
+                <DropDownMenu
+                    active={props.currentCodeType}
+                    dropType="up"
+                    items={props.SupportedLang}
+                    displayName={props.SupportedLang.map(
+                        (elem) => {
+                            return { name: elem, displayName: new LanguageHandler(elem, "").getLangFullName() }
+                        }
+                    )}
+                    clickEventHandler={props.setCodeType} />
                 <div className="mHolder">
-                    <p>{props.isJudging ? "채점중입니다" : contextData.status == "" ? "여기에 채점 결과가 표시됩니다" : contextData.status == "Error" ? contextData.errorStatement == "CE" ? "컴파일 에러가 발생했습니다" : contextData.errorStatement == "ISE" ? "런타임 에러가 발생했습니다" : "틀렸습니다" : "맞았습니다"} </p>
-                    <p className="icon">
-                        {contextData.errorStatement == "NONE" ? <FiChevronDown /> : props.isJudging ? <Loading /> : <></>}
-                    </p>
+                    <SubmitBtn onClick={() => props.runFn()}>실행</SubmitBtn>
+                    <SubmitBtn onClick={() => props.submitFn()}>제출</SubmitBtn>
                 </div>
-
             </div>
-            <div className="btm">
+            {/* <div className="btm">
                 <h3 className="tch3">테스트 케이스</h3>
                 <p className="ptge">{
                     Math.round((contextData.matchedTestCase.filter(itm => itm.matched == true).length / contextData.matchedTestCase.length) * 100)
@@ -264,7 +273,7 @@ export const SubmitResult = (props: { contextData: JudgeResponse | undefined, is
                         )
                     })}
                 </TCholder>
-            </div>
+            </div> */}
         </SubmissionResult>
     )
 }

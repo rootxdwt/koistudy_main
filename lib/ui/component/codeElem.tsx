@@ -47,7 +47,7 @@ export const CodeElem = (prop: { lang?: AcceptableLanguage | "shell", data: stri
         setTimeout(() => setIsCopied(false), 1000)
     }
 
-    let lang:any
+    let lang: any
     if (typeof prop.lang == "string") {
         lang = prop.lang
     }
@@ -129,7 +129,10 @@ export const SubmittedCodeElem = (prop: { lang?: AcceptableLanguage | "shell", d
     } else {
         lang = prop.lang
     }
-    return <SubmittedCodeHolder onMouseEnter={() => setIsActive(true)} onMouseLeave={() => setIsActive(false)} isExtended={false}>
+    return <SubmittedCodeHolder
+        onMouseEnter={() => setIsActive(true)}
+        onMouseLeave={() => setIsActive(false)}
+        isExtended={false}>
         <CodeMirror
             editable={false}
             basicSetup={

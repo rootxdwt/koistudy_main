@@ -19,6 +19,9 @@ export const DarkTheme = {
         backgroundColor: "rgb(40,40,40)",
         textColor: "rgb(60,60,60)"
     },
+    Header:{
+        BgColor:"#18191b"
+    },
     Title: {
         textColor: "#e0e0e0",
         subColor: "rgb(90,90,90)"
@@ -44,6 +47,9 @@ export const LightTheme = {
             "rgb(220,220,220)",
             "rgb(230,230,230)"
         ]
+    },
+    Header:{
+        BgColor:"#fafafa"
     },
     Button: {
         backgroundColor: "rgb(235,235,235)",

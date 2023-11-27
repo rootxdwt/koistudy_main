@@ -12,6 +12,8 @@ import { ThemeConsumer } from "styled-components"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
+import { useDispatch } from "react-redux"
+
 
 const SubMainHolder = styled.div`
 width:100%;
@@ -125,6 +127,7 @@ const ItmRight = styled.div`
         color: ${props => props.theme.Body.TextColorLevels[4]}!important;
     }
 `
+
 const HeadingArea = styled.div`
     display: flex;
     align-items: center;
@@ -177,6 +180,7 @@ const Selection = styled.div`
 const SelectionBtn = styled.div`
         border-radius: 10px;
     height: 35px;
+    background-color: ${props => props.theme.Header.BgColor};
 
     border:solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
     cursor: pointer;
@@ -198,7 +202,7 @@ const SelectionList = styled.ul<{ isShown: boolean }>`
     position: absolute;
     top: 45px;
     width: calc(100% - 22px);
-    background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+    background-color: ${props => props.theme.Header.BgColor};
     border:solid 1px ${props => props.theme.Button.backgroundColor};
     border-radius: 10px;
     margin: 0;
@@ -226,7 +230,7 @@ const ListItm = styled.li<{ isActive: boolean }>`
     align-items: center;
     color: ${props => props.isActive ? props.theme.Body.TextColorLevels[1] : props.theme.Body.TextColorLevels[3]};
     &:hover {
-        background-color: ${props => props.theme.Body.ContainerBgLevels[0]};
+        background-color: ${props => props.theme.Body.ContainerBgLevels[2]};
     }
     border-radius: 5px;
     cursor: pointer;
@@ -241,6 +245,32 @@ const ChevRon = styled.div<{ spin: boolean }>`
     color: ${props => props.theme.Body.TextColorLevels[3]};
 `
 
+const CodeElemHolder = styled.div`
+display:flex;
+flex-direction:column;
+position:relative;
+`
+
+const ViewDetailBtn = styled.div`
+position:absolute;
+bottom:15px;
+z-index:1;
+right:15px;
+cursor:pointer;
+display: flex;
+color: ${props => props.theme.Body.TextColorLevels[3]};
+display:flex;
+align-items:center;
+flex-direction: row;
+& p.txt {
+    margin-right: 5px;
+    font-size:12px;
+}
+& p.icon {
+    margin:0;
+    rotate:-90deg;
+}
+`
 
 export const SubmissionPage = (props: { id: Number, supportedLang: Array<AcceptableLanguage>, dataLength: number | undefined }) => {
     const [ServerData, setServerData] = useState<Array<ServerResp>>()
@@ -250,6 +280,8 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
     const [filterLang, setFilterLang] = useState<AcceptableLanguage | "">("")
     const [filterStat, setFilterStat] = useState("")
     const [extended, setExtended] = useState<number | undefined>()
+
+    const dispatch = useDispatch()
 
     useEffect(() => {
         setLoadState(false)
@@ -304,6 +336,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
 
 
     return (
+        <>
         <SubMainHolder>
             <SubmissionItmHolder>
                 <SelectionArea>
@@ -360,7 +393,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                                                 <>
                                                     <SubmissionItm
                                                         key={index}
-                                                        onClick={() => { if (extended !== index) { setExtended(index) } else setExtended(undefined) }}
+                                                        onClick={() => { if (extended !== index && elem.Code.length>1) { setExtended(index) } else setExtended(undefined) }}
                                                     >
                                                         <ItmRight>
                                                             <HeadingArea>
@@ -377,9 +410,10 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                                                         </ItmRight>
                                                     </SubmissionItm>
                                                     {extended == index ?
-                                                        <>
+                                                        <CodeElemHolder>
                                                             <SubmittedCodeElem lang={elem.Lang} data={elem.Code} />
-                                                        </> : <></>}
+                                                            <ViewDetailBtn onClick={()=>dispatch({type: "tabs/add", payload:{name:"제출",id:elem.SubCode}})}><p className="txt">자세히 보기</p> <p className="icon"><FiChevronDown /></p></ViewDetailBtn>
+                                                        </CodeElemHolder> : <></>}
                                                 </>)
 
                                         })}</>
@@ -388,5 +422,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                         }
                     </>}
             </SubmissionItmHolder>
-        </SubMainHolder>)
+        </SubMainHolder>
+        </>
+       )
 }

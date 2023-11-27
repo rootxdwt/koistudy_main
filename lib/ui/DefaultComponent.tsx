@@ -60,7 +60,7 @@ export const Holder = styled.div`
 display:flex;
 flex-direction: column;
 width: 1400px;
-padding-top: 65px;
+padding-top: 60px;
 color: ${props => props.theme.Title.textColor};
 margin-left:auto;
 margin-right:auto;
@@ -111,7 +111,7 @@ justify-content:center;
 width: 85px;
 height: 30px;
 border-radius: 5px;
-margin-right: 20px;
+margin-right: 11px;
 font-weight:bold;
 &:hover{
   color: ${props => props.theme.Body.TextColorLevels[2]};

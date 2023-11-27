@@ -9,7 +9,7 @@ import { DarkTheme, LightTheme } from '@/lib/ui/theme';
 import { PersistGate } from 'redux-persist/integration/react';
 
 const ThemeProvider = ({ children }: { children: any }) => {
-  const isDark = useSelector<StateType, boolean>(state => state.theme);
+  const isDark = useSelector<StateType, boolean>(state => state.theme.isDarkTheme);
   return (
     <StyledThemeProvider theme={isDark ? DarkTheme : LightTheme}>
       {children}

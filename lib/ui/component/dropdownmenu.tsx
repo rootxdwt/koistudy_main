@@ -60,7 +60,7 @@ const DropDown = styled.div`
 display:flex;
 flex-direction:column;
 position:relative;
-margin-left: 5px;
+margin-left: 0px;
 `
 
 const DropArrow = styled.div<{ isDropped: boolean, defaultPosDown: boolean }>`
@@ -81,14 +81,18 @@ export const DropDownMenu = (props: { active: string, items: Array<string>, clic
     <DropDown>
       <Current onClick={() => setDropped(!isDropped)}>
         {nowActive}
-        <DropArrow isDropped={isDropped} defaultPosDown={props.dropType == "down"}>
+        <DropArrow isDropped={isDropped}
+          defaultPosDown={props.dropType == "down"}
+        >
           <FiChevronDown />
         </DropArrow>
       </Current>
       {isDropped ? <ParentHolder isDown={props.dropType == "down"}>
         {props.items.map((item, index) => {
           return (
-            <DButton key={index} isActive={item == props.active} onClick={() => { props.clickEventHandler(item); setDropped(false) }}>
+            <DButton key={index}
+              isActive={item == props.active}
+              onClick={() => { props.clickEventHandler(item); setDropped(false) }}>
               {props.displayName[index].displayName}
             </DButton>
           )

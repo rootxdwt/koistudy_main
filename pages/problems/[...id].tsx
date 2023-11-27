@@ -27,6 +27,7 @@ import TagsModel from "lib/schema/tags"
 import Image from "next/image"
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
 import { FcCheckmark } from 'react-icons/fc'
+import {HiOutlineHashtag} from 'react-icons/hi'
 import { AcceptableLanguage } from "@/lib/pref/languageLib"
 const ShowSub = keyframes`
 0%{
@@ -54,7 +55,7 @@ background-color: rgba(0,0,0,.7);
 `
 
 const InitialHolder = styled(Holder)`
-    width: 90%;
+    width: 95%;
 `
 
 
@@ -66,7 +67,7 @@ height:calc(100vh - 70px);
 display:flex;
 overflow:hidden;
 @media(max-width: 900px) {
-    width: 90%;
+    width: 95%;
 }
 @media (max-width: 770px) {
     height:auto;
@@ -110,87 +111,7 @@ height: 100%;
     padding-right:0;
     height: auto;
 }
-& .probInfo {
-    display:flex;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: auto;
-    margin-right: 10px;
-  }
 `
-
-const FooterHolder = styled.footer`
-    background-color: ${props => props.theme.Body.backgroundColor};
-    margin-top: auto;
-    display:flex;
-    padding: 15px 0px;
-    flex-direction: column;
-`
-
-
-const FooterBottom = styled.div`
-    display:flex;
-    color: ${props => props.theme.Button.backgroundColor};
-    font-size: 12px;
-    padding-top: 10px;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    border-top: solid 1px ${props => props.theme.Button.backgroundColor};
-    & p {
-        color: ${props => props.theme.Body.TextColorLevels[3]};
-        font-size: 12px;
-        margin: 0;
-        margin-left: 10px;
-    }
-    & a {
-        font-size: 11px;
-        color: ${props => props.theme.Body.TextColorLevels[3]};
-        margin-right: 10px;
-        margin-left: 10px;
-        padding-top: 10px;
-    }
-`
-
-const LogoHolder = styled.div`
-        display:flex;
-        align-items: center;
-        font-size: 12px;
-        justify-content: center;
-        & p{
-            font-family: 'Noto Sans KR',sans-serif;
-            font-size: 13px;
-            margin-right: 5px;
-            display:flex;
-            align-items: center;
-            justify-content: center;
-        }
-        color: ${props => props.theme.Body.TextColorLevels[2]};
-
-`
-const FooterElem = () => {
-    return (
-        <FooterHolder>
-
-            <FooterBottom>
-                <LogoHolder>
-
-                    <p>
-                        &copy; 코이스터디
-                    </p>
-                </LogoHolder>
-
-                <div>
-                    <a href="">오픈소스</a>|
-                    <a href="">이용약관</a>|
-                    <a href="">크레딧</a>
-                </div>
-
-            </FooterBottom>
-        </FooterHolder>
-    )
-}
-
 
 
 const submitCode = async (lang: String, code: string, num: number) => {
@@ -220,7 +141,7 @@ interface ProblemDataProp {
     id: number
     supportedLang: Array<AcceptableLanguage>
     currentPage: string
-    tags: Array<{ Name: string, Color: string }>
+    tags: Array<{ Name: string, Color: string, Type:string }>
 
 }
 
@@ -264,6 +185,8 @@ const Titleholder = styled.div`
     flex-direction: row;
     align-items: center;
     margin-top: 40px;
+    padding-top: 20px;
+    padding-bottom: 15px;
     width: 100%;
     & h1 {
         margin:0;
@@ -277,10 +200,9 @@ const Titleholder = styled.div`
 
 const ProbInfo = styled.div`
     display:flex;
-    margin-top: 20px;
-    margin-bottom: 10px;
     margin-left: auto;
     border-radius: 10px;
+    align-items:center;
 
 `
 
@@ -294,33 +216,20 @@ const SolvedIndicator = styled.div`
     cursor: pointer;
     border-radius: 5px;
     color: ${props => props.theme.Body.TextColorLevels[2]};
+    border: solid 1px ${props=>props.theme.Body.ContainerBgLevels[1]};
+    background-color: ${props=>props.theme.Header.BgColor};
     margin-right: 10px;
-    &:hover {
-        &::after {
-        position:absolute;
-        content: "Solved";
-        margin-top: 65px;
-        margin-left: 20px;
-        font-size: 10px;
-        background-color: ${props => props.theme.Container.backgroundColor};
-        padding: 4px 10px;
-        border-radius: 4px;
-        z-index: 6;
-    }
-}
 `
 
 const TPBtn = styled(SolvedIndicator)`
-
-    &:hover {
-        &::after {
-        margin-left: 0px;
-        position:absolute;
-        content: "Bookmark";
-        font-size: 10px;
-        padding: 4px 10px;
-        border-radius: 4px;
-    }
+    width: auto;
+    display: flex;
+    justify-content: space-around;
+    padding: 0px 8px;
+    & p {
+        font-size: 11px;
+        margin: 0;
+        margin-left: 5px;
     }
 `
 
@@ -334,11 +243,13 @@ const FavBtn = (props: { problemId: number }) => {
     useEffect(() => {
         fetch(`/api/user/favorites/${props.problemId}`, { method: "GET", headers: { Authorization: localStorage.getItem("tk")! } })
             .then((resp) => resp.json())
-            .then((data) => { if (data.added) setFavState(true) })
-    }, [])
+            .then((data) => { if (data.added) {setFavState(true)} else setFavState(false) })
+    }, [props.problemId])
+
     return (
         <TPBtn onClick={toggleFav}>
             {isFav ? <AiFillStar /> : <AiOutlineStar />}
+            <p>{isFav?"즐겨찾기됨":"즐겨찾기"}</p>
         </TPBtn>
     )
 }
@@ -412,19 +323,30 @@ const Tags = styled.ul`
 list-style-type: none;
 display: flex;
 padding:0;
+margin-top:10px;
+margin-bottom:20px;
+align-items:center;
+
 `
 
 const TagItm = styled.li<{ color: string }>`
 
 font-size: 10px;
 padding: 4px 11px;
-margin: 0px 7px;
+margin-right: 7px;
 border-radius: 12px;
-background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
-color: ${props => props.theme.Body.TextColorLevels[3]};
+background-color: ${props => props.color?props.color+"19":props.theme.Body.ContainerBgLevels[2]};
+color: ${props => props.color?props.color:props.theme.Body.TextColorLevels[3]};
 position: relative;
+display:flex;
+align-items:center;
 `
-
+const LineIndicator = styled.div`
+border-left:solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
+height: 15px;
+margin: 0px 8px;
+margin-right:15px;
+`
 const ProblemPageHandler = (props: ProblemDataProp) => {
     const router = useRouter()
     const { currentPage, mdData, problemName, solved, rating, id, supportedLang, tags } = props
@@ -445,16 +367,24 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
             <Titleholder>
                 <h1>{problemName}</h1>
                 <ProbInfo>
-                    <Itm rating={rating}>
-                        <p className="grad">R{rating}</p>
-                    </Itm>
                     <FavBtn problemId={id} />
                 </ProbInfo>
             </Titleholder>
             <Tags>
-                {tags.map((elem, index) => {
+                {tags.filter((elem)=>elem.Type=="category").map((elem, index) => {
                     return (
+                        <>
                         <TagItm key={elem.Name} color={elem.Color}>{elem.Name}</TagItm>
+                        {tags.filter((elem)=>elem.Type!="category").length>0?<LineIndicator />:<></>}
+                        
+                        </>
+                    )
+                })}
+                {tags.filter((elem)=>elem.Type!="category").map((elem, index) => {
+                    return (
+                        <>
+                        <TagItm key={elem.Name} color="">{elem.Name}</TagItm>
+                        </>
                     )
                 })}
             </Tags>
@@ -479,7 +409,6 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
                     rating={rating}
                     id={id}
                 />
-                <FooterElem />
             </> : currentPage == "submission" ? <SubmissionPage id={id} supportedLang={supportedLang} dataLength={submissionData?.dataLength} /> : currentPage == "champion" ? <Champion /> : <></>}
         </DescHolder>
     )
@@ -505,7 +434,7 @@ export default function Problem(data: any): JSX.Element {
 
     const router = useRouter()
 
-    const isDark = useSelector<StateType, boolean>(state => state.theme);
+    const isDark = useSelector<StateType, boolean>(state => state.theme.isDarkTheme);
 
     useEffect(() => {
         setContextData(undefined)
@@ -546,7 +475,6 @@ export default function Problem(data: any): JSX.Element {
                 </title>
             </Head>
             <Header
-                currentPage="problems"
                 forwardNavigatable={navigatable[0] ? { target: parseInt(ProblemCode) - 1 } : undefined}
                 backwardNavigatable={navigatable[1] ? { target: parseInt(ProblemCode) + 1 } : undefined}
             />
@@ -591,7 +519,7 @@ export const getServerSideProps = async (context: any) => {
             const data = JSON.parse(JSON.stringify(findDC))
 
             if (data["tags"]) {
-                data["tags"] = JSON.parse(JSON.stringify(await TagsModel.find({ Name: data["tags"] }, 'Name Color -_id')))
+                data["tags"] = JSON.parse(JSON.stringify(await TagsModel.find({ Name: data["tags"] }, 'Name Color Type -_id')))
             }
 
             const forwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) - 1 }, '-_id ProblemCode')

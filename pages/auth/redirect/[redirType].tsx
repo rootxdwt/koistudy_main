@@ -328,7 +328,6 @@ export default function Login(serverData: any) {
             let urlQuery: any = router.query.state
             if (typeof urlQuery !== "undefined") {
                 const { orgRegKey } = JSON.parse(Buffer.from(urlQuery, 'base64').toString('ascii'))
-                console.log(orgRegKey)
                 if (typeof orgRegKey !== "undefined") VerifyCode(orgRegKey)
             }
         }
@@ -514,8 +513,10 @@ export async function getServerSideProps(context: any) {
             const infoReq = await fetch(`https://api.github.com/user/emails`, {
                 headers: { Authorization: `token ${respJsn.access_token}` },
             });
+            if(infoReq.status !== 200) {
+                return { props: { detail: "error" } };
+            }
             const emailData = await infoReq.json();
-
             const primaryMail = emailData.filter((elem: any) => {
                 return elem.primary;
             })[0];

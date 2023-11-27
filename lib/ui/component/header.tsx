@@ -12,7 +12,7 @@ import Link from "next/link";
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const HeaderComp = styled.header<{ isTop: any, isTransparent: boolean }>`
+const HeaderComp = styled.header<{ isTop: any}>`
 position:fixed;
 
 z-index:20;
@@ -22,7 +22,7 @@ display:flex;
 align-items:center;
 border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
 
-background-color: ${props => props.isTransparent ? "transparent" : props.theme.Body.backgroundColor};
+background-color: ${props=>props.theme.Header.BgColor};
 
 & div.contentHolder {
     padding: 13px 0px;
@@ -33,7 +33,7 @@ background-color: ${props => props.isTransparent ? "transparent" : props.theme.B
     justify-content: center;
     font-family: 'Poppins', sans-serif;
     color: ${props => props.theme.Body.TextColorLevels[3]};
-    width: 90vw;
+    width: 95vw;
 
       @media(max-width: 900px) {
         width: 90vw;
@@ -70,7 +70,8 @@ display:flex;
 align-items:center;
 justify-content:center;
 color: ${props => props.theme.Body.TextColorLevels[3]};
-border-radius: 10px;
+
+border-radius: 5px;
 cursor:pointer;
 margin:0;
 margin-left: 20px;
@@ -291,9 +292,21 @@ const ProbNavBtn = styled.div`
   }
 `
 
-export const Header = (props: { currentPage: string, forwardNavigatable?: { target: number }, backwardNavigatable?: { target: number } }) => {
+const LoginBtn = styled.div`
+font-family: 'Noto Sans KR', sans-serif;
+font-size: 12px;
+padding: 6px 15px;
+border-radius:5px;
+margin-left: 20px;
+cursor:pointer;
+background-color: rgb(107, 157, 248);
+color: ${props => props.theme.Body.backgroundColor};
+`
+
+export const Header = (props: {forwardNavigatable?: { target: number }, backwardNavigatable?: { target: number } }) => {
   const dispatch = useDispatch()
-  const isDark = useSelector<StateType, boolean>(state => state.theme);
+  const isDark = useSelector<StateType, boolean>(state => state.theme.isDarkTheme);
+
   const [isLoaded, setLoadState] = useState(false)
   const [isShown, setShown] = useState(false)
   const [userInfoShown, setuserInfo] = useState(false)
@@ -302,24 +315,22 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
   const router = useRouter();
 
   useEffect(() => {
-    if (userInfoShown) {
-      fetch('/api/user', { method: "POST", headers: { "Authorization": localStorage.getItem("tk") || "" } }).then((resp) => {
-        if (!resp.ok) {
-          setLogin(false)
-          return undefined
-        }
-        return resp.json()
-      }).then((jsn) => {
-        setJson(jsn)
-      })
-    }
+    fetch('/api/user', { method: "POST", headers: { "Authorization": localStorage.getItem("tk") || "" } }).then((resp) => {
+      if (!resp.ok) {
+        setLogin(false)
+        return undefined
+      }
+      return resp.json()
+    }).then((jsn) => {
+      setJson(jsn)
+    })
   }, [userInfoShown])
 
   useEffect(() => setLoadState(true), [props])
   return (
     <>
       {isLoaded ? <>
-        < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable} isTransparent={props.currentPage == "login"} >
+        < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable} >
           <div className="contentHolder">
             <LogoArea>
               <Link href="/">
@@ -350,14 +361,17 @@ export const Header = (props: { currentPage: string, forwardNavigatable?: { targ
               : <></>}
 
             <BtnHolder>
-              {props.currentPage !== "login" ? <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
-                <RiUser3Fill />
-
-              </BtnComp> : <></>}
-              <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
+            <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
                 {isDark ? <MdDarkMode /> : <MdLightMode />}
 
               </BtnComp>
+              {isLoggedIn?
+              <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
+                <RiUser3Fill />
+
+              </BtnComp>:
+              <Link href={`/auth/?redir=${encodeURIComponent(router.asPath)}`}><LoginBtn>로그인</LoginBtn></Link>
+              }
             </BtnHolder>
           </div>
         </HeaderComp >

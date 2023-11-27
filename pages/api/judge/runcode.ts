@@ -53,7 +53,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
             })
             socket.on('codeData', async msg => {
                 judge = new Judge(msg.typ, 256000000, 20)
-                setTimeout(() => { socket.emit("end", `maximum execution time exceeded(127)`); judge.endInput(container); socket.disconnect() }, 20000)
+                setTimeout(() => { socket.emit("end", `최대 실행 시간이 초과되었습니다(127)`); judge.endInput(container); socket.disconnect() }, 20000)
                 container = await judge.CreateRunEnv(msg.data)
                 try {
                     await judge.compileCode(container)
@@ -63,7 +63,7 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                         outdata += data.toString()
                         if (data.length > 1000 || outdata.length > 1000) {
                             await judge.endInput(container)
-                            socket.emit("end", `maximum output length exceeded`)
+                            socket.emit("end", `최대 출력 제한이 초과되었습니다`)
                             socket.disconnect()
                         }
                         socket.emit('data', data.toString())

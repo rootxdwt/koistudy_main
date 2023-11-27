@@ -1,20 +1,21 @@
-import { Holder, Button } from "@/lib/ui/DefaultComponent"
+import { Button } from "@/lib/ui/DefaultComponent"
 import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
-import { HiOutlineDotsVertical } from 'react-icons/hi'
 import { BsFillPlayFill, BsStopFill } from 'react-icons/bs'
-import { MdDelete } from 'react-icons/md'
 import { DropDownMenu } from "./dropdownmenu"
 import { AcceptableLanguage } from '@/lib/pref/languageLib'
 import styled from "styled-components";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { connect } from "socket.io-client";
 import copy from 'copy-to-clipboard';
-import { TbCopy } from 'react-icons/tb'
 import { useRouter } from "next/router";
 import { LanguageHandler } from "@/lib/pref/languageLib";
 import { SubmitResult } from "./submissionMenu";
 import { FiChevronDown } from 'react-icons/fi'
+import { useDispatch, useSelector } from 'react-redux';
+import { StateType } from "@/lib/store";
+import { AiOutlineClose } from 'react-icons/ai'
+
 
 const CodeEditAreaComponent = styled.div`
 display:flex;
@@ -67,7 +68,8 @@ width: 100%;
 border-radius: 10px;
 display:flex;
 align-items: center;
-margin-top: 8px;
+margin-top: 7px;
+padding: 10px 0px;
 
 `
 
@@ -85,7 +87,7 @@ display:flex;
 flex-direction:column;
 margin-right:0;
 position:relative;
-margin-left:20px;
+margin-left:10px;
 overflow:hidden;
 padding-bottom: 70px;
 @media (max-width: 770px) {
@@ -100,14 +102,16 @@ const Rearrange = styled.span`
 position:fixed;
 height: 100vh;
 top:0;
-border-left:solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
-border-right:solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
+
 width:10px;
-margin-left:-14px;
+margin-left:-12px;
 cursor:col-resize;
 display:flex;
 align-items:center;
 justify-content:center;
+background-color: ${props => props.theme.Header.BgColor};
+border-left: solid 1px ${props => props.theme.Body.ContainerBgLevels[2]};
+border-right: solid 1px ${props => props.theme.Body.ContainerBgLevels[2]};
 &:hover {
     background-color: ${props => props.theme.Button.backgroundColor};
 }
@@ -245,7 +249,7 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
                 <CodeMirror
                     height="110px"
                     onChange={(v, _) => setInputData("A4YOZcb8W2xjnblz" + v)}
-                    placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "Console cleared" : "Running your code..."}
+                    placeholder={isConsoleEditable ? "여기에 입력하세요" : consoleCleared ? "콘솔이 지워졌습니다" : "코드를 실행중입니다.."}
                     onKeyDown={(e) => {
                         if (e.key == "Enter") {
                             socket.emit("input", inputData.split(sent)[1])
@@ -269,6 +273,51 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
         </ResultHolder>)
 }
 
+const TabHolder = styled.ul`
+    padding: 0;
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    font-size: 12px;
+    margin: 0px;
+    margin-bottom: 5px;
+`
+
+const TabItm = styled.li<{ isActive?: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0px;
+    &:first-child {
+        border-left: none;
+    }
+    border-left: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
+    border-bottom: solid 1px ${props => props.theme.Body.backgroundColor};
+    width: 100%;
+    color: ${props => props.isActive ? props.theme.Body.TextColorLevels[1] : props.theme.Body.TextColorLevels[3]};
+    cursor: pointer;
+    position: relative;
+    &:hover {
+        background-color: ${props => props.theme.Body.ContainerBgLevels[2]};
+    }
+
+`
+
+const TabCloseBtn = styled.div`
+    position: absolute;
+    right:10px;
+    font-size: 12px;
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    &:hover {
+        background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+    }
+`
+
 export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, parentWidth: any, contextData: any, isJudging: boolean }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
@@ -276,6 +325,10 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
 
     const [currentWidth, setCurrentWidth] = useState<number>(500)
     const [startingXpos, setStartingXpos] = useState<number | null>(null)
+    const [currentPage, setCurrentPage] = useState("code")
+    const tabState = useSelector<StateType, Array<{ name: string, id: string, isActive: boolean }>>(state => state.tabs.activeTabs);
+
+    const dispatch = useDispatch()
 
     const mouseMoveHandler = (e: MouseEvent) => {
         if (startingXpos !== null) {
@@ -296,6 +349,7 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
     useEffect(() => {
         setCurrentWidth(props.parentWidth() / 2)
     }, [])
+
     useEffect(() => {
         window.addEventListener('mousemove', mouseMoveHandler)
         window.addEventListener('touchmove', touchMoveHandler)
@@ -311,47 +365,64 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
     }, [startingXpos])
 
     return (
-        <SubmitHolder currentWidth={currentWidth}>
-            <Rearrange
-                onMouseDown={(e) => setStartingXpos(e.pageX)}
-                onTouchStart={(e) => setStartingXpos(e.touches[0].pageX)}
-                onMouseUp={ResetPos}
-                onTouchEnd={ResetPos}
-            >
-            </Rearrange>
+        <>
+            <SubmitHolder currentWidth={currentWidth}>
+                <Rearrange
+                    onMouseDown={(e) => setStartingXpos(e.pageX)}
+                    onTouchStart={(e) => setStartingXpos(e.touches[0].pageX)}
+                    onMouseUp={ResetPos}
+                    onTouchEnd={ResetPos}
+                >
+                </Rearrange>
+                {tabState.length > 0 ? <TabHolder>
+                    <TabItm isActive={
+                        tabState.every(elem => !elem.isActive)}
+                        onClick={() => dispatch({ type: "tabs/setActive", payload: "" })}>
+                        코드 편집기
+                    </TabItm>
+                    {tabState.map((elem: { id: string, name: string }, index: number) => {
+                        return (
+                            <TabItm key={index} onClick={() => dispatch({ type: "tabs/setActive", payload: elem.id })}>
+                                {elem.name}
+                                <TabCloseBtn onClick={() => dispatch({ type: "tabs/remove", payload: elem.id })}>
+                                    <AiOutlineClose />
+                                </TabCloseBtn>
+                            </TabItm>
+                        )
+                    })}
+                </TabHolder> : <></>}
+                {tabState.every(elem => !elem.isActive) ? <>
+                    <CodeMirror
+                        basicSetup={
+                            {
+                                drawSelection: true,
+                                autocompletion: false,
+                                searchKeymap: false,
+                                highlightActiveLine: false,
+                                highlightActiveLineGutter: false
+                            }
+                        }
 
-            <CodeMirror
-                basicSetup={
-                    {
-                        drawSelection: true,
-                        autocompletion: false,
-                        searchKeymap: false,
-                        highlightActiveLine: false,
-                        highlightActiveLineGutter: false
-                    }
-                }
+                        extensions={
+                            [
+                                loadLanguage(currentCodeType)!
+                            ].filter(Boolean)
+                        }
+                        onChange={(v, _) => setCodeData(v)}
+                        theme={"dark"}
+                        placeholder={"여기에 코드를 작성하세요"}
+                    />
+                </> : <>
+                    aa
+                </>}
 
-                height="calc(100vh - 174px)"
-                extensions={
-                    [
-                        loadLanguage(currentCodeType)!
-                    ].filter(Boolean)
-                }
-                onChange={(v, _) => setCodeData(v)}
-                theme={"dark"}
-                placeholder={"여기에 코드를 작성하세요"}
-            />
-
-            {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
-            <Submission>
-                <DropDownMenu active={currentCodeType} dropType="up" items={props.SupportedLang} displayName={props.SupportedLang.map((elem) => { return { name: elem, displayName: new LanguageHandler(elem, "").getLangFullName() } })} clickEventHandler={setCodeType} />
-
-                <RunBtn onClick={() => setRunningState(!isRunning)}>
-                    {isRunning ? <BsStopFill /> : <BsFillPlayFill />}
-                </RunBtn>
-                <SubmitBtn onClick={() => props.submitFn(currentCodeType, currentCodeData)}>제출</SubmitBtn>
-            </Submission>
-            <SubmitResult contextData={props.contextData} isJudging={props.isJudging} />
-        </SubmitHolder >
+                {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
+                <SubmitResult currentCodeType={currentCodeType}
+                    SupportedLang={props.SupportedLang}
+                    setCodeType={setCodeType}
+                    runFn={() => setRunningState(!isRunning)}
+                    submitFn={() => props.submitFn(currentCodeType, currentCodeData)} />
+            </SubmitHolder >
+        </>
     )
 }

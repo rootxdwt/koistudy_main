@@ -118,3 +118,20 @@ class LanguageHandler {
 	}
 }
 ```
+
+### Startup guide
+note: The Dev Container startup procedure is only for visual studio code. For other IDEs/code editors, refer to their document for more information.
+Docker is required
+
+## Starting Dev Containers
+cmd/ctrl+shift+p => Dev Containers: Open Workspace In Container
+Terminal>New Terminal
+npm install
+
+## Pull .env from detenv-vault
+npx dotenv-vault login
+npx dotenv-vault pull
+note: push using the `npx dotenv-vault push` command after you make changes to the .env
+
+## Start the development server
+npm run dev

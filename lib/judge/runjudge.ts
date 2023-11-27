@@ -151,14 +151,7 @@ export class Judge {
             await Terminate(cont)
             throw new Error(`Unsupported language`);
         }
-
-        const containerExecutor= await cont.exec.create({
-            Cmd: ["/bin/sh", "-c", runCommand],
-            AttachStdout: true,
-            AttachStderr: true,
-            AttachStdin:true,
-        });
-        return await containerExecutor.start({ Detach: false, stdin:true })
+        return spawn('docker', ['exec', '-i', cont.id, '/bin/sh', '-c', runCommand])
     }
 
     endInput = async (cont: Container) => {
