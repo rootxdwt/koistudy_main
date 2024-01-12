@@ -120,7 +120,7 @@ export class Judge {
             AttachStdout: true,
             AttachStderr: true,
         });
-        const stream: any = await containerExecutor.start({ Detach: false,stdin:true })
+        const stream: any = await containerExecutor.start({ Detach: false })
 
         return await new Promise((resolve, reject) => {
             let udata = '';
@@ -189,12 +189,11 @@ export class Judge {
                 elem.tl)
 
             return new Promise(async (resolve, reject) => {
-
                 let time: number, mem: number
                 let baseCommand = spawn('docker', ['exec', '-i', cont.id, '/usr/bin/time', '-v', ...runCommand.split(" ")])
-
-                baseCommand.stdin.write(elem.in.join("\n"))
-                baseCommand.stdin.end();
+                baseCommand.stdin.cork();
+                baseCommand.stdin.write(elem.in.join("\n") + "\n")
+                baseCommand.stdin.uncork();
                 const startTime = Date.now()
 
                 let fullData = ""
@@ -203,7 +202,6 @@ export class Judge {
                 })
                 baseCommand.stderr.on('data', async (data) => {
                     const dta = data.toString()
-
                     if (dta.includes("exited with non-zero status")) {
                         clearTimeout(tle)
                         reject("stdError")
