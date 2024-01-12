@@ -3,7 +3,6 @@ import { StateType } from "@/lib/store";
 import { DarkTheme, LightTheme } from "@/lib/ui/theme";
 
 import styled, { createGlobalStyle } from "styled-components";
-import { Header } from "@/lib/ui/component/header";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";

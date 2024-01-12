@@ -102,7 +102,7 @@ margin-right:auto;
 
 export const Button = styled.button<{ isBorder?: boolean }>`
 border: none;
-background-color: ${props => props.theme.Container.backgroundColor};
+background-color: ${props => props.theme.Button.backgroundColor};
 color: ${props => props.theme.Body.TextColorLevels[3]};
 cursor:pointer;
 display:flex;

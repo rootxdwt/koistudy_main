@@ -11,7 +11,8 @@ type Data = {
     status: string
     errorStatement: "NONE" | "TLE" | "TC" | "ISE" | "CE" | "MNA"
     matchedTestCase: Array<{ matched: boolean, tle: boolean }>
-    codeDetail?: string
+    codeDetail?: string,
+    subcode?:string
 }
 const avr = (data: Array<number>) => {
     let sum = 0
@@ -32,49 +33,49 @@ export default async function handler(
 
     const { id } = req.query
     if (typeof id != "string") {
-        res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
+        res.status(400).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "MNA" })
         return
     }
     const data = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id)) }).exec()
 
 
     if (typeof uid !== "string") {
-        res.status(401).json({ status: 'Error', matchedTestCase: [], errorStatement: "ISE" })
+        res.status(401).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "ISE" })
         return
     }
 
     try {
         if (await client.get(uid) === "true") {
-            res.status(429).json({ status: 'Error', matchedTestCase: [], errorStatement: "NONE" })
+            res.status(429).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "NONE" })
             return
         } else {
             await client.set(uid, 'true', { EX: 60 });
         }
         const url = process.env.MONGOCONNSTR!;
         if(!url) {
-            res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "ISE" })
+            res.status(400).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "ISE" })
             return
         }
         mongoose.connect(url)
 
         const { TestProgress, SupportedLang, Mem } = JSON.parse(JSON.stringify(data))
         if (req.method !== 'POST') {
-            res.status(405).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
+            res.status(405).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "MNA" })
             return
         }
         const requestedData = req.body
         CodeData = requestedData["Code"]
         Lang = requestedData["Lang"]
         if (SupportedLang.indexOf(Lang) == -1) {
-            res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "MNA" })
+            res.status(400).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "MNA" })
             return
         }
         let cRunTime = 0
-        TestProgress.Tests.forEach((itm: any) => { cRunTime += (itm.tl) / 1000 })
+        TestProgress.Tests.forEach((itm: any) => { cRunTime += ((itm.tl) / 1000)})
         const judgeInstance = new Judge(Lang, Mem, cRunTime)
         const container = await judgeInstance.CreateRunEnv(CodeData)
         if (typeof container === "undefined") {
-            res.status(400).json({ status: 'Error', matchedTestCase: [], errorStatement: "ISE" })
+            res.status(400).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "ISE" })
             return
         }
         await judgeInstance.compileCode(container)
@@ -96,7 +97,7 @@ export default async function handler(
             SubCode: SubmissionCode,
             Lang: Lang
         })
-        res.status(200).json({ status: isCorrect ? 'Success' : 'Error', matchedTestCase: matchedCases, errorStatement: "NONE" })
+        res.status(200).json({ status: isCorrect ? 'Success' : 'Error',subcode:SubmissionCode, matchedTestCase: matchedCases, errorStatement: "NONE" })
         return
     } catch (e: any) {
         await client.del(uid)
@@ -111,7 +112,7 @@ export default async function handler(
             TC: [],
             Lang: Lang
         })
-        res.status(200).json({ status: 'Error', matchedTestCase: [], errorStatement: statement })
+        res.status(200).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: statement })
         return
     }
 }

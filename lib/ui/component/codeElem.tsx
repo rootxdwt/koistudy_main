@@ -94,6 +94,7 @@ max-height: ${props => props.isExtended ? "auto" : "150px"};
 background-color: ${props => props.theme.Body.backgroundColor};
 overflow-y: hidden;
 position: relative;
+min-height: 40px;
 &:before {
     content: "";
     position:absolute;
@@ -102,7 +103,7 @@ position: relative;
     text-align: center;
     background: rgb(2,0,36);
     left: 0;
-    height: 30px;
+    height: ${props => props.isExtended ? "0px" : "30px"};
     background: linear-gradient(180deg, rgba(2,0,36,0) 0%, ${props => props.theme.Body.backgroundColor} 70%);
     font-size: 12px;
     padding: 5px 0px;
@@ -113,7 +114,7 @@ position: relative;
 `
 
 
-export const SubmittedCodeElem = (prop: { lang?: AcceptableLanguage | "shell", data: string }) => {
+export const SubmittedCodeElem = (prop: { lang?: AcceptableLanguage | "shell", data: string, isExtended?:boolean }) => {
     const [isCopied, setIsCopied] = useState(false)
     const [IsActive, setIsActive] = useState(false)
 
@@ -132,7 +133,7 @@ export const SubmittedCodeElem = (prop: { lang?: AcceptableLanguage | "shell", d
     return <SubmittedCodeHolder
         onMouseEnter={() => setIsActive(true)}
         onMouseLeave={() => setIsActive(false)}
-        isExtended={false}>
+        isExtended={typeof prop.isExtended!=="boolean"?false:prop.isExtended}>
         <CodeMirror
             editable={false}
             basicSetup={

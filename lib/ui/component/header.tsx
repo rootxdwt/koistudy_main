@@ -12,7 +12,7 @@ import Link from "next/link";
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 
-const HeaderComp = styled.header<{ isTop: any}>`
+const HeaderComp = styled.header`
 position:fixed;
 
 z-index:20;
@@ -20,9 +20,7 @@ top:0;
 width: 100vw;
 display:flex;
 align-items:center;
-border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
-
-background-color: ${props=>props.theme.Header.BgColor};
+background-color: transparent;
 
 & div.contentHolder {
     padding: 13px 0px;
@@ -61,11 +59,10 @@ margin-left:auto;
 margin-right:0;
 flex-direction: row;
 align-items: center;
+height: 30px;
 `
 const BtnComp = styled.p`
 font-size: 17px;
-width: 30px;
-height: 30px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -76,33 +73,22 @@ cursor:pointer;
 margin:0;
 margin-left: 20px;
 z-index:1;
-font-size:15px;
+min-height: 30px;
+min-width: 30px;
 &:hover {
-    color: ${props => props.theme.Body.TextColorLevels[2]};
-}
-
-`
-
-
-const DropDownBtn = styled.span<{ isDropped: boolean }>`
-    color: ${props => props.theme.Body.TextColorLevels[1]};
-    transform: rotate(${props => props.isDropped ? "90" : "-90"}deg);
-    transition: transform 0.3s cubic-bezier(.5,0,.56,.99);
-    cursor:pointer;
-    font-size: 14px;
-    margin: 0;
-    padding: 0;
+    background-color: ${props=>props.theme.Body.ContainerBgLevels[1]};
+  }
 `
 
 const ProfileBtnHolder = styled.div`
   width: 200px;
   position: fixed;
-  top: 75px;
+  top: 80px;
   z-index:99;
-  background-color: ${props => props.theme.Body.backgroundColor};
-  border:solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
-  border-radius: 0px;
+  background-color: ${props => props.theme.Header.BgColor};
+  border-radius: 10px;
   padding: 5px;
+  box-shadow: ${props => props.theme.Body.ContainerBgLevels[2]} 0px 0px 10px;
   --hwidth: 1400px;
 @media(max-width: 1800px) {
   --hwidth: 1300px;
@@ -122,7 +108,7 @@ const ProfileBtnHolder = styled.div`
   @media(max-width: 900px) {
     --hwidth: 90vw;
   }
-  right: 5vw;
+  right: 20px;
 
 `
 
@@ -160,7 +146,7 @@ const UserButton = styled.div`
   align-items: center;
   padding: 0 10px;
   justify-content: space-between;
-  border-radius:0px;
+  border-radius: 10px;
   
   cursor:pointer;
 
@@ -203,24 +189,6 @@ const UserButton = styled.div`
   }
 
 `
-
-const ImageHolder = styled.div`
-  
-  width: 30px;
-  height: 30px;
-  border-radius: 20px;
-  overflow:hidden;
-  border: solid 2px gold;
-`
-
-const PfpHolder = (props: { imgSrc: string }) => {
-  return (
-    <ImageHolder>
-      <Image width={30} height={30} alt="pfp" src={props.imgSrc}></Image>
-    </ImageHolder>
-  )
-}
-
 interface UserResp {
   Id: string
   Mail: string
@@ -271,27 +239,6 @@ const LoginInIdentifier = styled.div`
   align-items: center;
 `
 
-const ProbNavBtn = styled.div`
-  display: flex;
-  padding: 3px;
-  border-radius: 5px;
-  font-family: 'Noto Sans KR', sans-serif;
-  margin-left: 15px;
-  cursor: pointer;
-  color:${props => props.theme.Body.TextColorLevels[1]};
-  border: solid 1px ${props => props.theme.Button.backgroundColor};
-  & p {
-    margin: 0;
-    padding: 0;
-    font-size: 12px;
-    margin-left: 3px;
-    padding-right: 5px;
-  }
-  &:hover {
-    background-color: ${props => props.theme.Button.backgroundColor};
-  }
-`
-
 const LoginBtn = styled.div`
 font-family: 'Noto Sans KR', sans-serif;
 font-size: 12px;
@@ -303,12 +250,69 @@ background-color: rgb(107, 157, 248);
 color: ${props => props.theme.Body.backgroundColor};
 `
 
-export const Header = (props: {forwardNavigatable?: { target: number }, backwardNavigatable?: { target: number } }) => {
+const NavBtns = styled.ul`
+display:flex;
+margin: 0;
+padding: 0;
+margin-left: 50px;
+`
+
+const NavBtn = styled.li<{ isActive?: boolean }>`
+list-style: none;
+margin-right: 30px;
+font-size: 14px;
+color: ${props => props.isActive ? props.theme.Body.TextColorLevels[1] : props.theme.Body.TextColorLevels[3]};
+user-select: none;
+cursor: pointer;
+padding: 5px 10px;
+border-radius: 5px;
+&:hover {
+  background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+}
+`
+
+const ImageHolder = styled.div`
+  
+  width: 32px;
+  height: 32px;
+  border-radius: 20px;
+  overflow:hidden;
+`
+
+const HeaderPfHolder =styled.div`
+  display: flex;
+  align-items: center;
+  padding: 5px 7px;
+  border-radius: 10px;
+  &:hover {
+    background-color: ${props => props.theme.Body.ContainerBgLevels[1]};
+  }
+`
+const HeaderImageHolder = styled.div`
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  overflow:hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+`
+const HeaderDropDown = styled.div<{isRotated?:boolean}>`
+display: flex;
+align-items: center;
+justify-content: center;
+margin-left: 8px;
+rotate: ${props=>props.isRotated?"180deg":"0deg"};
+transition: rotate 0.1s ease-in-out;
+`
+
+
+export const Header = (props: { currentPage?: string }) => {
   const dispatch = useDispatch()
   const isDark = useSelector<StateType, boolean>(state => state.theme.isDarkTheme);
 
   const [isLoaded, setLoadState] = useState(false)
-  const [isShown, setShown] = useState(false)
   const [userInfoShown, setuserInfo] = useState(false)
   const [userInfoJson, setJson] = useState<UserResp>()
   const [isLoggedIn, setLogin] = useState<boolean>(true)
@@ -324,13 +328,13 @@ export const Header = (props: {forwardNavigatable?: { target: number }, backward
     }).then((jsn) => {
       setJson(jsn)
     })
-  }, [userInfoShown])
+  }, [])
 
   useEffect(() => setLoadState(true), [props])
   return (
     <>
       {isLoaded ? <>
-        < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable} >
+        < HeaderComp >
           <div className="contentHolder">
             <LogoArea>
               <Link href="/">
@@ -340,37 +344,45 @@ export const Header = (props: {forwardNavigatable?: { target: number }, backward
               </Link>
 
             </LogoArea>
-            {props.forwardNavigatable ?
-              <ProbNavBtn >
-                <Link href={`/problems/${props.forwardNavigatable.target}/description`}>
-                  <DropDownBtn isDropped={true}>
-                    <FiChevronDown />
-                  </DropDownBtn>
-                </Link>
-              </ProbNavBtn>
-              : <></>}
+            <NavBtns>
+              <NavBtn>
+                홈
+              </NavBtn>
+              <NavBtn isActive={true}>
+                문제
+              </NavBtn>
+              <NavBtn>
+                채점
+              </NavBtn>
+              <NavBtn>
+                대회
+              </NavBtn>
+            </NavBtns>
 
-            {props.backwardNavigatable ?
-              <ProbNavBtn>
-                <Link href={`/problems/${props.backwardNavigatable.target}/description`}>
-                  <DropDownBtn isDropped={false}>
-                    <FiChevronDown />
-                  </DropDownBtn>
-                </Link>
-              </ProbNavBtn>
-              : <></>}
 
             <BtnHolder>
-            <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
+              {/* <BtnComp onClick={() => dispatch({ type: "theme/toggle" })}>
                 {isDark ? <MdDarkMode /> : <MdLightMode />}
 
+              </BtnComp> */}
+              <BtnComp>
+                <MdOutlineSearch />
               </BtnComp>
-              {isLoggedIn?
-              <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
-                <RiUser3Fill />
+              {isLoggedIn ?
+                <BtnComp onClick={() => setuserInfo(!userInfoShown)}>
+                    <HeaderPfHolder>
+                      <HeaderImageHolder>
+                      {typeof userInfoJson !== "undefined" ?
+                      <Image width={25} height={25} alt="pfp" src={userInfoJson.PfpURL}></Image>:<></>}
+                      </HeaderImageHolder>
+                      <HeaderDropDown isRotated={userInfoShown}>
+                      <FiChevronDown />
+                      </HeaderDropDown>
 
-              </BtnComp>:
-              <Link href={`/auth/?redir=${encodeURIComponent(router.asPath)}`}><LoginBtn>로그인</LoginBtn></Link>
+                    </HeaderPfHolder>
+
+                </BtnComp> :
+                <Link href={`/auth/?redir=${encodeURIComponent(router.asPath)}`}><LoginBtn>로그인</LoginBtn></Link>
               }
             </BtnHolder>
           </div>
@@ -380,7 +392,9 @@ export const Header = (props: {forwardNavigatable?: { target: number }, backward
             <UserButton>
               {typeof userInfoJson !== "undefined" ?
                 <>
-                  <PfpHolder imgSrc={userInfoJson.PfpURL} />
+                  <ImageHolder>
+                    <Image width={35} height={35} alt="pfp" src={userInfoJson.PfpURL}></Image>
+                  </ImageHolder>
                   <div className="userInfo">
                     <div className="userName">
                       <p>
@@ -403,12 +417,17 @@ export const Header = (props: {forwardNavigatable?: { target: number }, backward
                   </LoginInIdentifier>}
                 </>}
             </UserButton>
-            {isLoggedIn && typeof userInfoJson !== "undefined" ? <LogOutBtn onClick={() => { localStorage.removeItem("tk"); router.reload() }}>
-              <MdLogout />
+            {isLoggedIn && typeof userInfoJson !== "undefined" ? <><LogOutBtn onClick={() => { localStorage.removeItem("tk"); router.reload() }}>
+              <RiUser3Fill />
               <p>
-                로그아웃
+                개인 설정
               </p>
-            </LogOutBtn> : <></>}
+            </LogOutBtn><LogOutBtn onClick={() => { localStorage.removeItem("tk"); router.reload() }}>
+                <MdLogout />
+                <p>
+                  로그아웃
+                </p>
+              </LogOutBtn></> : <></>}
           </ProfileBtnHolder> :
           <></>
         }

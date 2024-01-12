@@ -87,7 +87,7 @@ export class LanguageHandler {
             case "rust":
                 return `./${containerName}`
             case "python":
-                return `python3 ${containerName}.py`
+                return `python3 -u ${containerName}.py` //disable block buffering(-u)
             case "javascript":
                 return `node ${containerName}.js`
             case "php":

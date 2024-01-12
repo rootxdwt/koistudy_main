@@ -15,63 +15,7 @@ import { FiChevronDown } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux';
 import { StateType } from "@/lib/store";
 import { AiOutlineClose } from 'react-icons/ai'
-
-
-const CodeEditAreaComponent = styled.div`
-display:flex;
-overflow: hidden;
-overflow-x:scroll;
-margin-top: 20px;
-padding-bottom: 10px;
-height: 100%;
--ms-overflow-style: none;
-  scrollbar-width: none; 
-&&::-webkit-scrollbar {
-  display: none;
-}
-
-`
-
-const LangSelector = styled.div`
-display:flex;
-align-items:center;
-padding-bottom: 10px;
-margin-top: 7px;
-
-`
-
-const DefaultSubmissionAreaBtn = styled(Button)`
-border: solid 2px ${props => props.theme.Container.backgroundColor};
-&:hover {
-    border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
-}
-height: 27.5px;
-user-select: none;
-font-size: 12px;
-`
-
-const RunBtn = styled(DefaultSubmissionAreaBtn)`
-width:30px;
-margin-left: auto;
-
-`
-
-const SubmitBtn = styled(DefaultSubmissionAreaBtn)`
-width:auto;
-padding: 0px 20px;
-background-color: ${props => props.theme.Body.TextColorLevels[3]};
-color: ${props => props.theme.Body.backgroundColor};
-`
-
-const Submission = styled.div`
-width: 100%;
-border-radius: 10px;
-display:flex;
-align-items: center;
-margin-top: 7px;
-padding: 10px 0px;
-
-`
+import { SubmissionDetail } from "./submissionDetail";
 
 interface WidthIn {
     currentWidth: number
@@ -89,7 +33,7 @@ margin-right:0;
 position:relative;
 margin-left:10px;
 overflow:hidden;
-padding-bottom: 70px;
+padding-bottom: 50px;
 @media (max-width: 770px) {
     padding-left:0px;
     margin-left:0px;
@@ -121,13 +65,14 @@ border-right: solid 1px ${props => props.theme.Body.ContainerBgLevels[2]};
 `
 
 const ResultHolder = styled.div`
-position:absolute;
 width: 100%;
+margin-top: auto;
 background-color: ${props => props.theme.Body.backgroundColor};
 z-index:2;
-height: 170px;
 overflow:scroll;
-bottom:104px;
+display: flex;
+flex-direction: column;
+height: 200px;
 -ms-overflow-style: none;
 scrollbar-width: none; 
 &::-webkit-scrollbar {
@@ -295,6 +240,7 @@ const TabItm = styled.li<{ isActive?: boolean }>`
     border-bottom: solid 1px ${props => props.theme.Body.backgroundColor};
     width: 100%;
     color: ${props => props.isActive ? props.theme.Body.TextColorLevels[1] : props.theme.Body.TextColorLevels[3]};
+    /* background-color: ${props => props.isActive ? props.theme.Body.ContainerBgLevels[2] : "transparent"}; */
     cursor: pointer;
     position: relative;
     &:hover {
@@ -318,6 +264,19 @@ const TabCloseBtn = styled.div`
     }
 `
 
+const TabMain = styled.div`
+width:100%;
+display: flex;
+flex-direction: column;
+
+`
+
+const CodeEdit = styled.div`
+    height: 100%;
+    overflow: auto;
+`
+
+
 export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<AcceptableLanguage>, parentWidth: any, contextData: any, isJudging: boolean }) => {
     const [currentCodeData, setCodeData] = useState<string>("")
     const [currentCodeType, setCodeType] = useState(props.SupportedLang[0])
@@ -325,7 +284,6 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
 
     const [currentWidth, setCurrentWidth] = useState<number>(500)
     const [startingXpos, setStartingXpos] = useState<number | null>(null)
-    const [currentPage, setCurrentPage] = useState("code")
     const tabState = useSelector<StateType, Array<{ name: string, id: string, isActive: boolean }>>(state => state.tabs.activeTabs);
 
     const dispatch = useDispatch()
@@ -380,9 +338,9 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                         onClick={() => dispatch({ type: "tabs/setActive", payload: "" })}>
                         코드 편집기
                     </TabItm>
-                    {tabState.map((elem: { id: string, name: string }, index: number) => {
+                    {tabState.map((elem: { id: string, name: string, isActive:boolean }, index: number) => {
                         return (
-                            <TabItm key={index} onClick={() => dispatch({ type: "tabs/setActive", payload: elem.id })}>
+                            <TabItm key={index} isActive={elem.isActive} onClick={() => dispatch({ type: "tabs/setActive", payload: elem.id })}>
                                 {elem.name}
                                 <TabCloseBtn onClick={() => dispatch({ type: "tabs/remove", payload: elem.id })}>
                                     <AiOutlineClose />
@@ -391,7 +349,8 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                         )
                     })}
                 </TabHolder> : <></>}
-                {tabState.every(elem => !elem.isActive) ? <>
+                {tabState.every(elem => !elem.isActive) ? <CodeEdit>
+
                     <CodeMirror
                         basicSetup={
                             {
@@ -412,16 +371,17 @@ export const CodeEditArea = (props: { submitFn: Function, SupportedLang: Array<A
                         theme={"dark"}
                         placeholder={"여기에 코드를 작성하세요"}
                     />
-                </> : <>
-                    aa
-                </>}
+                </CodeEdit> : <SubmissionDetail elemId={tabState.filter(elem=>elem.isActive)[0]["id"]}/>}
 
-                {isRunning ? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
+                {isRunning? <RunResult codeData={currentCodeData} codeType={currentCodeType} /> : <></>}
                 <SubmitResult currentCodeType={currentCodeType}
                     SupportedLang={props.SupportedLang}
                     setCodeType={setCodeType}
                     runFn={() => setRunningState(!isRunning)}
-                    submitFn={() => props.submitFn(currentCodeType, currentCodeData)} />
+                    submitFn={() => props.submitFn(currentCodeType, currentCodeData)} 
+                    isJudging={props.isJudging}
+                    />
+                    
             </SubmitHolder >
         </>
     )

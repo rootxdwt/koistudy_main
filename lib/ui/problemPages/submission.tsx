@@ -287,7 +287,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
         setLoadState(false)
         setError('')
         setServerData(undefined)
-        fetch(`/api/user/submission/${props.id}`, {
+        fetch(`/api/user/problem/${props.id}`, {
             method: "POST", headers: {
                 'content-type': 'application/json', "Authorization": localStorage.getItem("tk")!
             }, body: JSON.stringify(

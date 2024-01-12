@@ -14,10 +14,14 @@ user-select:none;
 max-height: 150px;
 overflow-y:scroll;
 overflow-x:hidden;
--ms-overflow-style: none;
 background-color: ${props => props.theme.Button.backgroundColor};
-border-radius: 10px;
-padding: 10px;
+border-radius: 5px;
+padding: 6px;
+-ms-overflow-style: none;
+scrollbar-width: none;  
+&::-webkit-scrollbar {
+  display: none;
+}
 `
 
 const DButton = styled.div<{ isActive: boolean }>`
@@ -50,7 +54,7 @@ justify-content:center;
 color: ${props => props.theme.Body.TextColorLevels[3]};
 border-radius: 5px;
 cursor:pointer;
-border: solid 2px transparent;
+border: solid 2px ${props=>props.theme.Body.backgroundColor};
 &:hover {
   border: solid 2px ${props => props.theme.Body.ContainerBgLevels[0]};
 }

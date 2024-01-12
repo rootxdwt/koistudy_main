@@ -8,7 +8,7 @@ import styled, { keyframes, ThemeProvider, createGlobalStyle } from "styled-comp
 import { Holder } from "@/lib/ui/DefaultComponent"
 import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
-import { Header } from "@/lib/ui/component/header"
+import { Header } from "@/lib/ui/component/problem_header"
 
 import { useSelector } from 'react-redux';
 import { StateType } from "@/lib/store"
@@ -16,10 +16,11 @@ import { useRouter } from "next/router"
 import sanitize from "mongo-sanitize"
 import Head from "next/head"
 
+import { useDispatch } from "react-redux"
 import { Description } from "@/lib/ui/problemPages/description"
 import { Champion } from "@/lib/ui/problemPages/champion"
 import { SubmissionPage } from "@/lib/ui/problemPages/submission"
-import { SubmitResult, JudgeResponse } from "@/lib/ui/component/submissionMenu";
+import { JudgeResponse } from "@/lib/ui/component/submissionMenu";
 import { CodeEditArea } from "@/lib/ui/component/codeEdit"
 import mongoose from "mongoose"
 import ProblemModel from "lib/schema/problemSchema"
@@ -352,7 +353,7 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
     const { currentPage, mdData, problemName, solved, rating, id, supportedLang, tags } = props
     const [submissionData, setsubmisstionData] = useState<{ isSolved: boolean, dataLength: number }>()
     useEffect(() => {
-        fetch(`/api/user/submission/${id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
+        fetch(`/api/user/problem/${id}/count`, { headers: { authorization: localStorage.getItem("tk")! } }).then(
             (resp) => {
                 if (resp.ok) {
                     return resp.json()
@@ -433,6 +434,7 @@ export default function Problem(data: any): JSX.Element {
     const InternalRef = useRef<any>()
 
     const router = useRouter()
+    const dispatch = useDispatch()
 
     const isDark = useSelector<StateType, boolean>(state => state.theme.isDarkTheme);
 
@@ -449,7 +451,7 @@ export default function Problem(data: any): JSX.Element {
             if (jsn) {
                 setIsJudging(false)
                 setContextData(jsn)
-                router.push(`/problems/${ProblemCode}/submission`)
+                dispatch({type: "tabs/add", payload:{name:"제출", id:jsn.subcode, isActive:true}})
             }
         } catch (e: any) {
             if (e.message == "toomanyreq") {
@@ -488,7 +490,8 @@ export default function Problem(data: any): JSX.Element {
                             SupportedLang={SupportedLang}
                             submitFn={(a: string, b: string) => { if (!isJudging) detCode(a, b) }}
                             parentWidth={() => getParentWidth()}
-                            contextData={contextData} isJudging={isJudging}
+                            contextData={contextData} 
+                            isJudging={isJudging}
                         />
                     </Internal>
                 </InitialHolder></>

@@ -61,12 +61,12 @@ const RCPage = async (req: NextApiRequest, res: any) => {
                     let outdata = ""
                     baseCommand.stdout.on('data', async (data:Buffer) => {
                         outdata += data.toString()
-                        if (data.length > 1000 || outdata.length > 1000) {
+                        socket.emit("data", outdata)
+                        if (data.length > 1000) {
                             await judge.endInput(container)
                             socket.emit("end", `최대 출력 제한이 초과되었습니다`)
                             socket.disconnect()
                         }
-                        socket.emit('data', data.toString())
                     })
                     baseCommand.stderr.on('data', async (data:Buffer) => {
                         await judge.endInput(container)
