@@ -8,7 +8,7 @@ const tcSchema = new mongoose.Schema({
 
 const testSchema = new mongoose.Schema({
     Disallow: [String],
-    Tests: [tcSchema]
+    TimeLimit:Number
 })
 
 const ProblemSchema = new mongoose.Schema({

@@ -58,7 +58,7 @@ export default async function handler(
         }
         mongoose.connect(url)
 
-        const { TestProgress, SupportedLang, Mem } = JSON.parse(JSON.stringify(data))
+        const { TestProgress, SupportedLang, Mem,ProblemCode } = JSON.parse(JSON.stringify(data))
         if (req.method !== 'POST') {
             res.status(405).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "MNA" })
             return
@@ -70,16 +70,14 @@ export default async function handler(
             res.status(400).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "MNA" })
             return
         }
-        let cRunTime = 0
-        TestProgress.Tests.forEach((itm: any) => { cRunTime += ((itm.tl) / 1000)})
-        const judgeInstance = new Judge(Lang, Mem, cRunTime)
+        const judgeInstance = new Judge(Lang, Mem, 600000)
         const container = await judgeInstance.CreateRunEnv(CodeData)
         if (typeof container === "undefined") {
             res.status(400).json({ status: 'Error', matchedTestCase: [],subcode:SubmissionCode, errorStatement: "ISE" })
             return
         }
         await judgeInstance.compileCode(container)
-        const matchedCases = await judgeInstance.testCode(container, TestProgress)
+        const matchedCases = await judgeInstance.testCode(container, TestProgress.TimeLimit, ProblemCode)
         const isCorrect = matchedCases.every(e => e.matched)
 
         const databaseTCdata = matchedCases.map((elem) => {
