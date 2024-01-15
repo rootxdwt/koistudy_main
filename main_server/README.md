@@ -129,9 +129,9 @@ Terminal>New Terminal
 npm install
 
 ## Pull .env from detenv-vault
-npx dotenv-vault login
-npx dotenv-vault pull
-note: push using the `npx dotenv-vault push` command after you make changes to the .env
+- `npx dotenv-vault login`
+- `npx dotenv-vault pull`
+note: push using the `npx dotenv-vault push` command after you make changes to the .env file
 
 ## Start the development server
 npm run dev
