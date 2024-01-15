@@ -1,0 +1,40 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run mainserver",
+            "type": "shell",
+            "command": "cd main_server && npm run dev",
+            "group": "none",
+            "presentation": {
+                "group": "dev",
+                "reveal": "always",
+                "panel": "new",
+                "echo": false,
+            }
+        },
+        {
+            "label": "run socketserver",
+            "type": "shell",
+            "command": "cd socket_server && nodemon --env-file=.env server.js",
+            "group": "none",
+            "presentation": {
+                "group": "dev",
+                "reveal": "always",
+                "panel": "new",
+                "echo": false,
+            }
+        },
+        {
+            "label": "Run Dev Environment",
+            "dependsOn": [
+                "run mainserver",
+                "run socketserver"
+            ],
+            "group": "none",
+            "runOptions": {
+                "runOn": "folderOpen" // This starts both tasks when the container is started
+            },
+        }
+    ]
+}
