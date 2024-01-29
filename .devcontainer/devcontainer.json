@@ -6,7 +6,6 @@
 	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
 		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/itsmechlark/features/redis-server:1": {}
 	},
@@ -14,13 +13,16 @@
 	// Use this environment variable if you need to bind mount your local source code into a new container.
 	"remoteEnv": {
 		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
-	}
+	},
 
+	"runArgs": [
+		"--network=host"
+	]
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "docker --version",
+	// "postCreateCommand": "npm install -g nodemon"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
