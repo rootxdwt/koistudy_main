@@ -5,6 +5,7 @@ import ProblemSchema from '../../../lib/schema/problemSchema'
 import mongoose from 'mongoose';
 import sanitize from 'mongo-sanitize';
 import * as jose from 'jose'
+import dbConnect from '@/lib/db_connection';
 
 export default async function handler(
     req: NextApiRequest,
@@ -14,13 +15,8 @@ export default async function handler(
         if (req.method == "POST") {
 
             const requestedData = req.body
-            const url = process.env.MONGOCONNSTR!;
-            if (!url) {
-                res.status(500)
-                return
-            }
 
-            await mongoose.connect(url)
+            await dbConnect()
 
             let allLangs = ["cpp", "python","go"]
             let difficulty = sanitize(requestedData["diff"]) ?? { gt: 0, lt: 10 },

@@ -10,6 +10,7 @@ import crypto from "crypto"
 import { createClient } from 'redis';
 import Head from "next/head";
 import { BsArrowRightShort } from 'react-icons/bs'
+import { Redis } from "ioredis";
 
 const ItemHolder = styled.div`
     display: flex;
@@ -241,8 +242,7 @@ export default function Login(data: any) {
 
 export const getServerSideProps = async () => {
     const csrfToken = crypto.randomBytes(16).toString('hex')
-    const client = createClient();
-    await client.connect();
-    await client.set(csrfToken, 'true', { EX: 600 });
+    const client = new Redis()
+    await client.set(csrfToken, 'true', "EX",600);
     return { props: { nonce: csrfToken } }
 };

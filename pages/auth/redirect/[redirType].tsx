@@ -8,7 +8,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import userSchema from "../../../lib/schema/userSchema";
-import mongoose from "mongoose";
 import { createClient } from "redis";
 import crypto from "crypto";
 import { genId } from "@/lib/pref/idGenerator";
@@ -17,6 +16,8 @@ import Head from "next/head";
 import { BsArrowRightShort, BsCheck } from 'react-icons/bs'
 import { GrFormSearch } from 'react-icons/gr'
 import Link from "next/link";
+import dbConnect from "@/lib/db_connection";
+import { Redis } from "ioredis";
 
 const GlobalStyle = createGlobalStyle`
 a {
@@ -471,8 +472,7 @@ interface IdToken {
 
 export async function getServerSideProps(context: any) {
 
-    const client = createClient();
-    await client.connect();
+    const client = new Redis()
 
     try {
         const { redirType } = context.query;
@@ -500,8 +500,7 @@ export async function getServerSideProps(context: any) {
             return { props: { detail: "error" } };
         }
 
-        const url = process.env.MONGOCONNSTR;
-        await mongoose.connect(url);
+        await dbConnect()
 
         if (redirType == "github") {
             var rsp = await fetch(
@@ -530,7 +529,7 @@ export async function getServerSideProps(context: any) {
                     MailVerified: primaryMail.verified,
                     Uid: uid,
                 };
-                await client.set(regKey, JSON.stringify(accData), { EX: 60 });
+                await client.set(regKey, JSON.stringify(accData), "EX", 60);
                 return {
                     props: {
                         status: "Success",
@@ -577,7 +576,7 @@ export async function getServerSideProps(context: any) {
                     MailVerified: userData.email_verified,
                     Uid: uid,
                 };
-                await client.set(regKey, JSON.stringify(accData), { EX: 60 });
+                await client.set(regKey, JSON.stringify(accData), "EX", "60");
                 return {
                     props: {
                         status: "Success",

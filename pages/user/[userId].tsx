@@ -7,7 +7,7 @@ import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import { Header } from "@/lib/ui/component/header"
 import Image from "next/image";
-
+import dbConnect from "@/lib/db_connection";
 const Banner = styled.div`
 width: 100%;
 height: 300px;
@@ -59,8 +59,7 @@ export default function UserPage(data: any) {
 }
 
 export const getServerSideProps = async (context: any) => {
-    const url = process.env.MONGOCONNSTR!;
-    await mongoose.connect(url)
+    await dbConnect()
     const { userId } = context.query;
 
     try {

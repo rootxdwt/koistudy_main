@@ -25,6 +25,8 @@ import ProblemModel from "../../lib/schema/problemSchema"
 import TagsModel from "../../lib/schema/tags"
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
 import { AcceptableLanguage } from "@/lib/pref/languageLib"
+import dbConnect from "@/lib/db_connection"
+
 const ShowSub = keyframes`
 0%{
     opacity:0;
@@ -464,13 +466,8 @@ export default function Problem(data: any): JSX.Element {
 }
 
 export const getServerSideProps = async (context: any) => {
-    if (
-        typeof process.env.MONGOCONNSTR === "undefined"
-    ) {
-        console.log("DB Connection str not specified in .env");
-        return { props: { detail: "error" } };
-    }
-    await mongoose.connect(process.env.MONGOCONNSTR)
+
+    await dbConnect()
     const { id } = context.query;
 
     if (["description", "submission", "champion"].indexOf(id[1]) == -1) {

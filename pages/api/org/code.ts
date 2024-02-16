@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import userSchema from '../../../lib/schema/userSchema';
 import mongoose from 'mongoose';
 import OrgSchema from '../../../lib/schema/orgSchema'
+import dbConnect from '@/lib/db_connection';
 
 export default async function handler(
     req: NextApiRequest,
@@ -11,12 +12,8 @@ export default async function handler(
         if (req.method !== 'POST') {
             res.status(405).json({ status: 'Failed', detail: 'method not allowed' })
         }
-        const url = process.env.MONGOCONNSTR!;
-        if(!url) {
-            res.status(500)
-            return
-        }
-        await mongoose.connect(url)
+
+        await dbConnect()
         const { code } = req.body
 
         const data = JSON.parse(JSON.stringify(await OrgSchema.aggregate([

@@ -5,6 +5,7 @@ import userSchema from '../../../../lib/schema/userSchema';
 import ProblemModel from '../../../../lib/schema/problemSchema';
 import mongoose from 'mongoose';
 import sanitize from 'mongo-sanitize';
+import dbConnect from '@/lib/db_connection';
 
 export default async function handler(
     req: NextApiRequest,
@@ -16,12 +17,7 @@ export default async function handler(
         const uid = req.headers["x-middleware-uid"]
 
         if (req.method == "POST") {
-            const url = process.env.MONGOCONNSTR!;
-            if(!url) {
-                res.status(500)
-                return
-            }
-            await mongoose.connect(url)
+            await dbConnect()
             const data = await ProblemModel.find({ ProblemCode: userTarget }, "_id")
             if (data.length < 1) {
                 res.status(200).json({ status: "Failed", detail: "Problem Not Found" })

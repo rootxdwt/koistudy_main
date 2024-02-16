@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import SubmissionSchema from '../../../../../lib/schema/submissionSchema'
 import mongoose from 'mongoose';
 import sanitize from 'mongo-sanitize';
+import dbConnect from '@/lib/db_connection';
 
 export default async function handler(
     req: NextApiRequest,
@@ -11,12 +12,8 @@ export default async function handler(
         if (req.method == "GET") {
 
             const uid = req.headers["x-middleware-uid"]
-            const url = process.env.MONGOCONNSTR!;
-            if(!url) {
-                res.status(500)
-                return
-            }
-            await mongoose.connect(url)
+
+            await dbConnect()
             const { subid } = req.query
             const target = sanitize(subid)
 

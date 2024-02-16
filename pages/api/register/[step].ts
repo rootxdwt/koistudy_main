@@ -3,13 +3,13 @@ import userSchema from '../../../lib/schema/userSchema';
 import OrgSchema from '../../../lib/schema/orgSchema'
 import mongoose from 'mongoose';
 import { createClient } from 'redis';
-
+import dbConnect from '@/lib/db_connection';
+import {Redis} from 'ioredis'
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const client = createClient();
-    await client.connect();
+    const client = new Redis()
     try {
 
         const requestedData = JSON.parse(req.body)
@@ -25,20 +25,15 @@ export default async function handler(
         let { step } = req.query
         step = step![0]
 
-        const url = process.env.MONGOCONNSTR!;
-        if(!url) {
-            res.status(500)
-            return
-        }
-        await mongoose.connect(url)
+        await dbConnect()
 
         if (parseInt(step) === 0) {
             if (requestedData["name"] !== "") {
                 redisTempData["Id"] = requestedData["name"]
-                await client.set(authKey, JSON.stringify(redisTempData), { EX: 60 })
+                await client.set(authKey, JSON.stringify(redisTempData), "EX",60)
                 console.log(redisTempData)
             }
-            await client.set(authKey, JSON.stringify(redisTempData), { EX: 60 })
+            await client.set(authKey, JSON.stringify(redisTempData), "EX",60)
             res.status(200).json({ status: 'Success' })
             return
 

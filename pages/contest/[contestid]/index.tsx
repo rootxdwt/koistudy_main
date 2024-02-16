@@ -105,51 +105,13 @@ const Problem = styled.div<{ noBorder?: boolean }>`
     color: ${props => props.theme.Body.TextColorLevels[2]};
 `
 
-const Leaderboard = styled.div`
-width: 380px;
-height: 300px;
-padding: 10px;
-padding-left: 30px;
-& .title {
-    margin-bottom: 20px;
-    font-size:15px;
-    color: ${props => props.theme.Body.TextColorLevels[2]};
-}
-border-left: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
-`
-
-const LeaderBtn = styled.div`
-background-color: ${props=>props.theme.Header.BgColor};
-border: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
-padding: 5px 10px;
-font-size: 13px;
-color: ${props => props.theme.Body.TextColorLevels[2]};
-text-align:center;
-border-radius:5px;
-`
-
-const User = styled.div`
-border-bottom: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
-margin-bottom: 10px;
-height: 40px;
-color: ${props => props.theme.Body.TextColorLevels[3]};
-display:flex;
-font-size: 13px;
-align-items:center;
-
-& .name {
-    width: 100%;
-}
-& .score {
-    width: 40px;
-}
-`
-
 const JoinContest = styled.button`
 width: 100px;
 height: 30px;
 cursor:pointer;
 margin-top: 30px;
+border:none;
+border-radius: 5px;
 `
 
 export default function Index() {
@@ -160,7 +122,6 @@ export default function Index() {
                 <Back>
                     <FiChevronLeft />
                     <p>대회 목록</p>
-
                 </Back>
                 <ContestName>
                     제 1회 코이컵
@@ -193,18 +154,6 @@ export default function Index() {
                             </div>
                         </Problem>
                     </Problems>
-                    <Leaderboard>
-                        <div className="title">
-                        리더보드
-                        </div>
-                        <User>
-                            <div className="name">오징어</div>
-                            <div className="score">443</div>
-                        </User>
-                        <User>                        <div className="name">땅콩</div>
-                            <div className="score">0</div></User>
-                            <LeaderBtn>전체 리더보드 보기</LeaderBtn>
-                    </Leaderboard>
 
                 </MainHolder>
                 <JoinContest>

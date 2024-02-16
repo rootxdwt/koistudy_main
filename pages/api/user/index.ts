@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import userSchema from '../../../lib/schema/userSchema';
 import mongoose from 'mongoose';
 import OrgSchema from '../../../lib/schema/orgSchema'
+import dbConnect from '@/lib/db_connection';
 
 export default async function handler(
     req: NextApiRequest,
@@ -9,12 +10,8 @@ export default async function handler(
 ) {
     try {
         const uid = req.headers["x-middleware-uid"]
-        const url = process.env.MONGOCONNSTR!;
-        if(!url) {
-            res.status(500)
-            return
-        }
-        await mongoose.connect(url)
+
+        await dbConnect()
         const data = await userSchema.find({ Uid: uid, }, 'Id Mail MailVerified Uid -_id PfpURL isAdmin Rank')
         res.status(200).json(data[0])
 
