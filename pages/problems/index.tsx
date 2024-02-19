@@ -710,17 +710,17 @@ export default function ProblemIndex({
                         <ResizeHolder ref={scrollRef}>
                             {isLeftArrowShown ? <LeftBlurBorder onClick={() => moveCont(true)}><IoIosArrowBack /></LeftBlurBorder> : <></>}
                             {isRightArrowShown ? <RightBlurBorder onClick={() => moveCont(false)} ><IoIosArrowForward /></RightBlurBorder> : <></>}
-                            <ProblemSet>기초 100제(Python)<p>100</p></ProblemSet>
-                            <ProblemSet>기초 100제(C/C++)<p>100</p></ProblemSet>
-                            <ProblemSet>기초 100제++<p>105</p></ProblemSet>
-                            <ProblemSet>학생이 만든 문제<p>204</p></ProblemSet>
-                            <ProblemSet>기초문법연습<p>30</p></ProblemSet>
-                            <ProblemSet>USACO 연습<p>51</p></ProblemSet>
-                            <ProblemSet>USACO 은동<p>22</p></ProblemSet>
-                            <ProblemSet>USACO 금<p>8</p></ProblemSet>
-                            <ProblemSet>KOI 초등<p>101</p></ProblemSet>
-                            <ProblemSet>KOI 중등<p>122</p></ProblemSet>
-                            <ProblemSet>KOI 고등<p>88</p></ProblemSet>
+                            <ProblemSet>기초 100제(Python)</ProblemSet>
+                            <ProblemSet>기초 100제(C/C++)</ProblemSet>
+                            <ProblemSet>기초 100제++</ProblemSet>
+                            <ProblemSet>학생이 만든 문제</ProblemSet>
+                            <ProblemSet>기초문법연습</ProblemSet>
+                            <ProblemSet>USACO 연습</ProblemSet>
+                            <ProblemSet>USACO 은동</ProblemSet>
+                            <ProblemSet>USACO 금</ProblemSet>
+                            <ProblemSet>KOI 초등</ProblemSet>
+                            <ProblemSet>KOI 중등</ProblemSet>
+                            <ProblemSet>KOI 고등</ProblemSet>
                         </ResizeHolder>
                     </ProblemSeriesHolder>
                 </ProblemSeriesSelector>

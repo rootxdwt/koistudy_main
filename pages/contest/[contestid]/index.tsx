@@ -2,6 +2,8 @@ import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import styled from "styled-components"
 import { Header } from "@/lib/ui/component/header"
 import { FiChevronLeft } from "react-icons/fi";
+import { FiLock, FiInfo } from "react-icons/fi";
+import Link from "next/link";
 
 const Main = styled.div`
     display:flex;
@@ -28,15 +30,21 @@ width: 90vw;
   }
 `
 
-const ContestName = styled.h1`
+const ContestNameArea = styled.div`
 color: ${props => props.theme.Body.TextColorLevels[1]};
-font-size: 25px;
 margin-top:100px;
+& h1 {
+    font-size: 25px;
+}
+display: flex;
+justify-content: space-between;
 `
 
 const ContestDesc = styled.div`
 color: ${props => props.theme.Body.TextColorLevels[3]};
 font-size: 14px;
+display: flex;
+align-items: center;
 `
 
 const Back = styled.div`
@@ -61,7 +69,10 @@ margin-top: 50px;
 const Problems = styled.div`
   width: 100%;
   margin-right: 30px;
-  height: 300px;
+  max-height: 400px;
+  position: relative;
+  padding-bottom: 30px;
+  margin-bottom: 100px;
 `
 
 const ProblemArrangeHolder = styled.div`
@@ -112,23 +123,87 @@ cursor:pointer;
 margin-top: 30px;
 border:none;
 border-radius: 5px;
+background-color: ${props=>props.theme.Body.TextColorLevels[0]};
+color: ${props=>props.theme.Body.ContainerBgLevels[0]};
 `
+
+const ProblemBlur = styled.div`
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(4px);
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${props=>props.theme.Body.TextColorLevels[3]};
+    & svg {
+        margin-right: 5px;
+    }
+`
+
+const FakeHiddenProblems = ()=>{
+    return (
+        <>
+        <ProblemBlur>
+            <FiLock />문제가 공개되지 않았습니다
+        </ProblemBlur>
+        <ProblemArrangeHolder>
+            <div className="name">
+                이름
+            </div>
+            <div className="score">
+                점수
+            </div>
+        </ProblemArrangeHolder>
+        <Problem>
+            <div className="name">
+                가짜 문제 ㅋㅋ
+            </div>
+            <div className="score">
+                321
+            </div>
+        </Problem>
+        <Problem>
+            <div className="name">
+                이것도 가짜 문제 ㅋㅋ
+            </div>
+            <div className="score">
+                123
+            </div>
+        </Problem>
+        <Problem>
+            <div className="name">
+                개쩌는 가짜 문제 ㅋㅎ
+            </div>
+            <div className="score">
+                123
+            </div>
+        </Problem>
+        </>
+    )
+}
+
 
 export default function Index() {
     return (
         <>
             <GlobalStyle />
             <Main>
+                <Link href="/contest">
                 <Back>
                     <FiChevronLeft />
                     <p>대회 목록</p>
                 </Back>
-                <ContestName>
+                </Link>
+                <ContestNameArea>
+                    <h1>
                     제 1회 코이컵
-                </ContestName>
-                <ContestDesc>1/26 ~ 1/31</ContestDesc>
+                    </h1>
+                </ContestNameArea>
+                <ContestDesc>1/26 18:00 ~ 1/31 18:00</ContestDesc>
                 <MainHolder>
                     <Problems>
+                    {/* <FakeHiddenProblems /> */}
                         <ProblemArrangeHolder>
                             <div className="name">
                                 이름

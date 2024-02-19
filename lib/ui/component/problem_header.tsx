@@ -1,7 +1,7 @@
 import styled, { keyframes, ThemeConsumer } from "styled-components"
 import { RiUser3Fill } from 'react-icons/ri'
 import { MdDarkMode, MdLightMode, MdLogout, MdOutlineSearch, MdVerified } from 'react-icons/md'
-import { FiChevronDown } from 'react-icons/fi'
+import { FiChevronDown, FiMenu } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux';
 import { StateType } from "../../store";
 import { useEffect, useState } from "react";
@@ -251,15 +251,15 @@ const LoginInIdentifier = styled.div`
   align-items: center;
 `
 
-const ProbNavBtn = styled.div`
+const ProbNavBtn = styled.div<{noBorder?:boolean}>`
   display: flex;
   padding: 3px;
   border-radius: 5px;
   font-family: 'Noto Sans KR', sans-serif;
-  margin-left: 15px;
+  margin-right: 15px;
   cursor: pointer;
   color:${props => props.theme.Body.TextColorLevels[1]};
-  border: solid 1px ${props => props.theme.Body.ContainerBgLevels[0]};
+  border: solid 1px ${props => props.noBorder?"none":props.theme.Body.ContainerBgLevels[0]};
   & p {
     margin: 0;
     padding: 0;
@@ -321,7 +321,7 @@ transition: rotate 0.1s ease-in-out;
 `
 
 
-export const Header = (props: { forwardNavigatable?: { target: number }, backwardNavigatable?: { target: number } }) => {
+export const Header = (props: { forwardNavigatable?: { target: number }, backwardNavigatable?: { target: number }, isSideMenu?:boolean }) => {
     const dispatch = useDispatch()
     const isDark = useSelector<StateType, boolean>(state => state.theme.isDarkTheme);
 
@@ -349,14 +349,9 @@ export const Header = (props: { forwardNavigatable?: { target: number }, backwar
             {isLoaded ? <>
                 < HeaderComp isTop={props.forwardNavigatable || props.backwardNavigatable} >
                     <div className="contentHolder">
-                        <LogoArea>
-                            <Link href="/">
-                                <LogoIcon>
-                                    <Image src="/logo.png" width={33} height={33} alt="koilogo" />
-                                </LogoIcon>
-                            </Link>
-
-                        </LogoArea>
+                        <ProbNavBtn>
+                        <FiMenu></FiMenu>
+                        </ProbNavBtn>
                         {props.forwardNavigatable ?
                             <ProbNavBtn onClick={() => router.push(`/problems/${props.forwardNavigatable!.target}/description`)}>
                                 <DropDownBtn isDropped={true}>

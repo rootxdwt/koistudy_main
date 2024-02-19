@@ -140,7 +140,8 @@ const RunResult = (props: { codeData: string, codeType: string }) => {
             path: "/sockets",
             auth: {
                 Authorization: tk
-            }
+            },
+            transports: ["websocket"]
         })
         socket.on("connect_error", (err: any) => {
             socket.disconnect()
@@ -456,6 +457,7 @@ export const CodeEditArea = (props: { probNo: number, SupportedLang: Array<Accep
         if (!isJudging) {
             return
         }
+        setJudgingStatus("제출중..")
         const tk = localStorage.getItem("tk") || ""
         console.log(process.env.REDIRURL!)
         const socket = connect("http://localhost:3010/runjudge", {
@@ -465,7 +467,8 @@ export const CodeEditArea = (props: { probNo: number, SupportedLang: Array<Accep
             },
             query: {
                 prob_id: props.probNo
-            }
+            },
+            transports: ["websocket"]
         })
         socket.on("connect_error", (err: any) => {
             socket.disconnect()
@@ -474,17 +477,16 @@ export const CodeEditArea = (props: { probNo: number, SupportedLang: Array<Accep
             } else {
                 console.log(err.message)
                 if(err.message=="ratelimited") {
-                    setJudgingStatus("1분 후 다시 시도해주세요")
+                    setJudgingStatus("다른 채점이 진행중입니다")
                     setJudging(false)
                 }
             }
         });
         socket.on("connect", () => {
+            setJudgingStatus("제출됨")
             socket.emit("feed", { codeData: currentCodeData, lang: currentCodeType })
-            setJudgingStatus("제출됨..")
         });
         socket.on("compile_end", () => {
-            console.log("compileend")
             setJudgingStatus("컴파일 완료")
         });
         socket.on("judge_progress", (data:Array<number>) => {

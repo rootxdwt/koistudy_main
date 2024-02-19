@@ -20,7 +20,6 @@ import { Description } from "@/lib/ui/problemPages/description"
 import { Champion } from "@/lib/ui/problemPages/champion"
 import { SubmissionPage } from "@/lib/ui/problemPages/submission"
 import { CodeEditArea } from "@/lib/ui/component/codeEdit"
-import mongoose from "mongoose"
 import ProblemModel from "../../lib/schema/problemSchema"
 import TagsModel from "../../lib/schema/tags"
 import { AiOutlineStar, AiFillStar } from 'react-icons/ai'
@@ -270,12 +269,10 @@ const PageBtn = styled.div<{ isActive: boolean }>`
     }
 `
 const SolvedCount = styled.span<{ isSolved: boolean }>`
-    font-size:9px;
+    font-size:10px;
     padding: 0px 5px;
-    margin-left:10px;
+    margin-left:5px;
     border-radius: 10px;
-    background-color: ${props => props.isSolved ? "#48bd5f" : props.theme.Body.TextColorLevels[3]};
-    color:  ${props => props.theme.Body.backgroundColor};
     position: relative;
     z-index: 2;
     
@@ -486,19 +483,21 @@ export const getServerSideProps = async (context: any) => {
                 data["tags"] = JSON.parse(JSON.stringify(await TagsModel.find({ Name: data["tags"] }, 'Name Color Type -_id')))
             }
 
-            const forwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) - 1 }, '-_id ProblemCode')
-            const backwardProb = await ProblemModel.findOne({ ProblemCode: parseInt(sanitize(id[0])) + 1 }, '-_id ProblemCode')
+            const problemCode = parseInt(sanitize(id[0]));
 
-            let forward = false
-            let backward = false
-            if (backwardProb !== null) {
-                backward = true
-            }
-            if (forwardProb !== null) {
-                forward = true
-            }
+            const problems = await ProblemModel.find({
+                ProblemCode: { $in: [problemCode - 1, problemCode + 1] }
+            }, '-_id ProblemCode').lean();
+            
+            const navigatable = [false, false];
+            
+            problems.forEach(problem => {
+                const index = problem.ProblemCode === problemCode - 1 ? 0 : 1;
+                navigatable[index] = true;
+            });
+            
             return {
-                props: { navigatable: [forward, backward], ...data }
+                props: { navigatable, ...data }
             };
         } else {
             return {

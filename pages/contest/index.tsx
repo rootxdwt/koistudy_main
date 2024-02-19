@@ -1,6 +1,7 @@
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import styled from "styled-components"
 import { Header } from "@/lib/ui/component/header"
+import Link from "next/link"
 
 const ContestArrangeHolder = styled.div`
     color: ${props => props.theme.Body.TextColorLevels[2]};
@@ -88,11 +89,13 @@ export default function Index() {
                     <p className="start">시작일</p>
                     <p className="end">마감일</p>
                 </ContestArrangeHolder>
+                <Link href={"/contest/1"}>
                 <Contest>
                     <p className="name">제 1회 코이컵</p>
                     <p className="start">24/1/12</p>
                     <p className="end">24/1/31</p>
                 </Contest>
+                </Link>
             </Main>
         </>
     )
