@@ -1,6 +1,6 @@
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import styled from "styled-components"
-import { Header } from "@/lib/ui/component/header"
+import { Header } from "@/lib/ui/component/headers/header"
 import Link from "next/link"
 
 const ContestArrangeHolder = styled.div`

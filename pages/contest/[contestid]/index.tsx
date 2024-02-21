@@ -1,6 +1,6 @@
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import styled from "styled-components"
-import { Header } from "@/lib/ui/component/header"
+import { Header } from "@/lib/ui/component/headers/header"
 import { FiChevronLeft } from "react-icons/fi";
 import { FiLock, FiInfo } from "react-icons/fi";
 import Link from "next/link";

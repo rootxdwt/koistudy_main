@@ -1,8 +1,8 @@
 import styled from "styled-components"
-import { useState, useEffect, useReducer, Reducer } from "react"
+import { useState, useEffect, useReducer, Reducer, useRef } from "react"
 import { LanguageHandler } from "@/lib/pref/languageLib"
 import { AcceptableLanguage } from "@/lib/pref/languageLib"
-import { FiChevronDown,FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiChevronDown, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -29,7 +29,7 @@ const SkeletonSingleCont = styled.div`
 const SkeletonItem = () => {
     return (
         <SkeletonSingleCont>
-            <Skeleton width={"30%"} height={25} borderRadius={5} count={1} style={{ "flexShrink": "none", }} />
+            <Skeleton width={"30%"} height={20} borderRadius={5} count={1} style={{ "flexShrink": "none", "marginBottom": "1.5px" }} />
             <Skeleton width={"80%"} height={15} borderRadius={5} count={1} style={{ "flexShrink": "none", "marginTop": "5px", "marginBottom": "5px" }} />
         </SkeletonSingleCont>
     )
@@ -281,17 +281,17 @@ const PageNavBtnHolder = styled.div`
     padding: 20px 0px;
     margin-bottom: 70px;
 `
-const PageNavBtn = styled.div<{display:boolean}>`
-    opacity:${props=>props.display?"100%":"20%"};
+const PageNavBtn = styled.div<{ display: boolean }>`
+    opacity:${props => props.display ? "100%" : "20%"};
     font-size: 13px;
     &:nth-child(2) {
         margin-left: 20px;
     }
     display: flex;
     align-items: center;
-    color: ${props=>props.theme.Body.TextColorLevels[3]};
+    color: ${props => props.theme.Body.TextColorLevels[3]};
     &:hover {
-        color: ${props=>props.theme.Body.TextColorLevels[0]};
+        color: ${props => props.theme.Body.TextColorLevels[0]};
     }
     user-select: none;
     cursor: pointer;
@@ -307,9 +307,9 @@ const PageNavBtn = styled.div<{display:boolean}>`
 const PageCountDropDown = styled.div`
 position: relative;
     padding:3px 10px;
-    background-color: ${props=>props.theme.Header.BgColor};
-    border: solid 1px ${props=>props.theme.Body.ContainerBgLevels[1]};
-    color: ${props=>props.theme.Body.TextColorLevels[3]};
+    background-color: ${props => props.theme.Header.BgColor};
+    border: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
+    color: ${props => props.theme.Body.TextColorLevels[3]};
     display: flex;
     font-size: 13px;
     cursor: pointer;
@@ -332,8 +332,8 @@ const PageCountDropDownElem = styled.ul`
     text-align: left;
     padding: 5px;
     margin:0;
-    background-color: ${props=>props.theme.Header.BgColor};
-    border: solid 1px ${props=>props.theme.Body.ContainerBgLevels[1]};
+    background-color: ${props => props.theme.Header.BgColor};
+    border: solid 1px ${props => props.theme.Body.ContainerBgLevels[1]};
     & li {
         cursor: pointer;
         padding:2px 10px;
@@ -341,7 +341,7 @@ const PageCountDropDownElem = styled.ul`
     }
 `
 
-export const SubmissionPage = (props: { id: Number, supportedLang: Array<AcceptableLanguage>, dataLength: number | undefined }) => {
+export const SubmissionPage = (props: { id: Number, supportedLang: Array<AcceptableLanguage> }) => {
     const [ServerData, setServerData] = useState<Array<ServerResp>>()
     const [isError, setError] = useState<string>("")
     const [isLoaded, setLoadState] = useState<boolean>(false)
@@ -350,9 +350,11 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
     const [filterStat, setFilterStat] = useState("")
     const [extended, setExtended] = useState<number | undefined>()
     const [pageCountDropdown, setPageDropDown] = useState(false)
-    const [PageNav,setPageNav] = useState([false,true])
+    const [PageNav, setPageNav] = useState([false, true])
+    const [elemPerPage, setElemPerPage] = useState(20)
 
     const dispatch = useDispatch()
+    const isComponentRefreshing = useRef<boolean>(false)
 
     useEffect(() => {
         setLoadState(false)
@@ -362,7 +364,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
             method: "POST", headers: {
                 'content-type': 'application/json', "Authorization": localStorage.getItem("tk")!
             }, body: JSON.stringify(
-                { stat: filterStat, lang: filterLang }
+                { stat: filterStat, lang: filterLang, limit: elemPerPage }
             )
         }).then((resp) => {
             setLoadState(true)
@@ -373,27 +375,33 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                 setLoadState(true)
                 return resp.json()
             }
-        }).then((jsn:any) => {
-            setPageNav([jsn['prev'],jsn['next']])
+        }).then((jsn: any) => {
+            setPageNav([jsn['prev'], jsn['next']])
             setServerData(jsn['data'])
         })
-    }, [filterLang, filterStat, props.id])
+    }, [filterLang, filterStat, props.id, elemPerPage])
 
-    const PageNavigate = (action:"next"|"prev") => {
-        let query={}
-        switch(action){
+    const PageNavigate = (action: "next" | "prev") => {
+        if (isComponentRefreshing.current) {
+            return
+        }
+        isComponentRefreshing.current = true
+        let query = {}
+        switch (action) {
             case "next":
-                query={next:ServerData![ServerData!.length-1]["_id"]}
+                query = { next: ServerData![ServerData!.length - 1]["_id"] }
                 break
             case "prev":
-                query={prev:ServerData![0]["_id"]}
+                query = { prev: ServerData![0]["_id"] }
                 break
         }
+        setLoadState(false)
+        setError('')
         fetch(`/api/user/problem/${props.id}`, {
             method: "POST", headers: {
                 'content-type': 'application/json', "Authorization": localStorage.getItem("tk")!
             }, body: JSON.stringify(
-                { stat: filterStat, lang: filterLang, ...query }
+                { stat: filterStat, lang: filterLang, ...query, limit: elemPerPage }
             )
         }).then((resp) => {
             setLoadState(true)
@@ -404,8 +412,9 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                 setLoadState(true)
                 return resp.json()
             }
-        }).then((jsn:any) => {
-            setPageNav([jsn['prev'],jsn['next']])
+        }).then((jsn: any) => {
+            isComponentRefreshing.current = false
+            setPageNav([jsn['prev'], jsn['next']])
             setServerData(jsn['data'])
         })
     }
@@ -483,7 +492,7 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                         </Selection>
                     </SelectionArea>
                     {!isLoaded ?
-                        <LoadingSkeleton count={typeof props.dataLength !== "undefined" ? props.dataLength : 10} />
+                        <LoadingSkeleton count={elemPerPage} />
                         : <>
                             {isError !== "" ?
                                 <Loginpls /> : <> {
@@ -526,16 +535,16 @@ export const SubmissionPage = (props: { id: Number, supportedLang: Array<Accepta
                 </SubmissionItmHolder>
             </SubMainHolder>
             <PageNavBtnHolder>
-                <PageCountDropDown onMouseEnter={()=>setPageDropDown(true)} onMouseLeave={()=>setPageDropDown(false)}><p>20</p><FiChevronDown />
-                {pageCountDropdown?<PageCountDropDownElem>
-                    <li>10</li>
-                    <li>20</li>
-                    <li>30</li>
-                </PageCountDropDownElem>:<></>}
+                <PageCountDropDown onMouseEnter={() => setPageDropDown(true)} onMouseLeave={() => setPageDropDown(false)}><p>{elemPerPage}</p><FiChevronDown />
+                    {pageCountDropdown ? <PageCountDropDownElem>
+                        <li onClick={() => setElemPerPage(10)}>10</li>
+                        <li onClick={() => setElemPerPage(20)}>20</li>
+                        <li onClick={() => setElemPerPage(30)}>30</li>
+                    </PageCountDropDownElem> : <></>}
                 </PageCountDropDown>
-                <div style={{display:"flex"}}>
-                    <PageNavBtn display={PageNav[0]} onClick={()=>PageNav[0]?PageNavigate("prev"):{}}><p><FiChevronLeft /></p>이전</PageNavBtn>
-                    <PageNavBtn display={PageNav[1]} onClick={()=>PageNav[1]?PageNavigate("next"):{}}>다음<p><FiChevronRight /></p></PageNavBtn>
+                <div style={{ display: "flex" }}>
+                    <PageNavBtn display={PageNav[0]} onClick={() => PageNav[0] ? PageNavigate("prev") : {}}><p><FiChevronLeft /></p>이전</PageNavBtn>
+                    <PageNavBtn display={PageNav[1]} onClick={() => PageNav[1] ? PageNavigate("next") : {}}>다음<p><FiChevronRight /></p></PageNavBtn>
                 </div>
             </PageNavBtnHolder>
         </>

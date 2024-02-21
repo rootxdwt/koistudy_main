@@ -1,6 +1,5 @@
 import CodeMirror from "@uiw/react-codemirror";
 import { loadLanguage } from '@uiw/codemirror-extensions-langs';
-import { DropDownMenu } from "./dropdownmenu"
 import { AcceptableLanguage } from '@/lib/pref/languageLib'
 import styled, { keyframes } from "styled-components";
 import { useCallback, useEffect, useRef, useState, memo } from "react";
@@ -245,7 +244,7 @@ const TabItm = styled.li<{ isActive?: boolean }>`
     bottom:-1px;
     z-index:1001;
     &:first-child {
-        margin-left: 10px;
+        margin-left: 0px;
     }
     &:last-child {
         margin-right: 20px;
@@ -263,7 +262,7 @@ const TabItm = styled.li<{ isActive?: boolean }>`
     }
     font-size: 11px;
     color:${props => props.isActive ? props.theme.Body.TextColorLevels[1] : props.theme.Body.TextColorLevels[3]};
-    border: solid 1px ${props => !props.isActive ? "transparent" : props.theme.Body.ContainerBgLevels[1]};
+    border: solid 1px ${props => !props.isActive ? "transparent" : props.theme.Body.ContainerBgLevels[2]};
     border-bottom:solid 1px ${props=>props.isActive?"transparent": props.theme.Body.ContainerBgLevels[1]};
     width: 100%;
     background-color: ${props => props.isActive ? props.theme.Body.backgroundColor : props.theme.Header.BgColor};

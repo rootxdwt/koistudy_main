@@ -5,7 +5,7 @@ import styled, { keyframes, ThemeProvider } from "styled-components"
 import { Holder } from "@/lib/ui/DefaultComponent"
 import { DarkTheme, LightTheme } from "@/lib/ui/theme"
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
-import { Header } from "@/lib/ui/component/header"
+import { Header } from "@/lib/ui/component/headers/header"
 import Image from "next/image";
 import dbConnect from "@/lib/db_connection";
 const Banner = styled.div`

@@ -72,7 +72,7 @@ const createNoopStorage = () => {
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist:["theme"]
+    whitelist:["theme", "tabs"]
 }
 
 const rootReducer = combineReducers({

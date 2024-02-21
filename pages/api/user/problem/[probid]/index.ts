@@ -22,7 +22,7 @@ export default async function handler(
             const prev = sanitize(requestedData.prev ?? "");
             const next = sanitize(requestedData.next ?? "");
 
-            const limit = ["10", "20", "30"].includes(requestedData.limit) ? parseInt(requestedData.limit) : 20;
+            const limit = [10, 20, 30].includes(requestedData.limit) ? parseInt(requestedData.limit) : 20;
 
             let tLangJsn = {};
             let tStatJsn = {};

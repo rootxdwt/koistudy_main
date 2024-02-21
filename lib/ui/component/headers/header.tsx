@@ -3,7 +3,7 @@ import { RiUser3Fill } from 'react-icons/ri'
 import { MdDarkMode, MdLightMode, MdLogout, MdOutlineSearch, MdVerified } from 'react-icons/md'
 import { FiChevronDown } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux';
-import { StateType } from "../../store";
+import { StateType } from "../../../store";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/router'
 import Image from "next/image";

@@ -1,6 +1,6 @@
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
 import styled from "styled-components"
-import { Header } from "@/lib/ui/component/header"
+import { Header } from "@/lib/ui/component/headers/header"
 import { FiChevronDown, FiArrowDown, FiArrowUp, FiX, FiShuffle, FiCheck } from "react-icons/fi"
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/router"

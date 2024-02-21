@@ -7,7 +7,8 @@ import {
 import styled, { keyframes, ThemeProvider, createGlobalStyle } from "styled-components"
 import { Holder } from "@/lib/ui/DefaultComponent"
 import { GlobalStyle } from "@/lib/ui/DefaultComponent"
-import { Header } from "@/lib/ui/component/problem_header"
+import { Header } from "@/lib/ui/component/headers/problem_header"
+import { SideBar } from "@/lib/ui/component/headers/sidebar"
 
 import { useSelector } from 'react-redux';
 import { StateType } from "@/lib/store"
@@ -115,24 +116,6 @@ padding-right:20px;
 `
 
 
-const submitCode = async (lang: String, code: string, num: number) => {
-    const obj = JSON.stringify({ Lang: lang, Code: code })
-    const tk = localStorage.getItem("tk") || ""
-    const resp = await fetch(`/api/judge/${num}`, { method: "POST", body: obj, headers: { "Content-type": "application/json", "Authorization": tk } })
-    if (resp.status == 429) {
-        throw new Error("toomanyreq")
-    }
-    if (resp.status == 401) {
-        throw new Error("unauthorized")
-    }
-    if (!resp.ok) {
-        throw new Error("httperror")
-    }
-    return await resp.json()
-}
-
-
-
 
 interface ProblemDataProp {
     mdData: string
@@ -140,9 +123,9 @@ interface ProblemDataProp {
     solved: number
     rating: number
     id: number
-    supportedLang: Array<AcceptableLanguage>
+    supportedLang: [AcceptableLanguage]
     currentPage: string
-    tags: Array<{ Name: string, Color: string, Type: string }>
+    tags: [{ Name: string, Color: string, Type: string }]
 
 }
 
@@ -393,7 +376,7 @@ const ProblemPageHandler = (props: ProblemDataProp) => {
                     )
                 })}
             </Tags>
-            </> : currentPage == "submission" ? <SubmissionPage id={id} supportedLang={supportedLang} dataLength={submissionData?.dataLength} /> : currentPage == "champion" ? <Champion /> : <></>}
+            </> : currentPage == "submission" ? <SubmissionPage id={id} supportedLang={supportedLang}/> : currentPage == "champion" ? <Champion /> : <></>}
         </DescHolder>
     )
 }
@@ -413,9 +396,10 @@ const LocalGlobal = createGlobalStyle`
 `
 
 export default function Problem(data: any): JSX.Element {
-    const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable, tags } = data
+    const { ProblemCode, ProblemName, Script, SupportedLang, rating, solved, navigatable, tags, nearByProbs } = data
     const [isJudging, setIsJudging] = useState(false)
     const [contextData, setContextData] = useState<any | undefined>()
+    const [isSideBar, setSideBar] = useState(false)
     const InternalRef = useRef<any>()
 
     const router = useRouter()
@@ -439,9 +423,11 @@ export default function Problem(data: any): JSX.Element {
                     {ProblemName + " - 코이스터디"}
                 </title>
             </Head>
+            {isSideBar?<SideBar prob={nearByProbs} closeFn={()=>setSideBar(false)} ProblemCode={ProblemCode}/>:<></>}
             <Header
                 forwardNavigatable={navigatable[0] ? { target: parseInt(ProblemCode) - 1 } : undefined}
                 backwardNavigatable={navigatable[1] ? { target: parseInt(ProblemCode) + 1 } : undefined}
+                sideMenuToggleFn={()=>setSideBar(!isSideBar)}
             />
             <LocalGlobal />
             <GlobalStyle />
@@ -486,18 +472,14 @@ export const getServerSideProps = async (context: any) => {
             const problemCode = parseInt(sanitize(id[0]));
 
             const problems = await ProblemModel.find({
-                ProblemCode: { $in: [problemCode - 1, problemCode + 1] }
-            }, '-_id ProblemCode').lean();
-            
-            const navigatable = [false, false];
-            
-            problems.forEach(problem => {
-                const index = problem.ProblemCode === problemCode - 1 ? 0 : 1;
-                navigatable[index] = true;
-            });
+                ProblemCode: {$gt:problemCode - 3, $lt:problemCode + 3}
+            }, '-_id ProblemCode rating ProblemName').lean();
+
+            const ids=problems.map(elem=>elem.ProblemCode)            
+            const navigatable = [ids.indexOf(problemCode - 1)!==-1, ids.indexOf(problemCode + 1 ) !==-1];
             
             return {
-                props: { navigatable, ...data }
+                props: { navigatable, ...data, nearByProbs:problems }
             };
         } else {
             return {
@@ -505,6 +487,7 @@ export const getServerSideProps = async (context: any) => {
             };
         }
     } catch (e) {
+        console.log(e)
         return {
             notFound: true,
         };
