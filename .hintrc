@@ -1,6 +1,6 @@
 {
   "extends": [
-    "development"s
+    "development"
   ],
   "hints": {
     "axe/forms": [
